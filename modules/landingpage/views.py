@@ -1,3 +1,6 @@
+import os
+import re
+
 from django.shortcuts import render, get_object_or_404, redirect
 from modules.landingpage.models import ContactMessage
 from .forms import *
@@ -91,71 +94,84 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 import requests
-import numpy as np
 
 from modules.vector.models import DocumentChunk
+from modules.vector.views import embed, get_chroma, get_model, rebuild_chroma_from_db
 
 # =========================
-# CHROMA (in-memory / optional persistent)
+# Helpers for RAG selection
 # =========================
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
+def _split_to_sentences(text: str):
+    parts = []
+    for chunk in text.replace("\r", "\n").split("\n"):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        for seg in re.split(r"(?<=[.?!])\s+", chunk):
+            s = seg.strip()
+            if s:
+                parts.append(s)
+    return parts
 
-# in-memory (boleh diganti ke persistent)
-client = chromadb.Client()
 
-COLLECTION_NAME = "rag_collection"
-
-# model embedding nyata (lebih akurat)
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-
-def embed(text: str) -> np.ndarray:
-    """Embedding asli, tidak lagi dummy."""
-    emb = embedder.encode([text])[0]
-    return emb.astype("float32")
-
-def get_collection():
+def _best_sentence(doc_text: str, q_emb, q_text: str = ""):
+    """Pick the most relevant sentence using cosine similarity."""
+    sentences = _split_to_sentences(doc_text)
+    if not sentences:
+        return None, 0.0
     try:
-        return client.get_collection(name=COLLECTION_NAME)
+        model = get_embedder()
+        sent_embs = model.encode(sentences)
+        import numpy as np
+
+        sent_embs = np.array(sent_embs).astype("float32")
+        qv = np.array(q_emb).astype("float32")
+        sent_norms = np.linalg.norm(sent_embs, axis=1) + 1e-12
+        q_norm = np.linalg.norm(qv) + 1e-12
+        sims = (sent_embs @ qv) / (sent_norms * q_norm)
+        idx = int(np.argmax(sims))
+        return sentences[idx], float(sims[idx])
     except Exception:
-        return client.create_collection(name=COLLECTION_NAME)
+        # Fallback: simple substring match
+        lower_q = q_text.lower()
+        for s in sentences:
+            if lower_q in s.lower():
+                return s, 1.0
+        return sentences[0], 0.0
 
-def rebuild_chroma_index():
-    """Build ulang Chroma dari DocumentChunk."""
+
+# cache the underlying model so we don't reload on every request
+embedder = None
+
+
+def get_embedder():
+    global embedder
+    if embedder is None:
+        embedder = get_model()
+    return embedder
+
+# =========================
+# CHROMA (persistent dari modules.vector)
+# =========================
+def get_collection():
+    """
+    Ambil koleksi Chroma shared dari modules.vector.
+    Jika belum ada/masih kosong, coba rebuild dari DB.
+    """
+    client, collection = get_chroma()
+    if client is None or collection is None:
+        return None
+
     try:
-        client.delete_collection(name=COLLECTION_NAME)
-    except:
+        # Pastikan koleksi terisi (mis. setelah upload baru)
+        if hasattr(collection, "count") and collection.count() == 0:
+            rebuild_chroma_from_db()
+            _, collection = get_chroma()
+    except Exception:
+        # Abaikan, tetap gunakan koleksi sekarang
         pass
 
-    collection = client.create_collection(name=COLLECTION_NAME)
-
-    chunks = DocumentChunk.objects.all().order_by("id")
-    if not chunks:
-        return
-
-    ids = []
-    docs = []
-    metadatas = []
-    embeddings = []
-
-    for chunk in chunks:
-        ids.append(str(chunk.id))
-        docs.append(chunk.content)
-        metadatas.append({
-            "id": str(chunk.id),
-        })
-        embeddings.append(embed(chunk.content).tolist())
-
-    collection.add(
-        ids=ids,
-        documents=docs,
-        metadatas=metadatas,
-        embeddings=embeddings
-    )
-
-# build index sekali di awal
-rebuild_chroma_index()
+    return collection
 
 # =========================
 # CHAT API
@@ -173,24 +189,79 @@ def chat_api(request):
         if not user_message:
             return JsonResponse({"reply": "Pesan kosong."})
 
-        # Default
-        reply = None
+        # 🔎 Chroma Vector Search + semantic fallback
+        q_emb = embed(user_message)
 
-        # 🔎 Chroma Vector Search
-        collection = get_collection()
+        def query_chroma_with_rebuild():
+            collection = get_collection()
+            tried_rebuild = False
+            while collection is not None:
+                try:
+                    results = collection.query(
+                        query_embeddings=[q_emb],
+                        n_results=5,
+                        include=["documents", "metadatas", "ids"],
+                    )
+                except Exception as e:
+                    print("Chroma query error:", e)
+                    results = None
 
-        try:
-            q_emb = embed(user_message).tolist()
-            results = collection.query(
-                query_embeddings=[q_emb],
-                n_results=3,
-                include=["documents"]
-            )
-            docs = results["documents"][0] if results.get("documents") else []
-            context_text = "\n\n".join(docs)
-        except Exception as e:
-            print("Chroma error:", e)
-            context_text = ""
+                docs = results.get("documents") if isinstance(results, dict) else None
+                metas = results.get("metadatas") if isinstance(results, dict) else None
+                ids = results.get("ids") if isinstance(results, dict) else None
+
+                # normalize list-of-lists
+                if isinstance(docs, list) and docs and isinstance(docs[0], list):
+                    docs = docs[0]
+                if isinstance(metas, list) and metas and isinstance(metas[0], list):
+                    metas = metas[0]
+                if isinstance(ids, list) and ids and isinstance(ids[0], list):
+                    ids = ids[0]
+
+                if docs:
+                    normalized = []
+                    for idx, doc in enumerate(docs):
+                        text = " ".join([str(v) for v in doc.values()]) if isinstance(doc, dict) else str(doc)
+                        meta = metas[idx] if metas and idx < len(metas) else {}
+                        cid = ids[idx] if ids and idx < len(ids) else None
+                        normalized.append({"text": text, "meta": meta, "id": cid})
+                    return normalized
+
+                if tried_rebuild:
+                    break
+
+                try:
+                    rebuild_chroma_from_db()
+                except Exception as rebuild_err:
+                    print("Chroma rebuild gagal:", rebuild_err)
+                    break
+
+                collection = get_collection()
+                tried_rebuild = True
+
+            return []
+
+        chroma_docs = query_chroma_with_rebuild()
+
+        # gunakan kalimat terbaik dari tiap dokumen hasil vector search
+        context_candidates = []
+        for entry in chroma_docs:
+            sent, score = _best_sentence(entry["text"], q_emb, user_message)
+            if sent:
+                context_candidates.append((score, sent))
+
+        # fallback semantic search langsung ke DB jika belum dapat konteks
+        if not context_candidates:
+            for chunk in DocumentChunk.objects.all().order_by("-id"):
+                text = str(chunk.content)
+                sent, score = _best_sentence(text, q_emb, user_message)
+                context_candidates.append((score, sent))
+
+        # pilih 3 kalimat teratas
+        context_candidates = sorted(
+            [c for c in context_candidates if c[1]], key=lambda x: x[0], reverse=True
+        )[:3]
+        context_text = "\n\n".join([c[1] for c in context_candidates if c[1]])
 
         # ================================
         # Jika ada referensi → RAG
