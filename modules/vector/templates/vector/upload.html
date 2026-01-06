@@ -1,0 +1,64 @@
+{% extends 'includes/modiva_main3.html' %}
+
+{% block content %}
+<div class="container-fluid px-4 py-3">
+    <div class="card shadow-sm rounded p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-3">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center flex-wrap">
+                        <h5 class="text-black mb-0 fw-semibold">Upload Dokumen PDF</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form method="post" enctype="multipart/form-data" class="mb-4">
+            {% csrf_token %}
+            <input type="file" name="file" accept=".pdf,.docx,.xlsx,.xls" required>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+
+        <hr>
+        <h5 class="text-black mb-0 fw-semibold">Daftar Dokumen</h5>
+        <div class="table-responsive">
+            <table id="tabel-user" class="table table-bordered align-middle text-center">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nama File</th>
+                        <th>Tanggal Upload</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in docs %}
+                    <tr>
+                        <td>{{ doc.id }}</td>
+                        <td>{{ doc.title }}</td>
+                        <td>{{ doc.uploaded_at|date:"d M Y H:i" }}</td>
+                        <td>
+                            {% if user.groups.first.name == "Administrator" %}
+                            <a href="{% url 'vector:delete_document' doc.id %}" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Yakin ingin menghapus dokumen ini?')">
+                                Hapus
+                            </a>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">Belum ada dokumen</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+  {% include 'includes/alerts.html' %}
+  <div class="card-body">
+    <form hx-post="{% url 'uman:menu-delete' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      <div class="form-group"> 
+        <H5>Anda yakin ingin menghapus menu {{object.name}} ? </H5>
+        </BR>
+         <span class="text text-danger">PERHATIAN: Menghapus menu {{object.name}} ini juga akan menghapus seluruh child menu-nya !!</span>
+        <ol>
+          <li> Nama Menu       : <b>{{ object.name }}</b></li>
+          <li> Url             : {{ object.url }}</li>
+          <li> Urutan          : {{ object.urutan }}</li>
+        </ol>
+      </div>
+    
+      <div class="card-footer">
+        <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:menu-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Batal</a>
+        <button type="submit" class="btn btn-danger">
+          <i class="fa fa-trash"></i> Hapus
+        </button>
+      </div>
+    </form>
+  </div>
+ </div>
+{% block javascripts %}
+  {% include 'includes/set_title.html' %}
+{% endblock javascripts %}
+

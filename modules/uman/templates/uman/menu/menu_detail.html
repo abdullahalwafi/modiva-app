@@ -1,0 +1,92 @@
+{% load static  %}
+{% load uman_tags %}
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Menu</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.name }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Url</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.url }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Urutan</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.urutan }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Aktif</label>
+        <div class="col-lg-8">
+             {% if  object.aktif  %}
+                   <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+             {% else %}
+                   <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+             {% endif %}
+
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Is Embed</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">
+             {% if  object.isembed  %}
+                   <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+             {% else %}
+                   <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+             {% endif %}
+
+            </span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Url Embed</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.url_embed %}{{ object.url_embed }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Aplikasi</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.aplikasi.name }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parent Menu</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% only_parent_path object %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Sebagai Beranda</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">
+             {% if object.as_beranda  %}
+                   <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+             {% else %}
+                   <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+             {% endif %}
+
+            </span>
+        </div>
+    </div>
+
+    </div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:menu-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+{% block javascripts %}
+ {% include 'includes/set_title.html' %}
+{% endblock %}
+

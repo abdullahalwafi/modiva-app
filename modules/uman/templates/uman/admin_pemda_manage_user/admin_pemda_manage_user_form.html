@@ -1,0 +1,85 @@
+{% load widget_tweaks %}
+{% load uman_tags %}
+
+<div class="card">
+ <span id="title" hidden>{{ title }} </span>
+{% include 'includes/spinner.html' %}
+  <div class="card-body">
+    <form hx-post="{% url 'uman:admin_pemda_manage_user-create' %}" hx-encoding='multipart/form-data' hx-target="#main-content" hx-indicator="#loading" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+      {% for field in form.visible_fields %}
+      <div class="row mb-3">
+        {% if field.name == 'group_menu' %}
+        	<label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">
+                  {{ field.label }} &nbsp;&nbsp;
+	   		<span id="help_groupmenu" title="Lihat Daftar Menu">
+				<i class="far fa-question-circle text-danger mr-5 icon-12x"></i>
+			</span> 
+                </label>
+        {% else %}
+        	<label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        {% endif %}
+        <div class="col-sm-9">
+              {% if field.name == 'group' %}
+                 {% render_field field class="group-select2 form-control" placeholder="Groups" multiple="multiple" %}
+              {% elif field.name == 'kode_satker' %}
+                 {% render_field field class="kode_satker-select2 form-control" placeholder="Kode Satker" %}
+              {% elif field.name == 'is_active' %}
+              	<input type="checkbox" class="form-check-input" name="is_active" id="id_is_active" value="1"/>
+              {% elif field.name == 'group_menu' %}
+              	{% render_field field class="akses_menu-select2 form-control" multiple="multiple" %}
+              {% else %}
+                {{ field|add_class:'form-control' }}
+              {% endif %}
+        </div>
+        {% for error in field.errors %}
+        <span class="help-block text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <div class="card-footer">
+        <button hx-indicator="#loading" hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:admin_pemda_manage_user-list'  %}"
+          class="btn btn-secondary mr-2"><i class="fa fa-undo"></i> Batal</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.group-select2').select2();
+    $('.kode_satker-select2').select2();
+    $('.kanwil-select2').select2();
+    $('.kppn-select2').select2();
+    $('.akses_menu-select2').select2();
+
+$("#id_opd").change( function(){
+    var id_opd = $("#id_opd").val();
+    $.getJSON("{% url 'uman:uptd-ajax-list' %}?opd_id="+id_opd, function(data, status){
+    var options_uptd = "<option value>-----</option>";
+    for (const [key, value] of Object.entries(data)) {
+    //console.log(`${key}: ${value.pk}`);
+    options_uptd = options_uptd + "<option value='" +value.pk + "'>" + value.fields.nama + "</option>";
+}
+    $("#id_uptd").html( options_uptd );
+  });   
+});
+
+$("#help_groupmenu").click(function(){ $('#groupmenu_list').modal('show');} );
+
+});
+
+</script>
+{% include 'uman/admin_pemda_manage_user/modal_list_groupmenu.html' %}
+{% include 'includes/set_title.html' %}
+{% include 'includes/datatables.html' %}
+
+{% endblock javascripts %}

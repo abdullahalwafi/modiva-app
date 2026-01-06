@@ -1,0 +1,16 @@
+
+<div class="fv-row mb-6">
+    <!--begin::Label-->
+    <label class="col-lg-4 col-form-label fw-semibold fs-6 {% slot 'required' %}{% endslot %}">
+        {% slot "label" %}{% endslot %}
+    </label>
+    <!--end::Label-->
+    <!--begin::Col-->
+    <div class="col-lg-8 fv-row">
+        <input type="text" 
+            name="{% slot 'name' %}lname{% endslot %}" 
+            class="form-control form-control-lg form-control-solid" 
+            placeholder="{% slot 'placeholder' %}Example Place Holder{% endslot %}"/>
+    </div>
+    <!--end::Col-->
+</div>

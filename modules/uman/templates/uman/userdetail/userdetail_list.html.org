@@ -1,0 +1,58 @@
+    <div class="card">
+        <div class="card-header text-center">
+            <b>Daftar Detil User</b>
+        </div>
+	{% include 'includes/spinner.html' %}
+        <div class="card-body">
+            {% include 'includes/alerts.html' %}
+            {% if perms.uman.add_userdetail %}
+                <button hx-get="{% url 'uman:userdetail-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary btn-sm" hx-indicator="#loading"><i class="fa fa-plus-square"></i> Tambah</button>
+            {% endif %}
+            <br/>
+            <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Pemda</th>
+                        <th>Kode Satker</th>
+                        <th>Email</th>
+                        <th>No HP</th>
+                        <th>Aktif</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in object_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.user.username }}</td>
+                        <td>{{ data.nm_pemda }}</td>
+                        <td>{{ data.kode_satker }}</td>
+                        <td>{{ data.user.email }}</td>
+                        <td>{% if data.ni_hp %}{{ data.no_hp }}{% endif %}</td>
+                        <td><i class="fa {% if data.is_active %}fa-check fa-lg text-success{% else %}fa-close fa-lg text-danger{% endif%}" aria-hidden="true"></i></td>
+                        <td>
+                            {% if perms.uman.view_userdetail %}
+                            <button hx-get="{% url 'uman:userdetail-detail' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading"  class="btn btn-info btn-sm" title='Detail User'><i class="fa fa-eye"></i></button>
+                            {% endif %}
+                            <button hx-get="{% url 'uman:userdetail-change-password' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-warning btn-sm" title='Ubah Password User'><i class="fa fa-key"></i></button>
+                            {% if perms.uman.delete_userdetail %}
+                            <button hx-get="{% url 'uman:userdetail-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-danger btn-sm" title='Hapus User'><i class="fa fa-trash"></i></button>
+                            {% endif %}
+                             	{% if data.is_active %}
+                            		<button hx-get="{% url 'uman:userdetail-active' data.user_id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-danger btn-sm" title='Non Aktifkan User'><i class="fa fa-close"></i></button>
+                             	{% else %}
+                            		<button hx-get="{% url 'uman:userdetail-active' data.user_id %}?active=1" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-success btn-sm" title='Aktifkan User'><i class="fa fa-check"></i></button>
+                                  
+                              	{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+    </div>
+    {% block javascripts %}
+         {% include 'includes/datatables.html' %}
+    {% endblock %}

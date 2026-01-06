@@ -1,0 +1,152 @@
+from django.urls import path, include
+
+from modules.uman import(views,menu_views, embedmenu_views, groupmenu_views,
+                          groupaplikasi_views, aplikasi_views, userdetail_views,pegawai_views,
+                          jabatan_views,unit_views, group_views, 
+                          appconfig_views,)
+
+from modules.landingpage import views as landingpageviews
+
+app_name = 'uman'
+
+urlpatterns = [
+    
+    path('', landingpageviews.homepage, name='homepage'),
+    #path('landingpage', views.landing_page, name='landingpage'),
+    #path('', views.login_view, name='login'),
+    #path('login', views.landing_page, name='login'),
+    path('login', views.login_view, name='login'),
+    #path('', views.login_view, name='login'),
+    path('nopage', views.nopage, name='nopage'),
+    path('logout', views.logout_view, name='logout'),
+    path('home/', views.home, name='home'),
+    path('change_password/', views.change_password, name='change-password'),
+    path('forgot_password/', views.forgotPassword, name='forgot-password'),
+    path('reset_password/', views.resetPassword, name='reset-password'),
+    path('resetpassword_validate/<uidb64>/<token>/',
+         views.resetpassword_validate, name='resetpassword-validate'),
+    path('profile_account/', views.profile_account, name='profile-account'),
+    path('update_foto_profile/<int:pk>',
+         views.UpdateFotoProfilView.as_view(), name='update-foto-profile'),
+    path('update_user_profile/', views.update_user_profile,
+         name='update-user-profile'),
+
+
+ # -----------menu---------------
+    path('menu', menu_views.MenuListView.as_view(), name='menu-list'),
+    path('menu/create', menu_views.MenuCreateView.as_view(), name='menu-create'),
+    path('menu/edit/<int:pk>', menu_views.MenuUpdateView.as_view(), name='menu-edit'),
+    path('menu/delete/<int:pk>',
+         menu_views.MenuDeleteView.as_view(), name='menu-delete'),
+    path('menu/detail/<int:pk>',
+         menu_views.MenuDetailView.as_view(), name='menu-detail'),
+    # -----------embedmenu---------------
+    path('embedmenu', embedmenu_views.EmbedMenuListView.as_view(),
+         name='embedmenu-list'),
+    path('embedmenu/create', embedmenu_views.EmbedMenuCreateView.as_view(),
+         name='embedmenu-create'),
+    path('embedmenu/edit/<int:pk>',
+         embedmenu_views.EmbedMenuUpdateView.as_view(), name='embedmenu-edit'),
+    path('embedmenu/delete/<int:pk>',
+         embedmenu_views.EmbedMenuDeleteView.as_view(), name='embedmenu-delete'),
+    path('embedmenu/detail/<int:pk>',
+         embedmenu_views.EmbedMenuDetailView.as_view(), name='embedmenu-detail'),
+    # -----------groupmenu---------------
+    path('groupmenu', groupmenu_views.GroupMenuListView.as_view(),
+         name='groupmenu-list'),
+    path('groupmenu/create', groupmenu_views.GroupMenuCreateView.as_view(),
+         name='groupmenu-create'),
+    path('groupmenu/edit/<int:pk>',
+         groupmenu_views.GroupMenuUpdateView.as_view(), name='groupmenu-edit'),
+    path('groupmenu/delete/<int:pk>',
+         groupmenu_views.GroupMenuDeleteView.as_view(), name='groupmenu-delete'),
+    # -----------groupaplikasi---------------
+    path('groupaplikasi', groupaplikasi_views.GroupAplikasiListView.as_view(),
+         name='groupaplikasi-list'),
+    path('groupaplikasi/create', groupaplikasi_views.GroupAplikasiCreateView.as_view(),
+         name='groupaplikasi-create'),
+    path('groupaplikasi/edit/<int:pk>',
+         groupaplikasi_views.GroupAplikasiUpdateView.as_view(), name='groupaplikasi-edit'),
+    path('groupaplikasi/delete/<int:pk>',
+         groupaplikasi_views.GroupAplikasiDeleteView.as_view(), name='groupaplikasi-delete'),
+    # -----------aplikasi---------------
+    path('aplikasi', aplikasi_views.AplikasiListView.as_view(), name='aplikasi-list'),
+    path('aplikasi/create', aplikasi_views.AplikasiCreateView.as_view(),
+         name='aplikasi-create'),
+    path('aplikasi/edit/<int:pk>',
+         aplikasi_views.AplikasiUpdateView.as_view(), name='aplikasi-edit'),
+    path('aplikasi/delete/<int:pk>',
+         aplikasi_views.AplikasiDeleteView.as_view(), name='aplikasi-delete'),
+    path('aplikasi/detail/<int:pk>',
+         aplikasi_views.AplikasiDetailView.as_view(), name='aplikasi-detail'),
+    # -----------userdeatil------------
+    path('userdetail', userdetail_views.UserDetailListView.as_view(),
+         name='userdetail-list'),
+    path('userdetail/create', userdetail_views.UserDetailCreateView.as_view(),
+         name='userdetail-create'),
+    path('userdetail/detail/<int:pk>',
+         userdetail_views.UserDetailView.as_view(), name='userdetail-detail'),
+    path('userdetail/delete/<int:pk>',
+         userdetail_views.UserDetailDeleteView.as_view(), name='userdetail-delete'),
+    path('userdetail/edit/<int:pk>',
+         userdetail_views.UserDetailUpdateView.as_view(), name='userdetail-edit'),
+    path('userdetail/status/<int:pk>',
+         userdetail_views.statusUserDetail, name='userdetail-active'),
+    path('userdetail/change-password/<int:pk>',
+         userdetail_views.ubahPasswordUserDetail, name='userdetail-change-password'),
+    # -----------Jabatan------------
+    path('jabatan', jabatan_views.JabatanListView.as_view(), name='jabatan-list'),
+    path('jabatan/create', jabatan_views.JabatanCreateView.as_view(),
+         name='jabatan-create'),
+    path('jabatan/edit/<int:pk>',
+         jabatan_views.JabatanUpdateView.as_view(), name='jabatan-edit'),
+    path('jabatan/delete/<pk>', jabatan_views.JabatanDeleteView.as_view(),
+         name='jabatan-delete'),
+    path('jabatan/detail/<int:pk>',
+         jabatan_views.JabatanDetailView.as_view(), name='jabatan-detail'),
+
+         # -----------unit------------
+    path('unit', unit_views.UnitListView.as_view(), name='unit-list'),
+    path('unit/create', unit_views.UnitCreateView.as_view(),
+         name='unit-create'),
+    path('unit/edit/<int:pk>',
+         unit_views.UnitUpdateView.as_view(), name='unit-edit'),
+    path('unit/delete/<pk>', unit_views.UnitDeleteView.as_view(),
+         name='unit-delete'),
+    path('unit/detail/<int:pk>',
+         unit_views.UnitDetailView.as_view(), name='unit-detail'),
+
+    # -----------Pegawai------------
+    path('pegawai', pegawai_views.PegawaiListView.as_view(), name='pegawai-list'),
+    path('pegawai/create', pegawai_views.PegawaiCreateView.as_view(),
+         name='pegawai-create'),
+    path('pegawai/edit/<int:pk>',
+         pegawai_views.PegawaiUpdateView.as_view(), name='pegawai-edit'),
+    path('pegawai/delete/<pk>', pegawai_views.PegawaiDeleteView.as_view(),
+         name='pegawai-delete'),
+    path('pegawai/detail/<int:pk>',
+         pegawai_views.PegawaiDetailView.as_view(), name='pegawai-detail'),
+    # -----------Group------------
+    path('group', group_views.GroupListView.as_view(), name='group-list'),
+    path('group/create', group_views.GroupCreateView.as_view(), name='group-create'),
+    path('group/delete/<pk>', group_views.GroupDeleteView.as_view(),
+         name='group-delete'),
+    path('group/edit/<int:pk>',
+         group_views.GroupUpdateView.as_view(), name='group-edit'),
+    path('group/detail/<int:pk>',
+         group_views.GroupDetailView.as_view(), name='group-detail'),
+    # -----------AppConfig------------
+    path('appconfig', appconfig_views.AppConfigListView.as_view(),
+         name='appconfig-list'),
+    path('appconfig/create', appconfig_views.AppConfigCreateView.as_view(),
+         name='appconfig-create'),
+    path('appconfig/edit/<int:pk>',
+         appconfig_views.AppConfigUpdateView.as_view(), name='appconfig-edit'),
+    path('appconfig/delete/<pk>',
+         appconfig_views.AppConfigDeleteView.as_view(), name='appconfig-delete'),
+    #path('appconfig/detail/<int:pk>',
+    #     appconfig_views.AppConfigDetailView.as_view(), name='appconfig-detail'),
+
+
+
+    ]

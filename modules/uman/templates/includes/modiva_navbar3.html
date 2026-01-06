@@ -1,0 +1,56 @@
+{% load static %} 
+
+
+<!-- NAVBAR -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+          <!-- Kiri: Judul -->
+          <div class="d-flex flex-column justify-content-center lh-sm">
+            <span class="navbar-brand m-0 fw-bold">Dashboard</span>
+            <small class="text-muted mt-n1">
+                 {{ user.groups.first }}
+            </small>
+          </div>
+          
+     
+          <!-- Kanan: Bell, Profile, Hamburger -->
+          <div class="d-flex align-items-center">
+           <!-- <i class="fa-regular fa-bell notification-icon me-4" data-bs-toggle="modal" data-bs-target="#notifModal" role="button"></i> -->
+          <!-- Trigger Dropdown -->
+         <div class="user-profile dropdown d-flex align-items-center me-3" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+            <img src="{% static 'modiva3/img/undraw_profile.svg' %}" alt="User" class="avatar">
+            <span class="ms-2">{% if user.first_name and user.last_name%}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}</span>
+            </div>
+          
+                    <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end p-3 shadow rounded" style="width: 250px;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">Akun Profil</span>
+                <!--<a href="{% url 'vitamin:dashboard-list' %}"><i class="fas fa-cog"></i></a>-->
+              </div>
+              <div class="d-flex align-items-center mb-3">
+                <img src="{% static 'modiva3/img/team/team-1.jpg' %}" alt="User" class="rounded-circle" style="width: 50px; height: 50px;">
+                <div class="ms-3">
+                  <div class="fw-semibold">{% if user.first_name and user.last_name%}{{user.first_name}} {{user.last_name}}{% else %}{{ user.username }}{% endif %}</div>
+                  <div class="text-muted small">
+                          {% for group in user.groups.all %}
+                                {{ group.name }}
+                          {% endfor %}
+                  </div>
+                </div>
+              </div>
+              <a href="{% url 'uman:logout' %}" class="btn btn-outline-danger w-100 fw-semibold">Logout</a>
+                
+            </div>
+
+
+            <!-- ⬅️ Hamburger button pindah ke sini -->
+            <button class="btn btn-light d-lg-none" id="toggle-sidebar">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+          
+        </div>
+
+      </nav>
+                <!-- End of Topbar -->

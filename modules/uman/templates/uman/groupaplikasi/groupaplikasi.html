@@ -1,0 +1,16 @@
+{% extends 'includes/base.html' %}
+{% block stylesheets %}
+
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+  <br/>  
+	{% include 'uman/groupaplikasi/groupaplikasi_list.html' %}
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+	{% include 'includes/datatables.html' %}
+{% endblock %}

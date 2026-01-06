@@ -1,0 +1,18 @@
+{% extends 'includes/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+        {% include 'uman/userdetail/userdetail_edit_partial.html' %}.
+  </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.group-select2').select2();
+
+});
+</script>
+{% endblock javascripts %}

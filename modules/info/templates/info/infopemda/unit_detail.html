@@ -1,0 +1,28 @@
+{% load widget_tweaks %}
+{% load uman_tags %}
+<div class="card">
+  <div class="card-header text-center">
+    <b>Detail Unit</b>
+  </div>
+<div class="card-body">
+    <div class="form-group"> 
+      <ul class="list-group list-group-custom">
+        <li class="list-group-item"> Nama Unit       : {{ object.nm_unit }}</li>
+        <li class="list-group-item"> Kode Unit       : {{ object.kd_unit }}</li>
+        <li class="list-group-item"> Nama Eselon 2   : {{ object.nm_es2 }}</li>
+        <li class="list-group-item"> Kode Eselon 2   : {{ object.kd_es2 }}</li>
+        <li class="list-group-item"> Aktif           : {% if  object.is_active  %}<i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                                                       {% else %}<i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                                                       {% endif %}
+        </li>
+        <li class="list-group-item"> Created at   : {{ object.created_at }}</li>
+        <li class="list-group-item"> Updated at   : {{ object.updated_at }}</li>
+      </ul>
+    </div>
+    <br/>  
+    <div class="form-group">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:unit-list'  %}" class="btn btn-primary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+  </form>
+ </div>
+ </div>

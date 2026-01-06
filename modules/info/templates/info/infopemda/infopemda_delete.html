@@ -1,0 +1,48 @@
+<div class="content flex-row-fluid" id="kt_content">
+	<div class="card mb-5 mb-lg-10">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Hapus Informasi Pemda</h3>
+			</div>
+			<form hx-post="{% url 'info:infopemda-delete' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+				{% csrf_token %}
+				{% for hidden in form.hidden_fields %}
+					{{ hidden }}
+				{% endfor %}
+				<div class="card-body">
+					<div class="form-group"> 
+						<h5>Anda yakin ingin menghapus infopemda {{object.name}} ? </h5>
+						<span class="text text-danger">PERHATIAN: Menghapus infopemda {{object.name}} ini juga akan menghapus seluruh child infopemda-nya !!</span>
+						<ol>
+							<li> Keterangan : &nbsp;&nbsp;{{ object.keterangan }}</li>
+							<li> Groupmenu  : &nbsp;&nbsp;{% for g in  object.groupmenu.all %}
+								<span class="badge bg-success">{{g.group.name|upper}}</span> &nbsp;
+								{% endfor %}
+							</li>
+							<li>
+								Penerima : &nbsp;&nbsp;
+								{% if object.penerima.all %}
+								{% for p in  object.penerima.all %}
+									<span class="badge bg-secondary">{{p.nm_pemda|upper}}</span> &nbsp;
+								{% endfor %}
+								{% else %}
+									<span class="badge bg-secondary">SEMUA PEMDA</span>
+								{% endif %}
+							</li>
+						</ol>
+					</div>
+				</div>
+				<div class="card-footer d-flex flex-end">
+					<div class="form-group">
+						<button hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'info:infopemda-list'  %}" class="btn btn-secondary">
+							<i class="fa fa-undo"></i> Batal
+						</button>
+						<button type="submit" class="btn btn-danger">
+							<i class="fa fa-trash"></i> Hapus
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

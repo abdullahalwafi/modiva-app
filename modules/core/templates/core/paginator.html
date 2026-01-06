@@ -1,0 +1,68 @@
+
+Halaman {{ page_obj.number }} dari {{ paginator.num_pages }} (jumlah data : {{paginator.count}})
+<nav aria-label="Page navigation">
+{% if is_paginated %}
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+        	<li class="page-item">
+          	<a class="page-link" 
+			hx-get="{{ request.path }}?page={{page_obj.previous_page_number}}{% if q %}&q={{ q }}{% endif %}" 
+			hx-trigger="click" hx-swap="innerHTML "  hx-target="#main-content">
+		&laquo;
+		</a>
+        	</li>
+        {% else %}
+        	<li class="page-item disabled">
+          	<a class="page-link" href="#">&laquo;</a>
+        	</li>
+        {% endif %} 
+        {% if paginator.num_pages < 20 %}
+           {% for i in paginator.page_range %}
+            	{% if page_obj.number == i %}
+        		<li class="page-item"><a class="page-link active">{{ i }}</a></li>
+        	{% else %}
+        		<li class="page-item">
+          		<a class="page-link" hx-get="{{request.path}}?page={{ i }}{% if q %}&q={{q}}{% endif %}" 
+			    hx-trigger="click" hx-swap="innerHTML "  hx-target="#main-content">
+				{{ i }}
+			</a>
+        		</li>
+        	{% endif %} 
+	   {% endfor %} 
+        {% else %}
+        		<li class="page-item">
+			<form class="form-inline mt-2 mt-md-0">
+        			<input id="hal" hx-get="{{request.path}}?{% if q %}&q={{q}}{% endif %}" hx-target='#main-content' 
+        		        hx-trigger="keyup changed delay:1000ms" name="page" class="form-control mr-sm-2" 				type="text" placeholder="hal..." aria-label="Hal ke-" size=4>
+    			</form>
+
+        		</li>
+                   
+        {% endif %} 
+
+	{% if page_obj.has_next %}
+        	<li class="page-item">
+          	<a hx-get="{{request.path}}?page={{page_obj.next_page_number}}{% if q %}&q={{q}}{% endif %}" 
+			hx-trigger="click" hx-swap="innerHTML "  
+			hx-target="#main-content" class="page-link">
+		&raquo;
+		</a>
+        	</li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link">&raquo;</a>
+        </li>
+        {% endif %}
+      </ul>
+{% endif %}
+</nav>
+
+<style>
+	.pagination {
+  cursor: pointer; /* change cursor on hover */
+}
+
+.pagination:active {
+  cursor: progress; /* change cursor when clicked */
+}
+</style>

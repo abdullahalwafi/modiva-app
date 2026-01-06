@@ -1,0 +1,72 @@
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Id</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.id }}</span>
+        </div>
+    </div>
+    <br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Tanggal Terima</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.tgl_terima | date:"d-m-Y" }}</span>
+        </div>
+    </div>
+    <br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Terima</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.terima }}</span>
+        </div>
+    </div><br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Stok</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.stok }}</span>
+            
+        </div>
+    </div><br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Butir</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.butir }}</span>
+        </div>
+    </div>
+    <br>
+        <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Merk</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.masterobat.merk }}</span>
+        </div>
+    </div>
+    <br>
+        <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Tanggal Kadaluarsa</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.masterobat.kadaluarsa | date:"d-m-Y" }}</span>
+        </div>
+    </div>
+    <br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Keterangan</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.keterangan }}</span>
+        </div>
+    </div>
+       
+    <br>
+   
+</div>
+    <div class="card-footer">
+            <a href="{% url 'vitamin:stokobat-list' %}" class="btn btn-secondary">
+        <i class="fa fa-undo"></i> Kembali
+      </a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+{% include 'includes/set_title.html' %}

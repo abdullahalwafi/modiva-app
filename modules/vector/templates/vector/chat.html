@@ -1,0 +1,47 @@
+
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chat (Vector DB + Groq)</title>
+</head>
+
+<body>
+    <h1>Chat (Vector DB + Groq)</h1>
+
+    <form id="chat-form">
+        <input type="text" id="message" placeholder="Tulis pesan..." required style="width:400px">
+        <button type="submit">Kirim</button>
+    </form>
+
+    <div id="log" style="margin-top:20px;"></div>
+
+    <script>
+        const form = document.getElementById("chat-form");
+        const log = document.getElementById("log");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById("message").value;
+            log.insertAdjacentHTML("beforeend", `<p><b>Anda:</b> ${msg}</p>`);
+            document.getElementById("message").value = "";
+
+            try {
+                const res = await fetch("/api/chat/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                log.insertAdjacentHTML("beforeend", `<p><b>Bot:</b> ${data.reply.replace(/\n/g, "<br>")}</p>`);
+            } catch (err) {
+                log.insertAdjacentHTML("beforeend", `<p style="color:red"><b>Error:</b> ${err}</p>`);
+            }
+        });
+    </script>
+
+    <p><a href="{% url 'upload_page' %}">Kembali ke Upload</a></p>
+</body>
+
+</html>

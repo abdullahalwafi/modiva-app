@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <!-- <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon"> -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <img src="{% static 'assets/img/logo2.png' %}" alt="">
+        <!-- <h1 class="sitename">MODIVA</h1> -->
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="{% url 'uman:homepage' %}">Home</a></li>
+          <li><a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
+          <li><a href="{% url 'landingpage:daftar' %}">Daftar</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>  
+<a class="btn-getstarted d-flex align-items-center gap-2" 
+   href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
+    <i class="bi bi-person-fill me-2"></i>
+    {% if user.is_authenticated %}
+        {{ user.first_name|default:user.username }}
+    {% else %}
+        Login
+    {% endif %}
+</a>
+    </div>
+  </header>
+
+  <main class="main">
+    
+    <!-- Breadcrumb Hijau dan Tombol Kembali -->
+    <div class="container mt-2">
+      <div class="custom-breadcrumb d-flex align-items-center gap-2">
+        <!-- Tombol kembali -->
+        <a href="{% url 'uman:homepage' %}" class="btn custom-btn-kembali d-flex align-items-center text-white">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+    
+        <!-- Ikon rumah dan slash -->
+        <span class="d-flex align-items-center text-dark">
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+              <li class="breadcrumb-item text-decoration-none"><a href="{% url 'uman:homepage' %}" class="text-dark bi bi-house-door-fill"></a></li>
+              <li class="breadcrumb-item active text-dark" aria-current="page">Privasi</li>
+            </ol>
+          </nav>
+        </div>
+    </div>
+        
+    <!-- about Section -->
+    <section id="about" class="about section">
+        <div class="container text-center">
+          <!-- Teks di bawah -->
+          <div class="about-text text-start mt-4">
+            <p class="fw-bold text-center fs-5 text-decoration-underline">
+              KEBIJAKAN PRIVASI
+            </p>
+            <p class="fw-semibold text-center fs-8">
+              Privasi Anda sangat penting bagi kami.
+            </p>
+            <p>
+              Kebijakan privasi ini menjelaskan bagaimana kami menangani dan mengamankan informasi pribadi yang 
+              Anda berikan kepada kami melalui Platform kami. Dengan menggunakan Platform kami, Anda setuju untuk terikat dengan 
+              ketentuan-ketentuan dalam Kebijakan Privasi ini.</p>
+            <p>
+              Harap diperhatikan bahwa Kebijakan Privasi ini dapat diubah dari waktu ke waktu. Perubahan apa pun dalam Kebijakan Privasi 
+              ini akan dipublikasikan di Platform. Penggunaan Platform secara berkelanjutan akan menandakan persetujuan dan penerimaan 
+              Anda atas perubahan-perubahan tersebut.</p>
+
+            <!-- Poin-poin -->
+            <ol class="mt-4">
+              <li class="fw-bold">Informasi yang Kami Kumpulkan</li>
+              <ul class="lower-alpha-list text-justify">
+                <p>MDVDP dapat mengakses dan mengumpulkan data serta informasi Pengguna dengan tujuan mengelola data pengguna serta keperluan 
+                  lainnya, sepanjang tetap mematuhi peraturan perundang-undangan yang berlaku. Data yang diberikan secara langsung oleh Pengguna 
+                  maupun data yang tercatat.</p>
+              </ul>
+
+              <li class="fw-bold mt-3">Pengungkapan Informasi</li>
+              <ul class="lower-alpha-list text-justify">
+                <p>Informasi pribadi yang disimpan oleh MDVPD akan ditangani sesuai dengan ketentuan undang-undang yang berlaku di Indonesia.</p>
+              </ul>
+
+              <li class="fw-bold mt-3">Kebijakan Privasi</li>
+              <ul class="lower-alpha-list text-justify">
+                <p>Harap diperhatikan bahwa Kebijakan Privasi ini dapat diubah dari waktu ke waktu. Perubahan apa pun dalam Kebijakan Privasi ini 
+                  akan dipublikasikan di Website. Penggunaan Website secara berkelanjutan akan menandakan persetujuan dan penerimaan Anda atas
+                  perubahan-perubahan tersebut.</p>
+              </ul>
+
+              <li class="fw-bold mt-3">Hubungi Kami</li>
+              <ul class="lower-alpha-list text-justify">
+                <p>Kami akan menginformasikan kepada Anda secara tertulis apabila terdapat kegagalan untuk melindungi kerahasiaan informasi pribadi
+                  Anda dalam sistem elektronik kami, sesuai yang diwajibkan oleh hukum yang berlaku.</p>
+                  <p>Jika anda memiliki pertanyaan apa pun mengenai Kebijakan Privasi ini, silakan hubungi kami di bawah ini:</p>
+                  <p class="fw-bold m-0">MDVPD Customer Service</p>
+                  <p class="mt-0">Email: mdvdpdepok@gmail.com</p>
+              </ul>
+            </ol>
+          </div>
+      
+        </div>
+    </section>
+    <!-- /about Section -->
+
+  </main>
+
+
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <h4>Didukung Oleh:</h4>
+      <div class="row gy-4">
+        <div class="col-lg-8 col-md-9 footer-about">
+          <div class="d-flex flex-wrap gap-4">
+            <!-- Kolom 1: Logo NF + Alamat -->
+            <div class="d-flex flex-column align-items-start">
+              <img src="{% static 'assets/img/Logo NF.png' %}" alt="Logo STT-NF" class="footer-logo">
+              <p>
+                Jl. Setu Indah No.116, Tugu,<br>
+                Kec. Cimanggis, Kota Depok,<br>
+                Jawa Barat
+              </p>
+            </div>
+          
+            <!-- Kolom 2: Logo DAI + Alamat -->
+            <div class="d-flex flex-column align-items-start">
+              <img src="{% static 'assets/img/Logo DAI.png' %}" alt="Logo DAI" class="footer-logo">
+              <p>
+                Lab Data Science & Artificial Intelligence<br>
+                Ruang B4-204, Kampus B<br>
+                STT Terpadu Nurul Fikri
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4><a href="{% url 'uman:homepage' %}" style="text-decoration: none; color: inherit;">MODIVA</a></h4>
+          <ul>
+            <li></i> <a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
+            <li></i> <a href="{% url 'landingpage:mitra' %}">Mitra Kami</a></li>
+            <li></i> <a href="{% url 'landingpage:sk' %}">Syarat & Ketentuan</a></li>
+            <li></i> <a href="{% url 'landingpage:privasi' %}">Privasi</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-12 footer-links">
+          <h4>Lainnya</h4>
+          <ul>
+            <li></i> <a href="{% url 'landingpage:daftar' %}">Daftarkan Puskesmas</a></li>
+            <li></i> Hubungi Kami</li>
+          </ul>
+          <div class="social-links d-flex">
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-envelope"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container copyright text-center">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">MODIVA</strong> <span>Layanan situs ini didukung oleh Sekolah Tinggi Teknologi Terpadu Nurul Fikri</span></p>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/purecounter/purecounter_vanilla.js' %}"></script>
+  <script src="{% static 'assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+  <!-- Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+</body>
+
+</html>

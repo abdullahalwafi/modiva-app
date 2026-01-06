@@ -1,0 +1,52 @@
+{% load core_tags %}
+{% load static %}
+    <!--begin::Col-->
+    <!-- <div class="col-xl-4 mb-5 mb-lg-10"> -->
+<div class="col-xxl-4 col-md-4 mb-5 mb-lg-10">
+<!--begin::List Widget 4-->
+<div class="card h-xl-100">
+    <!--begin::Header-->
+    <div class="card-header border-0 pt-5">
+        <h3 class="card-title align-items-start flex-column">
+			<A href="{% url 'info:infopemda-list' %}" class="card-title fw-bold text-hover-primary fs-4">Informasi Pemda</A>
+
+			<span class="text-muted mt-1 fw-semibold fs-7">Informasi terkini</span>
+		</h3>
+
+    </div>
+    <!--end::Header-->
+
+    <!--begin::Body-->
+    <div class="card-body pt-5">
+                    
+{% for info in infopemda %}
+            <!--begin::Item-->
+            <div class="d-flex align-items-sm-center mb-7">
+                <!--begin::Symbol-->
+                <div class="symbol symbol-50px me-5">
+                    <span class="symbol-label">
+                        <img src="{% static 'assets/media/svg/files/pdf.svg' %}" class="h-50 align-self-center" alt="">                         
+                    </span>
+                </div>
+                <!--end::Symbol-->
+
+                <!--begin::Section-->
+                <div class="d-flex align-items-center flex-row-fluid flex-wrap">                    
+                    <div class="flex-grow-1 me-2">
+                        <a href="javascript:void(0);" onclick='javascript:show_modal("{% get_media_prefix %}{{info.file_pdf}}");' class="text-gray-800 text-hover-primary fs-6 fw-bold">{{info.keterangan}}</a>
+                        
+                        <span class="text-muted fw-semibold d-block fs-7">{{info.created_at}}</span>
+                    </div>                     
+
+                </div>
+                <!--end::Section-->                
+            </div>
+            <!--end::Item-->
+                    
+    {% endfor %} 
+    </div>
+    <!--end::Body-->
+</div>
+<!--end::List Widget 4-->
+    </div>
+    <!--end::Col-->

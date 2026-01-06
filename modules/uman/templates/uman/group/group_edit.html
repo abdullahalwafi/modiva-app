@@ -1,0 +1,53 @@
+{% load widget_tweaks %}
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+  <div class="card-body">
+  {% include 'includes/alerts.html' %}
+  {% include 'includes/spinner.html' %}
+    <form hx-post="{% url 'uman:group-edit' object.id %}" hx-indicator="#loading" hx-target="#main-content" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+      {% for field in form.visible_fields %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        <div class="col-sm-9">
+            {% if field.name == 'permission' %}
+              {% render_field field class="permission-select2 form-control" placeholder="Pilih Permission" multiple="multiple" %}
+            {% else %}
+              {% render_field field class="form-control" placeholder=field.label %}
+            {% endif %}
+        </div>
+        {% for error in field.errors %}
+        <span class="help-block text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-9">
+            <span class="help-block">! Permission dapat dipilih lebih dari satu</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button hx-target="#main-content" hx-indicator="#loading" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:group-list'  %}"
+          class="btn btn-secondary mr-2"><i class="fa fa-undo"></i> Batal</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.permission-select2').select2();
+});
+
+</script>
+ 
+{% include 'includes/set_title.html' %}
+{% endblock javascripts %}

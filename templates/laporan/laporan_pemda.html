@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Laporan Pemda</title>
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css">
+        <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/2.1.8/js/dataTables.js"></script>
+        
+    </head>
+    <body style="background-color: pink;">
+        <h1>Daftar Pemda Propinsi {{ provinsi.nama }}</h1>
+        <table width="100%" border="1">
+            <thead>
+                <tr><th>No</th><th>Kode Pemda</th><th>Nama Pemda</th><th>Kode Satker</th></tr>
+            </thead>
+            <tbody>
+                {% for i in pemdas %}
+                    <tr>
+                        <td>{{ i.no }}</td>
+                        <td>{{ i.kd_pemda_djpk }}</td>
+                        <td>{{ i.nm_pemda }}</td>
+                        <td>{{ i.kd_satker }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

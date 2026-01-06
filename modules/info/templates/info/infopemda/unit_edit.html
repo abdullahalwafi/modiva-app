@@ -1,0 +1,39 @@
+{% load widget_tweaks %}
+<div class="card">
+    <div class="card-header text-center">
+        <b>Ubah Unit</b>
+    </div>
+    <div class="card-body">
+        <form hx-post="{% url 'uman:unit-edit' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+            <div class="row mb-3">
+                <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% if field.name == 'is_active' %}
+                    <input type="checkbox" class="form-check-input"  name="is_active" id="id_is_active" onclick="javascript:$(this).val(1)" value={{ object.is_active }} {% if object.is_active == 1  %}  checked{% else %} {% endif %}/>
+                    {% else %}
+                    {{ field|add_class:'form-control' }}
+                    {% endif %}
+                </div>
+                    {% for error in field.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+            </div>
+            {% endfor %}
+            <br />
+            <div class="form-group">
+                
+                <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click"
+                    hx-get="{% url 'uman:unit-list'  %}" class="btn btn-warning"><i class="fa fa-undo"></i> Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-pencil"></i> Ubah
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

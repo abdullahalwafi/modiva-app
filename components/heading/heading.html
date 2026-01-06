@@ -1,0 +1,75 @@
+
+<!--begin::Page title-->
+<div class="page-title d-flex flex-column align-items-start me-3 py-2 py-lg-0 gap-2">
+    <!--begin::Title-->
+    <h1 class="d-flex text-dark fw-bold m-0 fs-3">{{title}}
+        <!--begin::Separator-->
+        <span class="h-20px border-gray-400 border-start mx-3"></span>
+        <!--end::Separator-->
+        <!--begin::Description-->
+        <small class="text-gray-500 fs-7 fw-semibold my-1">
+            {{subtitle}}
+        </small>
+    </h1>
+    <!--end::Title-->
+    <!--begin::Breadcrumb-->
+    <ul class="breadcrumb breadcrumb-dot fw-semibold text-gray-600 fs-7">
+        
+        <!-- <li class="breadcrumb-item text-gray-600">
+            <a href="../../demo20/dist/index.html" class="text-gray-600 text-hover-primary">Home</a>
+        </li>
+        
+        
+        <li class="breadcrumb-item text-gray-600">Dashboards</li>
+        
+        
+        <li class="breadcrumb-item text-gray-500">Projects</li> -->
+        
+        <!-- {{breadcrumb}} -->
+        {% for menu in breadcrumb %} 
+            <li class="breadcrumb-item text-gray-600">                
+                <a href="{{menu.url}}">{{menu.name}}</a>
+            </li> 
+        {% endfor %} 
+    </ul>
+</div>
+<!--end::Page title-->
+<!--begin::Actions-->
+<div class="d-flex align-items-center">
+    {% slot "actions" %}
+    {% endslot %}
+    <!-- <a href="#" class="btn btn-icon btn-color-primary bg-body w-35px h-35px w-lg-40px h-lg-40px me-3" data-bs-toggle="modal" data-bs-target="#kt_modal_upgrade_plan">
+        <i class="ki-duotone ki-file-added fs-2 fs-md-1">
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </a>
+    
+    
+    <a href="#" class="btn btn-icon btn-color-success bg-body w-35px h-35px w-lg-40px h-lg-40px me-3" data-bs-toggle="modal" data-bs-target="#kt_modal_create_campaign">
+        <i class="ki-duotone ki-add-files fs-2 fs-md-1">
+            <span class="path1"></span>
+            <span class="path2"></span>
+            <span class="path3"></span>
+        </i>
+    </a>
+    
+    
+    <a href="#" class="btn btn-icon btn-color-warning bg-body w-35px h-35px w-lg-40px h-lg-40px me-3" data-bs-toggle="modal" data-bs-target="#kt_modal_create_app">
+        <i class="ki-duotone ki-document fs-2 fs-md-1">
+            <span class="path1"></span>
+            <span class="path2"></span>
+        </i>
+    </a>
+    
+    
+    <a href="#" class="btn btn-flex bg-body h-35px h-lg-40px px-5" id="kt_dashboard_daterangepicker" data-bs-toggle="tooltip" data-bs-dismiss="click" data-bs-trigger="hover" title="Select dashboard daterange">
+        <span class="me-4">
+            <span class="text-muted fw-semibold me-1" id="kt_dashboard_daterangepicker_title">Today</span>
+            <span class="text-primary fw-bold" id="kt_dashboard_daterangepicker_date">Jul 19</span>
+        </span>
+        <i class="ki-duotone ki-down fs-4 m-0"></i>
+    </a> -->
+    
+</div>
+<!--end::Actions-->

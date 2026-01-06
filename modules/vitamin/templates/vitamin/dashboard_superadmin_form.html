@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+
+  <!-- Favicon -->
+  <link href="{% static 'modiva3/img/favicon.png' %}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="{% static 'modiva3/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'modiva3/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="{% static 'modiva3/css/main.css' %}" rel="stylesheet">
+</head>
+<body id="dashboard-layout">
+
+    <!-- Sidebar -->
+           <!-- SIDEBAR -->
+    <aside class="sidebar bg-white shadow-sm">
+      <div class="sidebar-header text-center">
+        <a href="{% url 'uman:homepage' %}">
+          <img src="{% static 'modiva3/img/favicon.png' %}" alt="MODIVA" class="logo-sidebar">
+        </a>        
+      </div>
+      <nav class="sidebar-nav">
+      <a href="{% url 'vitamin:dashboard-list' %}"
+        class="nav-item d-flex flex-column align-items-center text-center {% if request.resolver_match.url_name == 'dashboard-list' %}active{% endif %}">
+        <i class="bi bi-grid-fill"></i>
+        <span class="nav-label">Dashboard</span>
+      </a>
+        <a href="{% url 'vitamin:puskesmas-list' %}" 
+          class="nav-item d-flex flex-column align-items-center text-center {% if request.resolver_match.url_name == 'puskesmas-list' %}active{% endif %}">
+          <i class="fas fa-hospital mb-2"></i>
+          <span class="nav-label">Puskesmas</span>
+        </a>
+        <a href="{% url 'vitamin:sekolah-list' %}" 
+          class="nav-item d-flex flex-column align-items-center text-center {% if request.resolver_match.url_name == 'sekolah-list' %}active{% endif %}">
+          <i class="fas fa-school mb-2"></i>
+          <span class="nav-label">Sekolah</span>
+        </a><a href="{% url 'vitamin:dashboard_superadmin_form' %}"
+          class="nav-item d-flex flex-column align-items-center text-center {% if request.resolver_match.url_name == 'dashboard_superadmin_form' %}active{% endif %}">
+        
+          <i class="fas fa-comment-dots mb-2"></i>
+          <span class="nav-label">Form</span>
+        </a>
+      </nav>
+    </aside>
+                <!-- End of Sidebar -->
+  
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+      <!-- NAVBAR -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+          <!-- Kiri: Judul -->
+          <div class="d-flex flex-column justify-content-center lh-sm">
+            <span class="navbar-brand m-0 fw-bold">Dashboard</span>
+            <small class="text-muted mt-n1">SuperAdmin</small>
+          </div>
+      
+          <!-- Kanan: Bell, Profile, Hamburger -->
+          <div class="d-flex align-items-center">
+            <i class="fa-regular fa-bell notification-icon me-4" data-bs-toggle="modal" data-bs-target="#notifModal" role="button"></i>
+          <!-- Trigger Dropdown -->
+          <div class="user-profile dropdown d-flex align-items-center me-3" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+            <img src="{% static 'modiva3/img/team/team-1.jpg' %}" alt="User" class="avatar">
+            <span class="ms-2">Arif</span>
+
+            <!-- Dropdown Menu -->
+            <div class="dropdown-menu dropdown-menu-end p-3 shadow rounded" style="width: 250px;">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">Akun Profil</span>
+                <a href=""><i class="fas fa-cog"></i></a>
+              </div>
+              <div class="d-flex align-items-center mb-3">
+                <img src="{% static 'modiva3/img/team/team-1.jpg' %}" alt="User" class="rounded-circle" style="width: 50px; height: 50px;">
+                <div class="ms-3">
+                  <div class="fw-semibold">Arif Irwansyah</div>
+                  <div class="text-muted small">Superadmin</div>
+                </div>
+              </div>
+              <a href="" class="btn btn-outline-danger w-100 fw-semibold">Logout</a>
+            </div>
+          </div>
+
+            <!-- ⬅️ Hamburger button pindah ke sini -->
+            <button class="btn btn-light d-lg-none" id="toggle-sidebar">
+              <i class="fas fa-bars"></i>
+            </button>
+          </div>
+        </div>
+      </nav>
+        
+      <!-- CONTENT PLACEHOLDER -->
+      <div class="card pesan-masuk-card p-4 shadow-sm mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center">
+            <img src="{% static 'modiva3/img/icons/documents.png' %}" alt="Icon" class="icon-table me-2">
+            <h5 class="text-black fw-bold mb-0">Pesan Masuk</h5>
+          </div>
+          <button class="btn btn-warning text-white"><i class="fas fa-file-export me-2"></i>Export</button>
+        </div>
+      
+        <!-- Search -->
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="Cari Pesan">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+        </div>
+      
+        <!-- Table -->
+        <div class="table-responsive pesan-masuk-table-wrapper">
+          <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light text-center">
+              <tr>
+                <th>Nama Puskesmas</th>
+                <th>Email</th>
+                <th>Pesan</th>
+                <th>Waktu Submit</th>
+                <th class="text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Puskesmas Sukmajaya</td>
+                <td><a href="mailto:sukmajaya@depok.go.id">sukmajaya@depok.go.id</a></td>
+                <td>Kami tertarik menjalin kerjas...</td>
+                <td>14 Juli 2025, 10:22 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+              <tr>
+                <td>Puskesmas Beji</td>
+                <td><a href="mailto:beji@depok.go.id">beji@depok.go.id</a></td>
+                <td>Mohon informasi terkait pote..</td>
+                <td>13 Juli 2025, 08:45 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+              <tr>
+                <td>Puskesmas Cimanggis</td>
+                <td><a href="mailto:cimanggis@depok.go.id">cimanggis@depok.go.id</a></td>
+                <td>Ingin berdiskusi peluang kol..</td>
+                <td>10 Juli 2025, 14:30 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+
+              <tr>
+                <td>Puskesmas Sukmajaya</td>
+                <td><a href="mailto:sukmajaya@depok.go.id">sukmajaya@depok.go.id</a></td>
+                <td>Kami tertarik menjalin kerjas...</td>
+                <td>14 Juli 2025, 10:22 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+              <tr>
+                <td>Puskesmas Beji</td>
+                <td><a href="mailto:beji@depok.go.id">beji@depok.go.id</a></td>
+                <td>Mohon informasi terkait pote..</td>
+                <td>13 Juli 2025, 08:45 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+              <tr>
+                <td>Puskesmas Cimanggis</td>
+                <td><a href="mailto:cimanggis@depok.go.id">cimanggis@depok.go.id</a></td>
+                <td>Ingin berdiskusi peluang kol..</td>
+                <td>10 Juli 2025, 14:30 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+              <tr>
+                <td>Puskesmas Sukmajaya</td>
+                <td><a href="mailto:sukmajaya@depok.go.id">sukmajaya@depok.go.id</a></td>
+                <td>Tertarik menjalin kerja sama..</td>
+                <td>14 Juli 2025, 10:22 WIB</td>
+                <td class="text-center">
+                  <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="" class="btn btn-sm btn-info text-white" title="Lihat Detail">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    </a>
+                    <a href="#" class="btn btn-sm btn-danger" title="Hapus">
+                      <i class="fas fa-trash-alt"></i>
+                    </a>
+                  </div>
+                </td>                
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Modal Notifikasi -->
+    <div class="modal fade" id="notifModal" tabindex="-1" aria-labelledby="notifModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="notifModalLabel">Notifikasi</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+          </div>
+          <div class="modal-body">
+            Belum ada notifikasi baru.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'modiva3/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        document.getElementById('toggle-sidebar').addEventListener('click', function() {
+          document.querySelector('.sidebar').classList.toggle('show');
+        });
+      </script>
+      
+</body>
+</html>

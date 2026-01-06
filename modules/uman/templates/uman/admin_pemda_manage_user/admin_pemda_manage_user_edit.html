@@ -1,0 +1,37 @@
+{% extends 'includes/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+        {% include 'uman/admin_pemda_manage_user/admin_pemda_manage_user_edit_partial.html' %}
+  </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.group-select2').select2();
+    $('.kode_satker-select2').select2();
+    $('.kanwil-select2').select2();
+    $('.kppn-select2').select2();
+$('.akses_menu-select2').select2();
+
+$("#id_opd").change( function(){
+    var id_opd = $("#id_opd").val();
+    $.getJSON("{% url 'uman:uptd-ajax-list' %}?opd_id="+id_opd, function(data, status){
+    var options_uptd = "<option value>-----</option>";
+    for (const [key, value] of Object.entries(data)) {
+    //console.log(`${key}: ${value.pk}`);
+    options_uptd = options_uptd + "<option value='" +value.pk + "'>" + value.fields.nama + "</option>";
+}
+    $("#id_uptd").html( options_uptd );
+  });   
+});
+$("#help_groupmenu").click(function(){ $('#groupmenu_list').modal('show');} );
+
+});
+</script>
+{% include 'uman/admin_pemda_manage_user/modal_list_groupmenu.html' %}
+{% include 'includes/datatables.html' %}
+{% endblock javascripts %}

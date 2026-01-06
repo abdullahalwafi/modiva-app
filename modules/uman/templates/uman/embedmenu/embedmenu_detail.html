@@ -1,0 +1,77 @@
+{% load static  %}
+{% load uman_tags %}
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Menu</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.menu }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Secret Key</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.secretkey}}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Url Metabase</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.url_metabase }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Metabase ID</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.metabase_id }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Tahun</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_tahun }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Pemda</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_pemda }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Kode Satker</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_kodsatker }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Kode Pemda</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_kodpemda }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Provinsi</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_provinsi }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Parameter Kementerian</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.param_kementerian }}</span>
+        </div>
+    </div>
+    </div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:embedmenu-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+</div>
+{% endblock content %}
+{% block javascripts %}
+ {% include 'includes/set_title.html' %}
+{% endblock javascripts %}

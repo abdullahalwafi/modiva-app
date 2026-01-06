@@ -1,0 +1,86 @@
+{% load static %}
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Aplikasi</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.name }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Deskripsi</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.description %}{{ object.description }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Image</label>
+        <div class="col-lg-8">
+            <div class="symbol symbol-45px me-5">
+                    <img src="{% get_media_prefix%}{{ object.image }}" alt="Image of {{ object.name }}">     
+            </div>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Info Grafis</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.infografis}}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Faw</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.faw %}{{ object.faw}}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Group</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.group %}{{ object.group}}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">URL</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.url %}{{ object.url}}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Urutan</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.urutan}}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Aktif</label>
+        <div class="col-lg-8">
+        {% if  object.aktif  %}
+           <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+        {% else %}
+           <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+        {% endif %}
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Modul</label>
+        <div class="col-lg-8">
+        {% if  object.as_modul  %}
+           <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+        {% else %}
+           <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+        {% endif %}
+        </div>
+    </div>
+  </div>
+  <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:aplikasi-list'  %}" class="btn btn-secondary mr-2"> <i class="fa fa-undo"></i> Kembali</a>
+  </div>
+</div>
+</div>
+{% endblock content %}
+{% block javascripts %}
+{% include 'includes/set_title.html' %}
+{% endblock javascripts %}

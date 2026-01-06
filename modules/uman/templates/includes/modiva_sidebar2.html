@@ -1,0 +1,177 @@
+{% load static %} 
+
+ <style>
+        .nav-item {
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background-color: rgb(215, 215, 215);
+        }
+
+            .nav-item .nav-link span {
+        font-weight: bold;
+    }
+    
+    </style>
+
+       <!-- Sidebar -->
+       <ul class="navbar-nav bg-white sidebar sidebar-light accordion" id="accordionSidebar">
+
+            <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{% url 'vitamin:dashboard-list' %}">
+            <div class="sidebar-brand-icon rotate-n-15">
+            <img src="{% static 'modiva2/img/favicon.png' %}" alt="Logo" style="width: 30px; height: 30px;">
+            </div>
+            <div class="sidebar-brand-text mx-3">Modiva Dashboard</div>
+        </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'vitamin:dashboard-list' %}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+            </a>
+        </li>
+
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Master Data
+            </div>
+
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>Pengaturan</span>
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'uman:menu-list' %}">
+                            <i class="fas fa-bars mr-2"></i> Menu
+                        </a>
+                        <a class="collapse-item" href="{% url 'uman:aplikasi-list' %}">
+                            <i class="fas fa-th-large mr-2"></i> Aplikasi
+                        </a>
+                        <a class="collapse-item" href="{% url 'uman:group-list' %}">
+                            <i class="fas fa-users mr-2"></i> Group
+                        </a>
+                        <a class="collapse-item" href="{% url 'uman:groupmenu-list' %}">
+                            <i class="fas fa-list-ul mr-2"></i> Group Menu
+                        </a>
+                        <a class="collapse-item" href="{% url 'uman:groupaplikasi-list' %}">
+                            <i class="fas fa-layer-group mr-2"></i> Group Aplikasi
+                        </a>
+                        <a class="collapse-item" href="{% url 'uman:userdetail-list' %}">
+                            <i class="fas fa-user mr-2"></i> User Detail
+                        </a>
+                    </div>
+                </div>
+
+            </li>
+
+            <!-- Nav Item - Utilities Collapse Menu -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities"
+                    aria-expanded="true" aria-controls="collapseUtilities">
+                    <i class="fas fa-fw fa-wrench"></i>
+                    <span>Referensi</span>
+                </a>
+                <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{% url 'vitamin:provinsi-list' %}">
+                            <i class="fas fa-map-marked-alt mr-2"></i> Provinsi
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:kabkota-list' %}">
+                            <i class="fas fa-city mr-2"></i> Kabupaten Kota
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:kecamatan-list' %}">
+                            <i class="fas fa-map mr-2"></i> Kecamatan
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:kelurahan-list' %}">
+                            <i class="fas fa-map-pin mr-2"></i> Kelurahan
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:puskesmas-list' %}">
+                            <i class="fas fa-clinic-medical mr-2"></i> Puskesmas
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:vitamin-list' %}">
+                            <i class="fas fa-capsules mr-2"></i> Vitamin
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:satuan-list' %}">
+                            <i class="fas fa-balance-scale mr-2"></i> Satuan
+                        </a>
+                        <a class="collapse-item" href="{% url 'vitamin:sekolah-list' %}">
+                            <i class="fas fa-school mr-2"></i> Sekolah
+                        </a>
+                    </div>
+                </div>
+
+            </li>
+
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Puskesmas
+            </div>
+
+
+            <!-- Nav Item - Charts -->
+           <!-- Nav Item - Stok Obat -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vitamin:stokobat-list' %}">
+                        <i class="fas fa-pills fa-fw"></i>
+                        <span>Stok Obat</span>
+                    </a>
+                </li>
+
+                <!-- Nav Item - Distribusi Obat -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'vitamin:disobat-list' %}">
+                        <i class="fas fa-truck-loading fa-fw"></i>
+                        <span>Distribusi Obat</span>
+                    </a>
+                </li>
+
+
+
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Sekolah
+            </div>
+
+
+            <!-- Nav Item - Charts -->
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vitamin:distsiswa-list' %}">
+                    <i class="fas fa-user-graduate fa-fw"></i>
+                    <span>Distribusi Siswa</span>
+                </a>
+            </li>
+
+
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+ 
+
+        </ul>
+                <!-- End of Sidebar -->

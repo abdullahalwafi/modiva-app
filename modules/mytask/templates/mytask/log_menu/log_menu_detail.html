@@ -1,0 +1,71 @@
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Produk</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ produk.nama }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Menu</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.menu.name }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">URL</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.menu.url }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">User</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.user.username }} </span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">NIP</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.user.userdetail.nik }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Tanggal</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.created_at.date | date:'d M Y' }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Waktu Awal</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if awal %}{{awal}}{% else %}{{ object.created_at.time }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Waktu Akhir</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if akhir %}{{akhir}}{% else %}{{ object.updated_at.time }}{% endif %}</span>
+        </div>
+    </div>
+   {% comment %}
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Data</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.data }}</span>
+        </div>
+    </div>
+   {% endcomment %}
+</div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'mytask:log-aktifitas'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+
+
+ {% include 'includes/set_title.html' %}

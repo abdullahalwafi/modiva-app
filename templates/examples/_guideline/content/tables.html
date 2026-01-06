@@ -1,0 +1,30 @@
+{% extends "examples/_guideline/base_documentations.html" %}
+{% load static %}
+
+{% block content %}
+<h1>TABLES</h1>
+<br/>
+{% include "examples/_guideline/technical_guide.html" %}
+<br/><br/>
+<h3>Examples:</h3><br/>
+{% component_block "table_widget1" tables=tables %}
+    {% fill "title" %}INI TITLE TABLE{% endfill %}
+    {% fill "subtitle" %}INI SUBTITLE TABLE{% endfill %}
+{% endcomponent_block %}
+
+{% endblock  %}
+
+{% block javascripts %}
+
+<script src="{% static 'assets/js/custom/apps/user-management/users/list/table.js' %}"></script>
+<script src="{% static 'assets/js/custom/apps/user-management/users/list/export-users.js' %}"></script>
+<script src="{% static 'assets/js/custom/apps/user-management/users/list/add.js' %}"></script>
+<script src="{% static 'assets/js/widgets.bundle.js' %}"></script>
+<script src="{% static 'assets/js/custom/widgets.js' %}"></script>
+<script src="{% static 'assets/js/custom/apps/chat/chat.js' %}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/upgrade-plan.js' %}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/create-campaign.js' %}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/create-app.js' %}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/users-search.js' %}"></script>
+
+{% endblock javascripts %}

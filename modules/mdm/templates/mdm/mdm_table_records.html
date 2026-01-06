@@ -1,0 +1,87 @@
+{% load core_tags %}
+{% load static %}
+{% include 'mdm/modal.html'  %}
+
+
+<div>
+    {% include 'includes/alerts.html' %}
+</div>
+<div class="card">
+    <span id="title" hidden>{{ title }} </span>
+    <div class="card-body">
+        <div class="border rounded p-3 shadow row" style="padding-bottom:100px;">
+            <div class="col-10 d-flex align-items-center">
+                <span>API URL :</span>
+                <input type="text" value="{{ request.build_absolute_uri }}api" id="myInput">
+                <button onclick="myFunction()"><i class="fas fa-copy"></i></button>
+            </div>
+            <div class="col-2">
+                {% if table_name == 'keu_tags' or table_name == 'vw_keu_kegiatan_mapping' %}
+                    <!-- Excel Upload Button -->
+                    <button id="uploadExcelBtn" class="btn btn-primary">Upload Excel</button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="table-responsive pt-6">
+            <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0" style="width: 100%;">
+                <thead>
+                    <tr>
+                        {% for column in columns %}
+                            <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                        <tr>
+                            {% for value in record %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+{% include 'includes/datatables.html' %}
+{% include 'includes/set_title.html' %}
+
+<script>
+function myFunction() {
+    // Get the text field
+    var copyText = document.getElementById("myInput");
+    
+    // Select the text field
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // For mobile devices
+    
+        // Copy the text inside the text field
+    navigator.clipboard.writeText(copyText.value);
+    
+    // Alert the copied text
+    alert("Copied the text: " + copyText.value);
+}
+
+document.getElementById("uploadExcelBtn").addEventListener("click", function() {
+    var modal = document.getElementById("excelUploadModal");
+    modal.style.display = "block";
+});
+
+document.getElementsByClassName("close")[0].addEventListener("click", function() {
+    var modal = document.getElementById("excelUploadModal");
+    modal.style.display = "none";
+});
+
+window.onclick = function(event) {
+    var modal = document.getElementById("excelUploadModal");
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+};
+
+</script>
+
+{% endblock %}

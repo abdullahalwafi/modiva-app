@@ -1,0 +1,166 @@
+{% load static %}
+<!-- Map Container -->
+<h2 class="head" style="text-align: center;">Peta Sekolah - Kota Administratif Depok, Jawa Barat</h2>
+
+<div class="container-fluid">
+  <div class="row mb-2">
+    <div class="col-md-3">
+      <label for="filter-kecamatan" class="form-label">Filter Kecamatan:</label>
+    </div>
+    <div class="col-md-3">
+      <select id="filter-kecamatan" class="form-select">
+        <option value="">Semua Kecamatan</option>
+        {% for kecamatan in kecamatan_list %}
+        <option value="{{ kecamatan.id }}" {% if kecamatan.id == selected_kecamatan_id %}selected{% endif %}>
+          {{ kecamatan.nama }}
+        </option>
+        {% endfor %}
+      </select>
+
+    </div>
+    <div class="col-md-6">
+      <input type="checkbox" id="cb-batas-wilayah">
+      <label for="cb-batas-wilayah">Tampilkan Batas Wilayah</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12" style="height: 400px;">
+      <div id="map" style="width: 100%; height: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+<section id="stats" class="stats section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <div class="container section-title" data-aos="fade-up">
+      <h3 style="color:black">Informasi Sekolah</h3>
+      <div id="info-gps" class="col-md-12 mt-3 border rounded p-2">
+        <p class="text-muted" style="text-align:justify">
+          Klik pada marker sekolah untuk mendapatkan informasi lebih lanjut.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  var map = L.map('map').setView([-6.4025, 106.8181], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var sekolah = {{ sekolah_json| safe }};
+  var markers = [];
+
+  var schoolIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/201/201623.png',
+    iconSize: [30, 30],
+    iconAnchor: [15, 30],
+    popupAnchor: [0, -30]
+  });
+
+  function showInfo(data) {
+    document.getElementById('info-gps').innerHTML = `
+      <b>Kode:</b> ${data.kode}<br>
+      <b>Nama:</b> ${data.nama}<br>
+      <b>Kelurahan:</b> ${data.kelurahan__nama}<br>
+      <b>Kecamatan:</b> ${data.kelurahan__kecamatan__nama}<br>
+      <b>Koordinat GPS:</b> ${data.gps_koordinat}
+    `;
+  }
+
+  function renderMarkers(filterKecamatan) {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    sekolah.forEach(function (lokasi) {
+      var coords = lokasi.gps_koordinat.split(',');
+      var lat = parseFloat(coords[0]);
+      var lng = parseFloat(coords[1]);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        if (!filterKecamatan || String(lokasi.kelurahan__kecamatan__id) === filterKecamatan) {
+          var popupContent = `
+            <b>Kode:</b> ${lokasi.kode}<br>
+            <b>Nama:</b> ${lokasi.nama}<br>
+            <b>Kelurahan:</b> ${lokasi.kelurahan__nama}<br>
+            <b>Kecamatan:</b> ${lokasi.kelurahan__kecamatan__nama}
+          `;
+
+          var marker = L.marker([lat, lng], { icon: schoolIcon }).addTo(map);
+          marker.bindPopup(popupContent);
+
+          marker.on('click', function () {
+            showInfo(lokasi);
+            askChatAboutSekolah(lokasi);
+          });
+
+          markers.push(marker);
+        }
+      }
+    });
+  }
+
+  // Render awal
+  renderMarkers('');
+
+  // Event saat filter kecamatan berubah
+  document.getElementById('filter-kecamatan').addEventListener('change', function () {
+    renderMarkers(this.value);
+    showBatasWilayah(this.value ? { kode: this.value } : null);
+  });
+
+  // Checkbox untuk batas wilayah
+  var batasWilayahLayer = null;
+  function showBatasWilayah(lokasi) {
+    if (batasWilayahLayer) {
+      map.removeLayer(batasWilayahLayer);
+      batasWilayahLayer = null;
+    }
+    if (!lokasi || !lokasi.kode || !document.getElementById('cb-batas-wilayah').checked) return;
+
+    var geojsonUrl = "{% static 'peta/3276/' %}" + lokasi.kode + ".geojson";
+    fetch(geojsonUrl)
+      .then(res => res.json())
+      .then(data => {
+        batasWilayahLayer = L.geoJSON(data, {
+          style: { color: 'red', weight: 2, fillOpacity: 0.05 }
+        }).addTo(map);
+      })
+      .catch(() => console.log("Batas wilayah tidak ditemukan:", lokasi.kode));
+  }
+
+  document.getElementById('cb-batas-wilayah').addEventListener('change', function () {
+    const kecamatanVal = document.getElementById('filter-kecamatan').value;
+    showBatasWilayah(kecamatanVal ? { kode: kecamatanVal } : null);
+  });
+
+  // Fungsi ambil jawaban AI
+  function askChatAboutSekolah(data) {
+    const prompt = `Berikan informasi tentang sekolah berikut:\n` +
+      `Nama : ${data.nama}\n` +
+      ` di Kelurahan: ${data.kelurahan__nama}\n` +
+      ` Kecamatan: ${data.kelurahan__kecamatan__nama}\n` +
+      ` Lokasi GPS: ${data.gps_koordinat}`;
+
+    const formattedMessage = 'jawab dalam bahasa indonesia. ' + prompt;
+
+    fetch("/chat-api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: formattedMessage })
+    })
+      .then(res => res.json())
+      .then(result => {
+        var result_ai = result.reply.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+        document.getElementById('info-gps').innerHTML +=
+          `<hr><div style="text-align:left;"><b>AI:</b>${result_ai.map(item => `<p>${item}</p>`).join('')}</div>`;
+      })
+      .catch(() => {
+        document.getElementById('info-gps').innerHTML += `<hr><span class="text-danger">Gagal mengambil jawaban AI.</span>`;
+      });
+  }
+
+</script>

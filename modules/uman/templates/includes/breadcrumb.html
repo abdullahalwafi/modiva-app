@@ -1,0 +1,27 @@
+<!--begin::Item-->
+{% load core_tags %}
+{% for bread_item in bread %} 
+ {% if bread_item %}
+  {% if forloop.first %}
+ {% comment %}
+  <li class="breadcrumb-item text-gray-600">
+    <a href="{% if bread_item.aplikasi.url %}{{bread_item.aplikasi.url}}{% else %}#{% endif %}" class="text-gray-600 text-hover-primary">{{ bread_item.aplikasi.name }} </a>
+  </li>
+ {% endcomment %}
+  {% else %}
+  <li class="breadcrumb-item text-gray-600">
+    <a href="{% if bread_item.url and not bread_item.isembed %}{% make_absolute_path bread_item.url %}{% else %}{% make_absolute_path request.get_full_path %}{% endif %}" class="text-gray-600 text-hover-primary">{{ bread_item.name }} </a>
+  </li>
+  {% endif %} 
+ {% endif %}
+{% endfor %}
+
+{% comment %}
+<!--end::Item-->
+<!--begin::Item-->
+<li class="breadcrumb-item text-gray-600">Corporate</li>
+<!--end::Item-->
+<!--begin::Item-->
+<li class="breadcrumb-item text-gray-500">Licenses</li>
+<!--end::Item-->
+{% endcomment %}

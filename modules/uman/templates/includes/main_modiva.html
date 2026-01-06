@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <!-- <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon"> -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body class="index-page" >
+
+ 
+  {% include 'navbar.html' with user=user %}
+
+ {% block content %}
+
+     
+  <main class="main" style="background-color:red;">
+
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- Section Title -->
+        <div class="container section-title" data-aos="fade-up">
+          <h1>Distribusi Vitamin</h1>
+          <p class="text-muted">Lebih dari 20 puskesmas, 45 sekolah, dan 1.000+ siswi telah terlibat dalam program distribusi Vitamin Penambah Darah. Sistem ini memastikan penyaluran
+            dilakukan secara tepat sasaran dan terpantau, sehingga setiap siswi yang membutuhkan mendapatkan manfaatnya secara langsung.</p>
+        </div><!-- End Section Title -->
+
+        <div class="row gy-4">
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" 
+                      data-purecounter-start="0" 
+                      data-purecounter-end="20" 
+                      data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Puskesmas telah bergabung</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" 
+                      data-purecounter-start="0" 
+                      data-purecounter-end="45" 
+                      data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Sekolah telah menyalurkan</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" 
+                      data-purecounter-start="0" 
+                      data-purecounter-end="1000" 
+                      data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Siswi telah menerima Vitamin</p>
+            </div>
+          </div><!-- End Stats Item -->

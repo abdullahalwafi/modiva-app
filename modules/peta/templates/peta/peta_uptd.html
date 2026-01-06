@@ -1,0 +1,101 @@
+<!-- Map Container -->
+<h2 class="head" style="text-align: center;">Peta Puskesmas - Kota Administratif Depok, Jawa Barat</h2>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12" style="height: 300px;">
+      <div id="map" style="width: 100%; height: 100%;"></div>
+    </div>
+  </div>
+</div>
+
+<section id="stats" class="stats section">
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+      <h3 style="color:black">Informasi Puskesmas</h3>
+      <div id="info-gps" class="col-md-12 mt-3 border rounded p-2">
+        <p class="text-muted">Klik pada marker puskesmas untuk mendapatkan informasi lebih lanjut.</p>
+      </div>
+    </div><!-- End Section Title -->
+  </div>
+</section>
+
+<script>
+  // Inisialisasi peta di koordinat Depok
+  var map = L.map('map').setView([-6.4025, 106.8181], 12);
+
+  // Tambahkan tile layer dari OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var puskesmas = {{ puskesmas_json| safe }};
+
+  // Custom icon
+  var anchorIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+
+  function showInfo(data) {
+    document.getElementById('info-gps').innerHTML = `
+      <b>Kode:</b> ${data.kode}<br>
+      <b>Nama:</b> ${data.nama}<br>
+      <b>Kelurahan:</b> ${data.kelurahan__nama}<br>
+      <b>Kecamatan:</b> ${data.kelurahan__kecamatan__nama}<br>
+      <b>Koordinat GPS:</b> ${data.gps_koordinat}      
+    `;
+  }
+
+  // Tambahkan marker untuk setiap puskesmas
+  puskesmas.forEach(function (lokasi) {
+    var coords = lokasi.gps_koordinat.split(',');
+    var lat = parseFloat(coords[0]);
+    var lng = parseFloat(coords[1]);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      var popupContent = `
+        <b>Kode:</b> ${lokasi.kode}<br>
+        <b>Nama:</b> ${lokasi.nama}<br>
+        <b>Kelurahan:</b> ${lokasi.kelurahan__nama}<br>
+        <b>Kecamatan:</b> ${lokasi.kelurahan__kecamatan__nama}`;
+
+      var marker = L.marker([lat, lng], { icon: anchorIcon }).addTo(map);
+      marker.bindPopup(popupContent);
+      marker.on('click', function () {
+        showInfo(lokasi);
+        askChatAboutPuskesmas(lokasi);
+      });
+    }
+  });
+
+  function askChatAboutPuskesmas(data) {
+    const prompt = `Berikan informasi tentang layanan puskesmas berikut:\n` +
+      `Nama : ${data.nama}\n` +
+      ` di Kelurahan: ${data.kelurahan__nama}\n` +
+      ` Kecamatan: ${data.kelurahan__kecamatan__nama}\n` +
+      ` Lokasi GPS: ${data.gps_koordinat}`;
+
+    const formattedMessage = 'jawab dalam bahasa indonesia. ' + prompt;
+    console.log("Asking AI:", prompt);
+
+    fetch("/chat-api", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: formattedMessage })
+    })
+      .then(res => res.json())
+      .then(result => {
+        console.log("AI Response:", result.reply);
+        var result_ai = result.reply.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+
+        document.getElementById('info-gps').innerHTML +=
+          `<hr><div class="text-start"><b>AI:</b>${result_ai.map(item => `<p style="margin:4px 0;">${item}</p>`).join('')}</div>`;
+      })
+      .catch(() => {
+        document.getElementById('info-gps').innerHTML += `<hr><span class="text-danger">Gagal mengambil jawaban AI.</span>`;
+      });
+  }
+</script>

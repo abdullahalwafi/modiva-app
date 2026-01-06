@@ -1,0 +1,35 @@
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Produk</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.nama }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Aktif</label>
+        <div class="col-lg-8">
+            {% if  object.aktif  %}
+                <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+            {% else %}
+                <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+            {% endif %} 
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Menu</label>
+        <div class="col-lg-8">
+            <ol> {% for menu in menu_list %} <li> {{menu.name}} </li> {% endfor %}</ol>
+        </div>
+    </div>
+</div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'mytask:produk-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+{% include 'includes/set_title.html' %}

@@ -1,0 +1,30 @@
+{% extends 'includes/base.html' %}
+{% load core_tags %}
+{% load static %}
+{% block stylesheets %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/select/1.4.0/css/select.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.1.2/css/dataTables.dateTime.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/4.1.0/css/fixedColumns.dataTables.min.css">
+<link rel="stylesheet" href="https://editor.datatables.net/extensions/Editor/css/editor.dataTables.min.css">
+<style>
+/* Ensure that the demo table scrolls */
+    /* th, td { white-space: nowrap; } */
+    table.dataTable thead th {white-space: nowrapa;}
+    thead, th {text-align: center; }
+    div.dataTables_wrapper {
+        width: 100%;
+        margin: 0 auto;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block javascripts %}
+<script src="{% static 'assets/js/widgets.bundle.js'%}"></script>
+<script src="{% static 'assets/js/custom/widgets.js'%}"></script>
+<script src="{% static 'assets/js/custom/apps/chat/chat.js'%}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/upgrade-plan.js'%}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/create-campaign.js'%}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/create-app.js'%}"></script>
+<script src="{% static 'assets/js/custom/utilities/modals/users-search.js'%}"></script>
+{% endblock %}

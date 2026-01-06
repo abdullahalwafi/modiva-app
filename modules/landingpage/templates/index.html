@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+{% load widget_tweaks %}
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <!-- <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon"> -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body class="index-page">
+
+  <header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+      <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
+        <!-- Uncomment the line below if you also wish to use an image logo -->
+        <img src="{% static 'assets/img/logo2.png' %}" alt="">
+        <!-- <h1 class="sitename">MODIVA</h1> -->
+      </a>
+
+      <nav id="navmenu" class="navmenu">
+        <ul>
+          <li><a href="{% url 'uman:homepage' %}" class="active">Home</a></li>
+          <li><a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
+          <li><a href="{% url 'landingpage:daftar' %}">Daftar</a></li>
+        </ul>
+        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+      </nav>
+
+      <a class="btn-getstarted d-flex align-items-center gap-2"
+        href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
+        <i class="bi bi-person-fill me-2"></i>
+        {% if user.is_authenticated %}
+        {{ user.first_name|default:user.username }}<br>
+        {{ user.last_name|default:user.username }}
+        {% else %}
+        Login
+        {% endif %}
+      </a>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Tombol Buka Chat -->
+    <button id="openChat">
+
+      <img src="{{ MEDIA_URL }}aplikasi/icon-diva.png" alt="Diva Icon">
+    </button>
+
+
+    <!-- Chat Widget (Custom, bukan modal Bootstrap) -->
+
+
+    <div id="chatModal"
+      style="display: none; position: fixed; bottom: 100px; right: 32px; width: 350px; max-height: 500px; z-index: 1060; flex-direction: column; border-radius: 1rem; background-color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.2);">
+
+      <!-- Header -->
+      <div class="bg-default text-white px-3 py-2 rounded-top">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <img src="{{ MEDIA_URL }}aplikasi/icon-diva.png" alt="Ka Diva"
+              style="width: 62px; height: 62px; border-radius: 50%; object-fit: cover;">
+
+            <div class="mb-0" style="color: black;">Tanya <br><strong>AI Assistant</strong></div>
+          </div>
+
+
+          <button type="button" style="color: black;" class="btn-close btn-close-black" aria-label="Tutup"
+            onclick="closeAndRefresh()"></button>
+
+        </div>
+        <!-- Dropdown model (rapi, di bawah judul) -->
+        <!-- <div class="mt-2">
+      <label for="model-select" class="form-label mb-1 small">Pilih Model</label>
+      <select id="model-select" class="form-select form-select-sm">
+        <option value="">-- Pilih Model --</option>
+        <option value="llama3-70b-8192" selected>LLaMA 3 - 70B</option>
+        <option value="gemma2-9b-it">Gemma 7B</option>
+        <option value="deepseek-r1-distill-llama-70b">DeepSeek Coder 33B</option>
+      </select>
+
+      
+    </div> -->
+      </div>
+
+      <!-- Chat box -->
+      <div style="padding: 10px; background: #fafafa; overflow-y: auto; height: 300px;" id="chat-box">
+        <!-- Chat messages will appear here -->
+      </div>
+
+      <!-- Input area -->
+      <div class="d-flex gap-2 p-2 border-top">
+        <input type="text" id="user-input" class="form-control" placeholder="Ketik pesan..." autocomplete="off">
+        <button class="btn btn-primary" id="sendMessage">Kirim</button>
+      </div>
+    </div>
+
+
+
+
+
+    <!-- Hero Section -->
+    <section id="hero" class="hero section">
+
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-6 order-1 order-lg-1 hero-img" data-aos="zoom-out" data-aos-delay="100">
+            <img src="{% static 'assets/img/hero-img4.png' %}" class="img-fluid animated" alt="">
+          </div>
+          <div class="col-lg-6 order-2 order-lg-2 d-flex flex-column justify-content-center" style="margin-top: 0px;"
+            data-aos="fade-up">
+            <h1 class="welcome">Selamat Datang!</h1>
+            <h2>di Sistem Monitoring Distribusi Vitamin
+              <br> Penambah Darah Pemerintah Kota Depok
+            </h2>
+            <p>Sistem berbasis web untuk memantau distribusi vitamin penambah darah ke sekolah-sekolah di sekitar
+              wilayah puskesmas. Memastikan penyaluran vitamin sesuai rencana dan tepat sasaran.</p>
+            <div class="d-flex align-items-center justify-content-start flex-wrap gap-4">
+              <div class="align-self-start">
+                <img src="{% static 'assets/img/logo-gabungan.png' %}" alt="Gabungan Logo"
+                  class="img-fluid gabunganlogo">
+              </div>
+              <div class="d-flex flex-column align-items-start text-start">
+                <h1 class="m-0 totaljoin">
+                  50<span style="color: var(--nav-hover-color)">+</span>
+                </h1>
+                <h1 class="join">Puskesmas dan Sekolah Telah Bergabung</h1>
+                <a href="{% url 'landingpage:mitra' %}" class="btn-get-started mt-2">Lihat Selengkapnya</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- Featured Services Section -->
+    <section id="featured-services" class="featured-services section">
+
+      <div class="container">
+        <!-- Judul dan Deskripsi -->
+        <div class="text-center mb-5">
+          <h1>Alur Sistem Monitoring Distribusi</h1>
+          <p class="text-muted">
+            Sistem ini memastikan distribusi vitamin penambah darah terpantau dengan baik. Setiap tahapan dirancang
+            untuk
+            memudahkan puskesmas dan sekolah di Kota Depok dalam mendata serta memastikan vitamin tersalurkan kepada
+            penerima yang tepat.
+          </p>
+        </div>
+
+        <div class="row gy-4">
+
+          <div class="col-lg-3 d-flex" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi bi-truck"></i></div>
+              <h4><a href="" class="stretched-link text-dark">Penyaluran vitamin</a></h4>
+              <p class="px-0 mx-0">Puskesmas mendistribusikan vitamin penambah darah ke sekolah disekitar lokasi dekat
+                Puskesmas.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-3 d-flex" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi-box-seam"></i></div>
+              <h4><a href="" class="stretched-link text-dark">Penerimaan & Distribusi</a></h4>
+              <p class="px-0 mx-0">Sekolah menerima notifikasi penyaluran dan mendistribusikan vitamin kepada siswa.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-3 d-flex" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi-check2-circle"></i></div>
+              <h4><a href="" class="stretched-link text-dark">Verivikasi Distribusi</a></h4>
+              <p class="px-0 mx-0">Sekolah memastikan distribusi sudah selesai dan mengunggah laporan ke sistem.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-3 d-flex" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon"><i class="bi-bar-chart-line"></i></div>
+              <h4><a href="" class="stretched-link text-dark">Pelaporan & Monitoring</a></h4>
+              <p class="px-0 mx-0">Puskesmas menerima notifikasi laporan distribusi dan disimpan sebagai dokumentasi.
+              </p>
+            </div>
+          </div><!-- End Service Item -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Featured Services Section -->
+
+    <!-- Stats Section -->
+    <section id="stats" class="stats section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- Section Title -->
+        <div class="container section-title" data-aos="fade-up">
+          <h1>Distribusi Vitamin</h1>
+          <p class="text-muted">Lebih dari 20 puskesmas, 45 sekolah, dan 1.000+ siswi telah terlibat dalam program
+            distribusi Vitamin Penambah Darah. Sistem ini memastikan penyaluran
+            dilakukan secara tepat sasaran dan terpantau, sehingga setiap siswi yang membutuhkan mendapatkan manfaatnya
+            secara langsung.</p>
+        </div><!-- End Section Title -->
+
+        <div class="row gy-4">
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" data-purecounter-start="0" data-purecounter-end="20"
+                  data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Puskesmas telah bergabung</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" data-purecounter-start="0" data-purecounter-end="45"
+                  data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Sekolah telah menyalurkan</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" data-purecounter-start="0" data-purecounter-end="1000"
+                  data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p>Siswi telah menerima Vitamin</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item text-center w-100 h-100">
+              <span>
+                <span class="purecounter number" data-purecounter-start="0" data-purecounter-end="3000"
+                  data-purecounter-duration="1">
+                </span>
+                <span class="plus">+</span>
+              </span>
+              <p> Vitamin telah didistribusikan</p>
+            </div>
+          </div><!-- End Stats Item -->
+
+        </div>
+
+      </div>
+
+    </section><!-- /Stats Section -->
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section py-5">
+      <div class="container">
+        <div class="row gy-4 align-items-center">
+          <!-- Kiri: Judul + Deskripsi -->
+          <div class="col-lg-6 title">
+            <h2 class="faq-title">FAQ?</h2>
+            <p class="faq-description">
+              Daftar pertanyaan yang sering diajukan oleh pengguna mengenai sistem monitoring distribusi vitamin
+              penambah darah.
+            </p>
+          </div>
+
+          <!-- Kanan: Card dengan pertanyaan -->
+          <div class="col-lg-6">
+            <div class="faq-box shadow">
+              <ul class="faq-list list-unstyled m-0">
+                <li class="d-flex align-items-start mb-4">
+                  <a href="#" class="faq-icon text-decoration-none">?</a>
+                  <a href="#" class="faq-text text-decoration-none ms-2">Siapa saja yang dapat menggunakan sistem
+                    ini?</a>
+                </li>
+                <li class="d-flex align-items-start mb-4">
+                  <a href="#" class="faq-icon text-decoration-none">?</a>
+                  <a href="#" class="faq-text text-decoration-none ms-2">Apa manfaat bergabung dengan sistem ini?</a>
+                </li>
+                <li class="d-flex align-items-start mb-4">
+                  <a href="#" class="faq-icon text-decoration-none">?</a>
+                  <a href="#" class="faq-text text-decoration-none ms-2">Bagaimana cara bergabung?</a>
+                </li>
+                <li class="d-flex align-items-start mb-4">
+                  <a href="#" class="faq-icon text-decoration-none">?</a>
+                  <a href="#" class="faq-text text-decoration-none ms-2">Apakah sistem ini berbayar?</a>
+                </li>
+                <li class="d-flex align-items-start">
+                  <a href="#" class="faq-icon text-decoration-none">?</a>
+                  <a href="#" class="faq-text text-decoration-none ms-2">Bagaimana jika terjadi kendala dalam penggunaan
+                    sistem?</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /FAQ Section -->
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <!-- Wrapper Merah Muda Transparan -->
+        <div class="form-wrapper rounded-4">
+
+          <!-- Judul & Deskripsi -->
+          <div class="section-title text-center">
+            <h1>Isi Form Untuk Menghubungi Kami</h1>
+            <p class="text-muted">
+              Ingin bergabung dengan sistem monitoring distribusi vitamin dan memastikan distribusi berjalan lebih
+              efektif?
+              Kirimkan pesan Anda, dan tim kami akan segera menghubungi untuk memberikan informasi lebih lanjut serta
+              panduan pendaftaran.
+            </p>
+          </div>
+
+          <!-- Form Box -->
+          <div class="form-box mx-auto">
+            <form method="post" novalidate>
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="{{ form.puskesmas.id_for_label }}" class="form-label text-start w-100">
+                  Nama Puskesmas
+                </label>
+                {{ form.puskesmas|add_class:"form-control rounded-3" }}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label text-start w-100">Email</label>
+                {{ form.email }}
+              </div>
+
+              <div class="mb-3">
+                <label for="{{ form.phone.id_for_label }}" class="form-label text-start w-100">Nomor Telepon</label>
+                {{ form.phone }}
+              </div>
+
+              <div class="mb-4">
+                <label for="{{ form.message.id_for_label }}" class="form-label text-start w-100">Pesan</label>
+                {{ form.message }}
+              </div>
+              <button type="submit" class="btn btn-success w-100 py-2 rounded-3">Kirim</button>
+            </form>
+          </div><!-- End form box -->
+
+        </div><!-- End wrapper -->
+
+      </div>
+    </section>
+    <!-- /Contact Section -->
+
+  </main>
+
+
+  <footer id="footer" class="footer">
+    <div class="container footer-top">
+      <h4>Didukung Oleh:</h4>
+      <div class="row gy-4">
+        <div class="col-lg-8 col-md-9 footer-about">
+          <div class="d-flex flex-wrap gap-4">
+            <!-- Kolom 1: Logo NF + Alamat -->
+            <div class="d-flex flex-column align-items-start">
+              <img src="{% static 'assets/img/Logo NF.png' %}" alt="Logo STT-NF" class="footer-logo">
+              <p>
+                Jl. Setu Indah No.116, Tugu,<br>
+                Kec. Cimanggis, Kota Depok,<br>
+                Jawa Barat
+              </p>
+            </div>
+
+            <!-- Kolom 2: Logo DAI + Alamat -->
+            <div class="d-flex flex-column align-items-start">
+              <img src="{% static 'assets/img/Logo DAI.png' %}" alt="Logo DAI" class="footer-logo">
+              <p>
+                Lab Data Science & Artificial Intelligence<br>
+                Ruang B4-204, Kampus B<br>
+                STT Terpadu Nurul Fikri
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-3 footer-links">
+          <h4><a href="{% url 'uman:homepage' %}" style="text-decoration: none; color: inherit;">MODIVA</a></h4>
+          <ul>
+            <li></i> <a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
+            <li></i> <a href="{% url 'landingpage:mitra' %}">Mitra Kami</a></li>
+            <li></i> <a href="{% url 'landingpage:sk' %}">Syarat & Ketentuan</a></li>
+            <li></i> <a href="{% url 'landingpage:privasi' %}">Privasi</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-2 col-md-12 footer-links">
+          <h4>Lainnya</h4>
+          <ul>
+            <li></i> <a href="{% url 'landingpage:daftar' %}">Daftarkan Puskesmas</a></li>
+            <li></i> Hubungi Kami</li>
+          </ul>
+          <div class="social-links d-flex">
+            <a href=""><i class="bi bi-facebook"></i></a>
+            <a href=""><i class="bi bi-instagram"></i></a>
+            <a href=""><i class="bi bi-envelope"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container copyright text-center">
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">MODIVA</strong> <span>Layanan situs ini didukung oleh
+          Sekolah Tinggi Teknologi Terpadu Nurul Fikri</span></p>
+    </div>
+
+  </footer>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Load Data Excel -->
+  <script>
+    fetch("{% static 'assets/puskesmas_depok.xlsx' %}")
+      .then(res => res.arrayBuffer())
+      .then(ab => {
+        const workbook = XLSX.read(ab, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(sheet);
+
+        const dropdown = document.getElementById("dropdownPuskesmas");
+        data.forEach(row => {
+          const option = document.createElement("option");
+          option.value = row.Nama;
+          option.textContent = row.Nama;
+          dropdown.appendChild(option);
+        });
+      });
+  </script>
+
+  <script>
+    const dropdown = document.getElementById('dropdownPuskesmas');
+
+    function updateDropdownColor() {
+      if (dropdown.value === '') {
+        dropdown.classList.remove('has-value');
+      } else {
+        dropdown.classList.add('has-value');
+      }
+    }
+
+    dropdown.addEventListener('change', updateDropdownColor);
+    // Set warna awal saat halaman dimuat
+    updateDropdownColor();
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const selectEl = document.getElementById("dropdownPuskesmas");
+      const infoEl = document.getElementById("lainnyaInfo");
+
+      selectEl.addEventListener("change", function () {
+        if (this.value.toLowerCase() === "lainnya") {
+          infoEl.style.display = "block";
+        } else {
+          infoEl.style.display = "none";
+        }
+      });
+    });
+  </script>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/php-email-form/validate.js' %}"></script>
+  <script src="{% static 'assets/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/purecounter/purecounter_vanilla.js' %}"></script>
+  <script src="{% static 'assets/vendor/imagesloaded/imagesloaded.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/isotope-layout/isotope.pkgd.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+
+
+  <!-- chatbot JS File -->
+  <script src="{% static 'chatbot/js/chat.js' %}"></script>
+
+
+  <!-- Main JS File -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <script>
+    function closeAndRefresh() {
+      document.getElementById('chatModal').style.display = 'none';
+      location.reload(); // ⬅️ Ini akan reload halaman
+    }
+  </script>
+  <style>
+    .model-icon {
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: 0.2s ease-in-out;
+    }
+
+    .model-icon:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .model-icon.selected {
+      border: 2px solid #9c0f0f;
+      border-radius: 50%;
+      opacity: 1;
+    }
+
+    #openChat:hover {
+      background-color: #157347;
+      /* darken on hover */
+      border-radius: 5px;
+    }
+
+    #openChat {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      z-index: 1055;
+      background: none;
+      border: none;
+      padding: 0;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+    }
+
+    #openChat img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  </style>
+
+</body>
+
+</html>

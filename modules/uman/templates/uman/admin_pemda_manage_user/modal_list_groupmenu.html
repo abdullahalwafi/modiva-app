@@ -1,0 +1,59 @@
+{% load uman_tags %}
+
+{% comment %}
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#preview_file_pdf">
+    Preview
+</button>
+{% endcomment %}
+
+<div class="modal fade" tabindex="-1" id="groupmenu_list">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Daftar Group Menu</h5>
+
+                <!--begin::Close-->
+                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="ki-duotone ki-cross fs-2x"><span class="path1"></span><span class="path2"></span></i>
+                </div>
+                <!--end::Close-->
+            </div>
+
+            <div class="modal-body">
+                <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0" style="width: 80%;">
+                <thead>
+                    <tr>
+                        <th> No</th>
+                        <th> Nama Group</th>
+                        <th> Daftar Menu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in groupmenu %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.group|upper }}</td>
+                        <td>
+                            <ul>
+                                {% for m in data.menu.all %}
+                                    <li>   
+                                            {% menu_full_path m %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+                </table>
+               
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                {% comment %}<button type="button" class="btn btn-primary">Save changes</button>{% endcomment %}
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,34 @@
+<div class="card">
+<span id="title" hidden>{{ title }} </span>  
+<div class="card-body">
+    <form method=POST>
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      <div class="form-group"> 
+        <H5>Anda yakin ingin menghapus unit {{object.nm_unit}} ? </H5>
+        </BR>
+        <ol>
+          <li> Nama Unit       : <b>{{ object.nm_unit }}</b></li>
+          <li> Kode Unit             : {{ object.kd_unit }}</li>
+          <li> Nama Eselon 2       : <b>{{ object.nm_es2 }}</b></li>
+          <li> Kode Eselon 2       : <b>{{ object.kd_es2 }}</b></li>
+        </ol>
+      </div>
+    
+      <div class="card-footer">
+        <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:unit-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Batal</a>
+        <button type="submit" class="btn btn-danger" hx-post="{% url 'uman:unit-delete' object.id %}" hx-target="#main-content" hx-swap="innerHTML">
+          <i class="fa fa-trash"></i> Hapus
+        </button>
+      </div>
+    </form>
+  </div>
+ </div>
+{% block javascripts %}
+ {% include 'includes/set_title.html' %}
+{% endblock %}
+
+

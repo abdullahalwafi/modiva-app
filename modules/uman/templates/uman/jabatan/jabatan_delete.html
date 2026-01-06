@@ -1,0 +1,31 @@
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+  <div class="card-body">
+    <form method=POST>
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      <div class="form-group"> 
+        <H5>Anda yakin ingin menghapus jabatan {{object.nm_jabatan}} ? </H5>
+        </BR>
+        <ol>
+          <li> Nama Jabatan       : <b>{{ object.nm_jabatan }}</b></li>
+          <li> Kode Jabatan             : {{ object.kd_jabatan }}</li>
+        </ol>
+      </div>
+    
+      <div class="card-footer">
+        <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:jabatan-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Batal</a>
+        <button type="submit" class="btn btn-danger" hx-post="{% url 'uman:jabatan-delete' object.id %}" hx-target="#main-content" hx-swap="innerHTML">
+          <i class="fa fa-trash"></i> Hapus
+        </button>
+      </div>
+    </form>
+  </div>
+ </div>
+{% block javascripts %}
+  {% include 'includes/set_title.html' %}
+{% endblock javascripts %}
+

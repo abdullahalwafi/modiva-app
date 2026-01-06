@@ -1,0 +1,39 @@
+<div class="card">
+ <span id="title" hidden>{{title}}</span>
+{% if messages %}
+{% for message in messages %}
+<!--begin::Alert-->
+<div class="alert alert-dismissible bg-light-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %} border border-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %} d-flex flex-column flex-sm-row p-5 mb-10">
+    <!--begin::Icon-->
+    <i class="ki-duotone {% if message.tags == 'error' %}ki-message-text-2{% else %}ki-pencil{% endif %}  fs-2hx text-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %} me-4 mb-5 mb-sm-0"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
+    <!--end::Icon-->
+
+    <!--begin::Wrapper-->
+    <div class="d-flex flex-column pe-0 pe-sm-10">
+        <!--begin::Title-->
+        <h5 class="mb-1">{{message.tags|upper}}</h5>
+        <!--end::Title-->
+
+        <!--begin::Content-->
+        <span>{{message}}</span>
+        <!--end::Content-->
+    </div>
+    <!--end::Wrapper-->
+
+    <!--begin::Close-->
+    <button type="button" class="position-absolute position-sm-relative m-2 m-sm-0 top-0 end-0 btn btn-icon ms-sm-auto" data-bs-dismiss="alert">
+        <i class="ki-duotone ki-cross fs-1 text-{% if message.tags == 'error' %}danger{% else %}{{message.tags}}{% endif %}"><span class="path1"></span><span class="path2"></span></i>
+    </button>
+    <!--end::Close-->
+</div>
+<!--end::Alert-->
+
+{% endfor %}
+
+
+{% endif %}
+</div>
+{% block javascripts %}
+ {% include 'includes/set_title.html' %}
+{% endblock %}
+

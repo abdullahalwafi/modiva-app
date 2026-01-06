@@ -1,0 +1,70 @@
+{% load widget_tweaks %}
+<div class="card">
+   {% include 'includes/spinner.html' %}
+      <span id="title" hidden>{{ title }} </span>
+    <div class="card-body">
+        <form hx-indicator='#loading' hx-post="{% url 'mytask:menuproduk-edit' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+
+            <div class="row mb-3">
+                 <div class="col-sm-3">
+                 <label class="col-sm-3 col-form-label">Produk</label>
+                 </div>
+                 <div class="col-sm-9">
+                    {{object.produk.nama}}
+                 </div>
+            </div>
+            {% for field in form.visible_fields %}
+               {% if field.label == "Produk" %}
+                    <input id="id_produk" type="hidden" name="produk" value="{{object.produk_id}}">
+               {% else %}
+            <div class="row mb-3">
+                <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-9">
+		   {% if field.name == 'aktif' %}
+                    <input type="checkbox" class="form-check-input"  name="{{field.name}}" id="id_{{field.name}}" 
+                           onclick="javascript:$(this).val(1)" value={{ object.aktif }} {% if object.aktif == 1  %}  
+                             checked{% else %} {% endif %}/>
+                   {% elif field.name == 'menu' %}
+                                {% render_field field class="menu-select2 form-control" multiple="multiple" %}
+                   {% else %}
+                         {{ field|add_class:'form-control' }}
+                   {% endif %} 
+               </div>
+                {% for error in field.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+                   {% endif %} 
+            {% endfor %}
+            <div class="row mb-3">
+                <label class="col-sm-3 col-form-label"></label>
+                <div class="col-sm-9">
+                    <span class="help-block">!! Menu dapat dipilih lebih dari satu</span>
+                </div>
+            </div>
+            <br />
+            <div class="card-footer">
+                
+                <a hx-indicator='#loading' hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click"
+                    hx-get="{% url 'mytask:produk-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-pencil"></i> Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.menu-select2').select2();
+});
+</script>
+{% include 'includes/set_title.html' %}
+
+{% endblock javascripts %}

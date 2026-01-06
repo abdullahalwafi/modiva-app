@@ -1,0 +1,43 @@
+{% load core_tags %}
+{% load static %}
+{% include 'includes/alerts.html' %}
+
+<div class="row g-5 g-lg-10">
+{% for app in aplikasis %}
+    <!--begin::Col-->
+    <div class="col-xl-4 mb-xl-10">
+        
+<!--begin::Image placeholder-->
+<style>
+    .statistics-widget-{{app.urutan}} {
+        background-image: url("{% get_static_prefix %}assets/media/svg/shapes/abstract-{{'12345'|random}}.svg");
+        background-size: 30% auto;
+    }
+
+    [data-bs-theme="dark"] .statistics-widget-{{app.urutan}} {
+        background-image: url("{% get_static_prefix %}assets/media/svg/shapes/abstract-{{'12345'|random}}-dark.svg");
+        background-size: 30% auto;
+    }
+</style>
+<!--end::Image placeholder-->
+
+<!--begin::Statistics Widget 1-->
+<div class="card bgi-no-repeat bgi-position-y-top bgi-position-x-end statistics-widget-{{app.urutan}} h-xl-100 {% if forloop.first %}bg-primary{%endif%}">
+    <!--begin::Body-->
+    <div class="card-body">
+        <a href="{% if app.url %}{% if app.as_modul %}{% make_absolute_path app.url %}{% else %}{{app.url}}{% endif%}{% endif %}" {% if not app.as_modul %}target="_blank"{% endif %} class="card-title fw-bold {% if forloop.first %}text-white{% else %}text-muted{%endif%} text-hover-primary fs-4">{{app.name}}</a>
+        </br>
+        </br>
+        <p class="text-gray-900-75 fw-semibold fs-5 m-0 {% if forloop.first %}text-white{% endif %}">
+                {% if app.description %}{{app.description}}{% else %}{{app.name}}{% endif %}
+        </p>
+    </div>
+    <!--end::Body-->
+</div>
+<!--end::Statistics Widget 1-->
+
+     </div>
+    <!--end::Col-->
+{% endfor %}
+</div>
+

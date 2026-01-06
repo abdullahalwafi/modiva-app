@@ -1,0 +1,9 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="mitra-title">{{ data.nama }}</div>
+    <label class="switch" title="Aktif / Nonaktif">
+        <input type="checkbox" {% if data.status == 1 %}checked{% endif %}
+            hx-post="{% url 'vitamin:toggle_status_sekolah' data.id %}" hx-trigger="change" hx-target="closest div"
+            hx-swap="outerHTML" hx-confirm="Yakin ingin mengubah status sekolah ini?">
+        <span class="slider round"></span>
+    </label>
+</div>

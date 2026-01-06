@@ -1,0 +1,35 @@
+<div class="content flex-row-fluid" id="kt_content">
+	<div class="card mb-5 mb-lg-10">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Hapus Informasi Pemda</h3>
+			</div>
+			<form method="POST">
+				{% csrf_token %}
+				{% for hidden in form.hidden_fields %}
+					{{ hidden }}
+				{% endfor %}
+				<div class="card-body">
+					<H5>Anda yakin ingin menghapus unit {{object.nm_unit}} ? </H5>
+					</BR>
+					<ol>
+						<li> Nama Unit       : <b>{{ object.nm_unit }}</b></li>
+						<li> Kode Unit             : {{ object.kd_unit }}</li>
+						<li> Nama Eselon 2       : <b>{{ object.nm_es2 }}</b></li>
+						<li> Kode Eselon 2       : <b>{{ object.kd_es2 }}</b></li>
+					</ol>
+				</div>
+				<div class="card-footer d-flex flex-end">
+					<div class="form-group">
+						<button hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'info:infopemda-list'  %}" class="btn btn-secondary">
+							<i class="fa fa-undo"></i> Batal
+						</button>
+						<button type="submit" class="btn btn-danger">
+							<i class="fa fa-trash"></i> Hapus
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

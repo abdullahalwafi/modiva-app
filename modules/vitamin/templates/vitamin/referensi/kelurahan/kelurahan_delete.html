@@ -1,0 +1,32 @@
+{% load widget_tweaks %}
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+{% include 'includes/spinner.html' %}
+<div class="card-body">
+  <form hx-indicator='#loading' hx-post="{% url 'vitamin:kelurahan-delete' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+    {% csrf_token %}
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+    {% endfor %}
+
+    <div class="form-group"> 
+      <h6><strong>Anda Yakin Data di bawah ini akan dihapus ???</strong></h6>
+      <ol>
+        <li> Nama kelurahan : {{ object.nama }}</li>
+      </ol>
+       
+    </div>
+      
+
+    <div class="form-group">
+
+      <a  hx-indicator='#loading' hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'vitamin:kelurahan-list'  %}" class="btn btn-warning"><i class="fa fa-undo"></i> Batal</a>
+      &nbsp;
+      <button type="submit" class="btn btn-danger">
+        <span class="glyphicon glyphicon-ok"></span><i class="fa fa-trash"></i> Hapus
+      </button>
+    </div>
+  </form>
+ </div>
+ </div>
+ {% include 'includes/set_title.html' %}

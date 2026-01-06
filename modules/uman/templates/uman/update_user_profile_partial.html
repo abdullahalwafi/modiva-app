@@ -1,0 +1,36 @@
+{% load widget_tweaks %}
+<div class="card">
+<span id="title" hidden>{{ title }} </span>
+  <div class="card-body">
+     {% include 'includes/spinner.html' %}
+    <form hx-post="{% url 'uman:update-user-profile' %}" hx-target="#kt_content" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+      {% for field in form.visible_fields %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        <div class="col-sm-9">
+              	{{ field|add_class:'form-control' }}
+        </div>
+        {% for error in field.errors %}
+        <span class="help-block text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <div class="card-footer">
+        <button  hx-target="#kt_content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:profile-account'  %}"
+          class="btn btn-secondary mr-2"><i class="fa fa-undo"></i> Batal</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block javascripts %}
+{% include 'includes/set_title.html' %}
+{% endblock javascripts %}
+

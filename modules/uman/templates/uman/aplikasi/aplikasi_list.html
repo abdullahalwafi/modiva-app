@@ -1,0 +1,57 @@
+    <div class="card">
+      <span id="title" hidden>{{ title }} </span>
+        <div class="card-body">
+            <div class="table-responsive">
+            {% if perms.uman.add_aplikasi %}
+                <button hx-get="{% url 'uman:aplikasi-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary btn-sm"><i class="fa fa-plus-square"></i> Tambah</button>
+            {% endif %}
+            <br/><br/>
+            <table id="myDataTable" class="table table-bordered table-striped align-middle mb-0" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Nama</th>
+                        <th>Group</th>
+                        <th>Urutan</th>
+                        <th>Url</th>
+                        <th>Aktif</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in object_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.name }}</td>
+                        <td>{{ data.group.name }}</td>
+                        <td>{{ data.urutan }}</td>
+                        <td>{% if data.url %}{{ data.url }}{% endif %}</td>
+                        <td>
+                        {% if  data.aktif  %}
+                            <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                        </td>
+                        <td>
+                            {% if perms.uman.view_aplikasi %}
+                            <button hx-get="{% url 'uman:aplikasi-detail' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link"><i class="fa fa-eye text-primary"></i></button>
+                            {% endif %}
+                            {% if perms.groupuman.change_aplikasi %}
+                            <button hx-get="{% url 'uman:aplikasi-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link"><i class="fa fa-pencil text-warning"></i></button>
+                            {% endif %}
+                            {% if perms.groupuman.delete_aplikasi %}
+                            <button hx-get="{% url 'uman:aplikasi-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link"><i class="fa fa-trash text-danger"></i></button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+     {% block javascripts %}
+        {% include 'includes/datatables.html' %}
+        {% include 'includes/set_title.html' %}
+    {% endblock %}

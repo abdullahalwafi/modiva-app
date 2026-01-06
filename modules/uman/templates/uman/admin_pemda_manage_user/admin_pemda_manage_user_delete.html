@@ -1,0 +1,30 @@
+{% load widget_tweaks %}
+<div class="card">
+    <span id="title" hidden>{{ title }} </span>
+  {% include 'includes/spinner.html' %}
+  <div class="card-body">
+    <form hx-post="{% url 'uman:admin_pemda_manage_user-delete' object.pk %}" hx-target="#main-content" hx-swap="innerHTML" hx-indicator="#loading">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+      {% endfor %}
+
+      <div class="form-group"> 
+        <b>Anda Yakin Data berikut ini dihapus ?</b>
+        <UL>
+          <li> Username : {{ object.user.username }}</li>
+          <li> Email : {{ object.user.email }}</li>
+          <li> Kode Satker : {{ object.kode_satker }}</li>
+        </UL>
+      </div>
+    
+      <div class="card-footer">
+        <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:admin_pemda_manage_user-list'  %}" hx-indicator="#loading" class="btn btn-secondary"><i class="fa fa-undo"></i> Batal</a>
+        <button type="submit" class="btn btn-danger">
+          <i class="fa fa-trash"></i> Hapus
+        </button>
+      </div>
+    </form>
+  </div>
+ </div>
+ {% include 'includes/set_title.html' %}

@@ -1,0 +1,206 @@
+{% load static %}
+<!-- CONTENT PLACEHOLDER -->
+<div class="dashboard-section container py-4">
+  <div class="dashboardsuperadmin-section container pt-1 pb-4">
+    <div class="row g-4">
+
+      <!-- Welcome Card -->
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 d-flex flex-column gap-2">
+          <div class="d-flex align-items-center gap-3">
+            <img src="{% static 'modiva3/img/icons/logoDinkes.png' %}" alt="Logo Depok" width="58">
+            <div class="d-flex flex-column justify-content-center lh-sm">
+              <span class="welcome mb-0 fw-bold">
+                Selamat datang,
+                {% if user.first_name and user.last_name %}
+                {{ user.first_name }} {{ user.last_name }}
+                {% else %}
+                {{ user.username }}
+                {% endif %}!
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% if user.groups.first.name == 'Administrator' %}
+      <!-- Manajemen Akun User -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/user.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen <br> Akun User</div>
+            <a href="{% url 'uman:userdetail-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manajemen Vitamin -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/vitamin.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen <br> Vitamin</div>
+            <a href="{% url 'vitamin:vitamin-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manajemen Satuan -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/satuan.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen <br> Satuan Obat</div>
+            <a href="{% url 'vitamin:satuan-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Manajemen Master Obat -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/master_obat.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen <br> Master Obat</div>
+            <a href="{% url 'vitamin:masterobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if user.groups.first.name == 'Puskesmas' %}
+      <!-- Manajemen Master Obat -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/master_obat.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen <br> Master Obat</div>
+            <a href="{% url 'vitamin:masterobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Laporan Distribusi Puskesmas -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/vitamin.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen Stok Obat<br>Puskesmas</div>
+            <a href="{% url 'vitamin:stokobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+
+
+
+      <!-- Laporan Distribusi Sekolah -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/sekolah.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Manajemen Distribusi Obat<br> Sekolah</div>
+            <a href="{% url 'vitamin:disobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Laporan Siswi -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/siswi.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Vitamin Terdistribusi</div>
+            <a href="{% url 'vitamin:distsiswa-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vitamin Terdistribusi -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/obat.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Vitamin Terdistribusi</div>
+            <a href="{% url 'vitamin:distsiswa-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Siswa -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/siswi.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Data Siswa & Siswi</div>
+            <a href="{% url 'vitamin:siswa-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Siswa -->
+      <div class="col-lg-4 col-md-6">
+        <div class="card dashboard-manage-card">
+          <div class="icon-wrap">
+            <img src="{% static 'modiva3/img/icons/data.png' %}" alt="User Icon">
+          </div>
+          <div class="card-text">
+            <div class="card-title">Data HB Siswa & Siswi</div>
+            <a href="{% url 'vitamin:siswahb-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Modal Notifikasi -->
+<div class="modal fade" id="notifModal" tabindex="-1" aria-labelledby="notifModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notifModalLabel">Notifikasi</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        Belum ada notifikasi baru.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="{% static 'modiva3/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+<script>
+  document.getElementById('toggle-sidebar').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('show');
+  });
+</script>
+
+</body>
+
+</html>

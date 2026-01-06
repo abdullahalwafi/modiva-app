@@ -1,0 +1,144 @@
+{% load static %}
+
+<div class="mitra-section container py-4">
+    <!-- Header Card -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div class="search-wrapper flex-grow-1 me-2">
+            <form>
+                <input hx-get="{% url 'vitamin:sekolah-list' %}" hx-target='#main-content'
+                    hx-trigger="keyup changed delay:800ms" name="q"
+                    class="form-control form-control-solid w-250px ps-13" type="text" placeholder="Pencarian ...."
+                    aria-label="Search">
+            </form>
+        </div>
+        {% if perms.vitamin.add_sekolah %}
+        <button hx-indicator='#loading' hx-get="{% url 'vitamin:sekolah-create' %}" hx-trigger="click"
+            hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary"><i class="fa fa-plus-square"></i>
+            Tambah
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Grid Cards -->
+    <div class="row g-4" id="sekolahList">
+        {% if user.groups.first.name == 'Administrator' or user.groups.first.name == 'Puskesmas' %}
+        {% for data in object_list %}
+        <div class="col-xl-4 col-md-6" id="sekolah-{{ data.id }}">
+            <div class="card dashboard-mitra-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="mitra-title">{{ data.nama }}</div>
+                    <label class="switch" title="Aktif / Nonaktif">
+                        <input type="checkbox" {% if data.status == 1 %}checked{% endif %}
+                            hx-post="{% url 'vitamin:toggle_status_sekolah' data.id %}" hx-trigger="change"
+                            hx-target="closest div" hx-swap="outerHTML"
+                            hx-confirm="Yakin ingin mengubah status sekolah ini?">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                    <img src="{% static 'assets/img/sekolah/logo_sma.jpg' %}" alt="Logo sekolah" class="mitra-logo">
+                    <div class="text-start">
+                        <div class="mitra-info"><i class="fas fa-map-marker-alt"></i> {{ data.kelurahan.nama }}</div>
+                        <div class="mitra-info"><i class="fas fa-phone-alt"></i> {{ data.telepon }}</div>
+                        <div class="mitra-info"><i class="fas fa-school"></i> {{ data.jenjang }}</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if perms.vitamin.view_sekolah %}
+                    <a hx-indicator='#loading' hx-get="{% url 'vitamin:sekolah-detail' data.id %}" hx-trigger="click"
+                        hx-target='#main-content' hx-swap="innerHTML"
+                        class="btn btn-outline-primary bg-white text-primary flex-fill" title='Lihat Detil'>
+                        Lihat Profil
+                    </a>
+                    {% endif %}
+                    {% if perms.vitamin.change_sekolah %}
+                    <button class="btn btn-warning text-white flex-fill"
+                        hx-get="{% url 'vitamin:sekolah-edit' data.id %}" hx-trigger="click" hx-target='#main-content'
+                        hx-swap="innerHTML" title='Ubah'>
+                        Ubah
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% elif user.groups.first.name == 'Sekolah' %}
+
+        {% for data in context_list %}
+        <div class="col-xl-4 col-md-6" id="sekolah-{{ data.id }}">
+            <div class="card dashboard-mitra-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="mitra-title">{{ data.nama }}</div>
+                    {% if perms.vitamin.delete_sekolah %}
+                    <button class="custom-close-btn" hx-indicator='#loading'
+                        hx-get="{% url 'vitamin:sekolah-delete' data.id %}" hx-target='#main-content'
+                        hx-swap="innerHTML" aria-label="Hapus">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="d-flex align-items-center justify-content-center gap-3 mb-3">
+                    <img src="{% static 'assets/img/sekolah/logo_sma.jpg' %}" alt="Logo sekolah" class="mitra-logo">
+                    <div class="text-start">
+                        <div class="mitra-info"><i class="fas fa-map-marker-alt"></i> {{ data.kelurahan.nama }}</div>
+                        <div class="mitra-info"><i class="fas fa-phone-alt"></i> {{ data.telepon }}</div>
+                        <div class="mitra-info"><i class="fas fa-school"></i> {{ data.jenjang }}</div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    {% if perms.vitamin.view_sekolah %}
+                    <a hx-indicator='#loading' hx-get="{% url 'vitamin:sekolah-detail' data.id %}" hx-trigger="click"
+                        hx-target='#main-content' hx-swap="innerHTML"
+                        class="btn btn-outline-primary bg-white text-primary flex-fill" title='Lihat Detil'>
+                        Lihat Profil
+                    </a>
+                    {% endif %}
+                    {% if perms.vitamin.change_sekolah %}
+                    <button class="btn btn-warning text-white flex-fill"
+                        hx-get="{% url 'vitamin:sekolah-edit' data.id %}" hx-trigger="click" hx-target='#main-content'
+                        hx-swap="innerHTML" title='Ubah'>
+                        Ubah
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+    </div>
+    <br />
+    {% include 'core/paginator.html' %}
+
+</div>
+
+<!-- Modal for dynamic content (form/detail/delete) -->
+<div class="modal fade" id="formModal" tabindex="-1" aria-labelledby="formModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" id="modalContent">
+            <!-- HTMX-loaded content will appear here -->
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+    function toggleStatus(el) {
+        const status = el.checked ? "Aktif" : "Nonaktif";
+        console.log(`Status sekarang: ${status}`);
+        // Kamu bisa munculin toast, ubah warna, atau kirim request kalau perlu
+    }
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    function closeAndRefresh() {
+
+        location.reload(); // ⬅️ Ini akan reload halaman
+    }
+</script>
+{% endblock %}

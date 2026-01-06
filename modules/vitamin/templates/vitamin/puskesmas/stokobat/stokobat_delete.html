@@ -1,0 +1,38 @@
+{% load widget_tweaks %}
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+  {% include 'includes/spinner.html' %}
+  <div class="card-body">
+    <form hx-indicator='#loading' hx-post="{% url 'vitamin:stokobat-delete' object.pk %}" hx-target="#main-content"
+      hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+
+      <div class="form-group">
+<h6 style="color: black;">Anda Yakin Data di bawah ini akan dihapus ???</h6>
+        <ol>
+          <li> Id : {{ object.id }}</li>
+          <li> Tanggal Terima : {{ object.tgl_terima }}</li>
+          <li> Vitamin : {{ object.vitamin.nama }}</li>
+          <li> Satuan : {{ object.satuan.nama }}</li>
+        </ol>
+
+      </div>
+
+
+      <div class="form-group">
+
+            <a href="{% url 'vitamin:stokobat-list' %}" class="btn btn-secondary">
+        <i class="fa fa-undo"></i> Batal
+      </a>
+        &nbsp;
+        <button type="submit" class="btn btn-danger" >
+          <span class="glyphicon glyphicon-ok"></span><i class="fa fa-trash"></i> Hapus
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% include 'includes/set_title.html' %}

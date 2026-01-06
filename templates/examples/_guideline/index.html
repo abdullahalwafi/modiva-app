@@ -1,0 +1,43 @@
+{% extends "examples/_guideline/base_documentations.html" %}
+
+{% block content %}
+    <h1>Welcome to UI/UX Guideline</h1>
+    <p>Ini adalah halaman dokumentasi yang dapat dilihat ketika terdapat "setting.INCLUDE_EXAMPLES == True".</p>
+    <p>Dokumentasi ini terdapat pada "templates/examples" dimana nanti akan terdapat folder "_guideline" untuk isi content dokumentasi ini dan "pages" untuk cara penggunaan komponennya. Adapun untuk views nya terdapat pada "module/examples" dimana akan sebagai contoh juga bagaimana memasukan data pada komponen.</p>
+    <p>Untuk komponen, terdapat pada folder "components" dimana nantinya bisa dipanggil melalui { % components table data=table % } (referensi dari <a href="https://github.com/EmilStenstrom/django-components/">django-components</a>)</p>
+    <p>Untuk selanjutnya, anda dapat memulai dengan navigasi di sebelah kiri.</p>
+
+    
+    {% component_block "text" %}
+        {% fill "required" %}required{% endfill %}
+        {% fill "label" %}ini text aja{% endfill %}
+        {% fill "placeholder" %}ketik di sini{% endfill %}
+    {% endcomponent_block %}
+
+    {% component_block "textarea" %}
+        {% fill "label" %}ini text area{% endfill %}
+        {% fill "placeholder" %}ketik di sini{% endfill %}
+        {% fill "name" %}text_area1{% endfill %}
+    {% endcomponent_block %}
+
+    {% component_block "checkbox" %}
+        {% fill "label" %}ini checkbox{% endfill %}
+        {% fill "label_box" %}ini label checkbox{% endfill %}
+    {% endcomponent_block %}
+    
+    {% component_block "text_row" %}
+        {% fill "required" %}required{% endfill %}
+        {% fill "label" %}ini text aja{% endfill %}
+        {% fill "placeholder" %}ketik di sini{% endfill %}
+    {% endcomponent_block %}
+
+    
+
+    {% component_block "textarea_row" %}
+        {% fill "label" %}ini text area{% endfill %}
+        {% fill "placeholder" %}ketik di sini{% endfill %}
+        {% fill "name" %}text_area1{% endfill %}
+    {% endcomponent_block %}
+        
+    
+{% endblock %}

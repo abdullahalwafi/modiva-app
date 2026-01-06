@@ -1,0 +1,63 @@
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Id</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.id }}</span>
+        </div>
+    </div>
+    <br>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Puskesmas</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.puskesmas }}</span>
+        </div>
+    </div>
+       <br>
+           <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Email</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.email }}</span>
+        </div>
+    </div>
+       <br>
+           <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Pesan</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.message }}</span>
+        </div>
+    </div>
+       <br>
+       <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Waktu Submit</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.submitted_at }}</span>
+        </div>
+    </div>
+       <br>
+       <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Status</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">
+                {% if data.is_read == 0 %}
+    &#10060; <!-- ❌ -->
+  {% else %}
+    &#10004; <!-- ✔️ -->
+  {% endif %}
+            </span>
+        </div>
+    </div>
+       <br>
+    
+   
+</div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'vitamin:contactmessage-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+{% include 'includes/set_title.html' %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="content flex-row-fluid" id="kt_content">
+        {% component_block "card" %}
+            {% fill "header" %}Panduan Teknis{% endfill %}
+            {% fill "content" %}
+                {% include "examples/_guideline/technical_guide.html" %}
+            {% endfill %}
+        {% endcomponent_block %}
+
+        {% component_block "card" %}
+            {% fill "header" %}Design System{% endfill %}
+            {% fill "content" %}
+                {% include "examples/_guideline/design_system_color.html" %}
+                {% include "examples/_guideline/design_system_text.html" %}
+            {% endfill %}
+        {% endcomponent_block %}
+        
+
+        {% component_block "card" %}
+            {% fill "header" %}Daftar Contoh Halaman{% endfill %}
+            {% fill "content" %}
+                
+                {% component_block "table" data=data %}
+                            
+                {% endcomponent_block %}
+            {% endfill %}
+        {% endcomponent_block %}
+    </div>
+{% endblock %}

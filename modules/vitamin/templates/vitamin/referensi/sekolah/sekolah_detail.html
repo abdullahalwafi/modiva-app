@@ -1,0 +1,94 @@
+{% load static %}
+{% block content %}
+<section class="profile py-4">
+    <div class="container">
+      <div class="row gy-4 flex-column flex-lg-row">
+        <!-- Konten Utama -->
+        <div class="col-md-8 col-lg-8">
+            <div class="d-flex align-items-center mb-3">
+                <img src="{% static 'assets/img/sekolah/logo_sma.jpg' %}" 
+                alt="Logo SMA Negeri 2" 
+                width="70" height="70"
+                class="me-3 rounded-circle border img-fit-cover" />
+                <h1 class="fw-bold text-dark fs-3 mb-0">{{ object.nama }}</h1>
+            </div>
+            <img src="{{ sekolah.gambar.url }}" 
+            class="img-fluid rounded mb-3 profile-img"
+              alt="{{ sekolah.nama }}">
+            <p>
+               {{ object.deskripsi }}
+            </p>
+        </div>  
+        
+          <!-- Sidebar -->
+        <div class="col-md-4 col-lg-4">    
+            {% if perms.vitamin.change_sekolah %}
+                <button 
+                    class="btn btn-warning text-white mt-3 mb-3"
+                    hx-get="{% url 'vitamin:sekolah-edit' object.id %}"
+                    hx-trigger="click" 
+                    hx-target='#main-content' 
+                    hx-swap="innerHTML"
+                    title='Ubah'>
+                    <i class="fas fa-edit me-1"></i> Ubah
+                </button>
+            {% endif %}
+            <p><i class="fa-solid fa-capsules mt-3 me-2"></i>250 Vitamin telah didistribusikan</p>
+            <p><i class="fa-solid fa-hospital me-2"></i>Mitra sekolah Abadijaya</p>
+            <p><i class="fa-solid fa-chalkboard-user me-2"></i>10 Kelas:</p>
+          
+            <div class="row">
+              <div class="col-6">
+                <ul class="list-unstyled mb-4 ps-3">
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPA 1</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPA 2</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPA 3</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPA 4</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPA 5</li>
+                </ul>
+              </div>
+              <div class="col-6">
+                <ul class="list-unstyled mb-4">
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPS 1</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPS 2</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPS 3</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPS 4</li>
+                  <li><i class="fa-solid fa-chalkboard-user me-2"></i>IPS 5</li>
+                </ul>
+              </div>
+            </div>
+          
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <div class="mb-3">
+                <iframe
+                    src="https://www.google.com/maps?q={{ object.nama|urlencode }}&output=embed"
+                    height="200"
+                    style="border:0;"
+                    allowfullscreen
+                    loading="lazy">
+                </iframe>
+              </div>
+              
+        
+              <address class="mb-0">
+                <p class="mb-2">
+                  <i class="fas fa-map-marker-alt me-2"></i>{{ object.alamat }}
+                </p>
+                <p class="mb-2">
+                  <i class="fas fa-phone-alt me-2"></i>{{ object.telepon }}
+                </p>
+                <p class="mb-0">
+                  <i class="fas fa-envelope me-2"></i>{{ object.email }}
+                </p>
+              </address>
+            </div>
+          </div>
+        </div>
+          
+      </div>
+    </div>
+  </section>
+ 
+{% endblock content %}
+{% include 'includes/set_title.html' %}

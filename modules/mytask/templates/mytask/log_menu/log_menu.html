@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="col-12">
+  <div id="main-content">
+	{% include 'mytask/log_menu/log_menu_list.html' %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+
+<script>
+  document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+  })
+
+  $(document).ready(function() {
+           var table = $('#myDataTable').DataTable( {
+                scrollY:        "450px",
+                scrollX:        true,
+                scrollCollapse: true,
+                paging:         true,
+                bFilter: true,
+                bInfo: true,
+                pageLength: 20,
+                bLengthChange: false,
+                dom: 'B<"pilih_tanggal btn-group flex-wrep">frtip',
+                buttons: ["csv", "excel", "pdf"],
+            }).buttons().container().appendTo("#myDataTable_wrapper .col-md-6:eq(0)");
+$('.pilih_tanggal').html("&nbsp;&nbsp; <input title='Pilih Tanggal' onchange='javascript:request_by_tanggal(this.value);' class='form-control form-sm' type='date' id='tanggal' name='tanggal' value='{{tanggal_terpilih}}' min='2020-01-01' max='2200-12-31' />");
+        } );
+
+   function request_by_tanggal(tgl) {
+        htmx.ajax('GET', "{% url 'mytask:log-aktifitas' %}?tanggal="+tgl, {target:'#main-content', swap:'innerHTML'});};
+
+</script>
+
+{% endblock javascripts %}

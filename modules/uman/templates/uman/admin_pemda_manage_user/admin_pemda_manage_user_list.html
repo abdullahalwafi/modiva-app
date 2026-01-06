@@ -1,0 +1,101 @@
+    <div class="card">
+        <span id="title" hidden>{{ title }} </span>
+        <div class="card-toolbar">
+        {% include 'includes/spinner.html' %}
+        </div>
+        <div class="card-header border-0 pt-6">
+        <div class="card-title">
+            <div class="d-flex align-items-center position-relative my-1">
+                <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5">
+                    <span class="path1"></span>
+                    <span class="path2"></span>
+                </i>
+                <!--input type="text" data-kt-user-table-filter="search" class="form-control form-control-solid w-250px ps-13" placeholder="Search user" /-->
+            {% if perms.uman.add_userdetail or request.user.userdetail.as_admin == 'pemda' %}
+                <button hx-get="{% url 'uman:admin_pemda_manage_user-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary btn-sm" hx-indicator="#loading"><i class="ki-duotone ki-plus fs-2"></i> Tambah</button>
+            {% endif %}
+            </div>
+        </div>
+      <div class="card-toolbar">
+        <div class="d-flex justify-content-end" data-kt-user-table-toolbar="base">
+               <form>
+                <input hx-get="{% url 'uman:admin_pemda_manage_user-list' %}" hx-target='#main-content' 
+            hx-trigger="keyup changed delay:800ms"
+            name="q" {% if q %}value="{{q}}"{% endif %} class="form-control form-control-solid w-250px ps-13" 
+            type="text" placeholder="Pencarian ...." 
+            aria-label="Search">
+                </form>
+        </div>
+       </div>
+       </div>
+
+        <div class="card-body py-4">
+            <div class="table-responsive">
+            {% include 'includes/alerts.html' %}
+            Halaman {{ page_obj.number }} dari {{ paginator.num_pages }} (jumlah data : {{paginator.count}})
+            <!-- <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0"> -->
+            <table class="myDataTable table table-hover align-middle table-row-dashed fs-6 gy-5" style="width: 100%;">
+                <thead>
+                    <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
+                        <th class="min-w-50px">No</th>
+                        <th class="min-w-120px">Username</th>
+                        <!-- <th>Pemda</th> -->
+                        <th class="min-w-120px">Firstname</th>
+                        <th class="min-w-150px">Satker - Pemda</th>
+                        <th class="min-w-100px">NIP</th>
+                        <th class="min-w-125px">Email</th>
+                        <th class="min-w-125px">OPD</th>
+                        <th class="min-w-125px">UPTD</th>
+                        <th class="min-w-50px">Aktif</th>
+                        <th class="min-w-100px">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-600 fw-semibold">
+                    {% for data in object_list %}
+                    <tr>
+                        <td>{{ forloop.counter|add:numlist }}</td>
+                        <td>{{ data.username }}</td>
+                        <!-- <td>{% if data.nm_pemda %}{{ data.nm_pemda }}{% endif %}</td> -->
+                        <td>{{ data.first_name }}</td>
+                        <td>{% if data.kode_satker %}{{ data.kode_satker }}{% endif %} - {% if data.nm_pemda %}{{data.nm_pemda}}{% endif %}</td>
+                        <td>{% if data.nip %}{{ data.nip }}{% endif %}</td>
+                        <td>{{ data.email }}</td>
+                        <td>{% if data.nama_opd %}{{data.nama_opd}}{% endif %}</i></td>
+                        <td>{% if data.nama_uptd %}{{data.nama_uptd}}{% endif %}</i></td>
+                        <td><i class="fa {% if data.is_active %}fa-check fa-lg text-success{% else %}fa-close fa-lg text-danger{% endif%}" aria-hidden="true"></i></td>
+
+                        <td>
+
+                            {% if perms.uman.view_userdetail  or request.user.userdetail.as_admin == 'pemda' %}
+                            <button hx-get="{% url 'uman:admin_pemda_manage_user-detail' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading"  class="btn btn-link" title='Detail User'><i class="fa-solid fa-eye text-primary"></i></button>
+                            {% endif %}
+                            {% if perms.uman.change_userdetail or request.user.userdetail.as_admin == 'pemda' %}
+                            <button hx-get="{% url 'uman:admin_pemda_manage_user-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading"  class="btn btn-link" title='Edit User'><i class="fa-solid fa-pencil text-success"></i></button>
+                            {% endif %}
+                            <button hx-get="{% url 'uman:admin_pemda_manage_user-change-password' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-link" title='Ubah Password User'><i class="fa-solid fa-key text-warning"></i></button>
+                            {% if perms.uman.delete_userdetail or request.user.userdetail.as_admin == 'pemda' %}
+                            <button hx-get="{% url 'uman:admin_pemda_manage_user-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-link" title='Hapus User'><i class="fa-solid fa-trash text-danger"></i></button>
+                            {% endif %}
+                             {% comment %}
+                             	{% if data.is_active %}
+                            		<button hx-get="{% url 'uman:userdetail-active' data.user_id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-link" title='Non Aktifkan User'><i class="fa-solid fa-circle-xmark text-danger"></i></button>
+                             	{% else %}
+                            		<button hx-get="{% url 'uman:userdetail-active' data.user_id %}?active=1" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" hx-indicator="#loading" class="btn btn-link" title='Aktifkan User'><i class="fa fa-square-check text-success"></i></button>
+                                  
+                              	{% endif %}
+                             {% endcomment %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </br>
+             {% include 'uman/paginator.html' %}
+
+            </div>
+     </div>
+    </div>
+    {% block javascripts %}
+         {% include 'includes/datatables.html' %}
+         {% include 'includes/set_title.html' %}
+    {% endblock %}

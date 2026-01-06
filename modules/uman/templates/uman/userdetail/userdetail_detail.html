@@ -1,0 +1,108 @@
+{% load widget_tweaks %}
+{% load static  %}
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Profile Picture</label>
+        <div class="col-lg-8">
+            {% if object.foto_profil %}
+            <img class="rounded-circle responsive p1" style="width:150px;height:150px"  src="{% get_media_prefix %}/{{ object.foto_profil }}" alt='Profil picture of {{object.user.username }}'></img>
+            {% else %}
+              <span class="badge badge-light-danger badge-lg fw-bold me-auto px-4 py-3">Belum ada gambar profil</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Username</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.user.username }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Lengkap</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.user.first_name }} {{object.user.last_name}}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Sebagai Superuser</label>
+        <div class="col-lg-8">
+            {% if  object.user.is_superuser  %}
+                   <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+             {% else %}
+                   <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+             {% endif %}
+
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Aktif</label>
+        <div class="col-lg-8">
+            {% if  object.user.is_active  %}
+                   <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+             {% else %}
+                   <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+             {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Group</label>
+        <div class="col-lg-8">
+            {% for g in object.user.groups.all %}
+                <span class="badge badge-light-primary badge-lg fw-bold me-auto px-4 py-3"> {{g.name|upper}} </span>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Email</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.user.email %}{{ object.user.email }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Whatsapp</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.no_wa %}{{ object.no_wa }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">No Handphone</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.no_hp %}{{ object.no_hp }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">NIP</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.nip %}{{ object.nip }}{% endif %}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">NIK</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.nik %}{{ object.nik }}{% endif %}</span>
+        </div>
+    </div>
+   
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Sebagai Admin</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{% if object.as_admin %}{{ object.as_admin }}{% endif %}</span>
+        </div>
+    </div>
+
+    </div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-indicator="#loading" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:userdetail-list'  %}" class="btn btn-secondary mr-2" onclick="closeAndRefresh()"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+
+{% block javascripts %}
+{% include 'includes/set_title.html' %}
+{% endblock javascripts %}

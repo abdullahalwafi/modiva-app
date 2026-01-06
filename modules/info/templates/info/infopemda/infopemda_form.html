@@ -1,0 +1,26 @@
+{% extends 'includes/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+	{% include 'info/infopemda/infopemda_form_partial.html' %}
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.groupmenu-select2').select2();
+    $('.penerima-select2').select2();
+});
+ 
+function onChangeValue()
+    {
+        if($('#id_all').is(":checked"))   
+            $(".penerima-select2").hide();
+        else
+            $(".penerima-select2").show();
+};
+
+</script>
+
+{% endblock %}

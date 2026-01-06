@@ -1,0 +1,58 @@
+{% load widget_tweaks %}
+<div class="card">
+   <span id="title" hidden>{{ title }} </span>
+ {% include 'includes/spinner.html' %}
+  <div class="card-body">
+    <form hx-indicator='#loading' hx-post="{% url 'mytask:menuproduk-create' %}" hx-target="#main-content" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+      {% for field in form.visible_fields %}
+          {% if field.label == "Produk" %}
+                    <input id="id_produk" type="hidden" name="produk" value="{{produk.id}}">
+          {% else %}
+      		<div class="row mb-3">
+        		<label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        		<div class="col-sm-9">
+                        {% if field.name == 'aktif' %}
+              			<input type="checkbox" class="form-check-input" name="{{field.name}}" id="id_{{field.name}}" value="1"/>
+          		{% elif field.name == 'menu' %}
+              			{% render_field field class="menu-select2 form-control" multiple="multiple" %}
+           		{% else %}
+              			{{ field|add_class:'form-control' }}
+          		{% endif %}
+
+        		</div>
+        		{% for error in field.errors %}
+        			<span class="help-block">{{ error }}</span>
+        		{% endfor %}
+      		</div>
+          {% endif %}
+      {% endfor %}
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label"></label>
+        <div class="col-sm-9">
+            <span class="help-block">!! Menu dapat dipilih lebih dari satu</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'mytask:produk-list'  %}"
+          class="btn btn-secondary" hx-indicator='#loading'><i class="fa fa-undo"></i> Batal</button>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.menu-select2').select2();
+});
+</script>
+ {% include 'includes/set_title.html' %}
+{% endblock javascripts %}
+

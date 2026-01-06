@@ -1,0 +1,45 @@
+{% block content %}
+<div id="kt_content" class="content flex-row-fluid">
+  <span id="title" hidden>{{ title }} </span>
+<div class="card mb-5 mb-xxl-8">
+<div class="card-body pt-9 pb-0">
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Id</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.id }}</span>
+        </div>
+    </div>
+    <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.nama }}</span>
+        </div>
+    </div>
+        <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Nama Alternatif</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.alt_nama }}</span>
+        </div>
+    </div>
+        <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Latitude</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.latitude }}</span>
+        </div>
+    </div>
+        <div class="row mb-7">
+        <label class="col-lg-4 fw-semibold text-muted">Longitude</label>
+        <div class="col-lg-8">
+            <span class="fw-bold fs-6 text-gray-800">{{ object.longitude }}</span>
+        </div>
+    </div>
+    
+   
+</div>
+    <div class="card-footer">
+      <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'vitamin:kelurahan-list'  %}" class="btn btn-secondary"><i class="fa fa-undo"></i> Kembali</a>
+    </div>
+ </div>
+ </div>
+{% endblock content %}
+{% include 'includes/set_title.html' %}

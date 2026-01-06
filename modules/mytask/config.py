@@ -1,0 +1,6 @@
+MYTASK_URL_AUTH="https://sso.kemenkeu.go.id/connect/token"
+MYTASK_URL_SERVICE="https://service.kemenkeu.go.id/otomasi.agenda/api/SystemTask/Create"
+MYTASK_CLIENT_ID="sikd.task"
+MYTASK_CLIENT_SECRET="923d24e9119c4c8e8891187078b2984a"
+MYTASK_SCOPE="hris2 systemtask"
+MYTASK_GRANT_TYPE="client_credentials"

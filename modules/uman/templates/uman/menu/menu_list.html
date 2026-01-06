@@ -1,0 +1,77 @@
+{% load uman_tags %}
+{% load core_tags %}
+<div class="card">
+    <span id="title" hidden>{{ title }} </span>
+    <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+        {% if perms.uman.add_menu %}
+        <button hx-get="{% url 'uman:menu-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary btn-sm"><i class="fa fa-plus-square"></i> Tambah</button>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+        <table id="myDataTable" class="table table-bordered table-striped align-middle mb-0" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Url</th>
+                    <th>Urutan</th>
+                    <th>Aktif</th>
+                    <th>Is Embed</th>
+                    <th>Beranda</th>
+                    <th>Parent</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in object_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ data.name }}</td>
+                    <td>{% if data.url %}<A HREF="{% make_absolute_path data.url %}{% if data.isembed %}?id={{data.id}}{% endif %}" title="{{ data.name }}">{% make_absolute_path data.url %}</A>{% endif %}</td>
+                    <td>{{ data.urutan }}</td>
+                    <td align="center">
+                        {% if  data.aktif  %}
+                            <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                    </td>
+                    <td align="center">
+                        {% if  data.isembed  %}
+                            <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                    </td>
+                    <td align="center">
+                        {% if  data.as_beranda  %}
+                            <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                    </td>
+                    <td>{% if data.parent %}{% only_parent_path data %}{% endif %}</td>
+                    <td>
+                        {% if perms.uman.view_menu %}
+                        <button hx-get="{% url 'uman:menu-detail' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link btn-sm"><i class="fa-solid fa-eye text-primary"></i></button>
+                        {% endif %}
+                        {% if perms.uman.change_menu %}
+                        <button hx-get="{% url 'uman:menu-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link btn-sm"><i class="fa-solid fa-pencil text-warning"></i></button>
+                        {% endif %}
+                        {% if perms.uman.delete_menu %}
+                        <button hx-get="{% url 'uman:menu-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link btn-sm"><i class="fa-solid fa-trash text-danger"></i></button>
+                        {% endif %}
+                    </td>
+                </tr>    
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% block javascripts %}
+ {% include 'includes/datatables-menu.html' %}
+ {% include 'includes/set_title.html' %}
+{% endblock %}
+

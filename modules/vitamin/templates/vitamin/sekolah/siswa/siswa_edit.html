@@ -1,0 +1,42 @@
+{% load widget_tweaks %}
+<div class="card">
+    <span id="title" hidden>{{ title }} </span>
+    {% include 'includes/spinner.html' %}
+    <div class="card-body">
+        <form hx-indicator='#loading' hx-post="{% url 'vitamin:siswa-edit' object.pk %}" hx-target="#main-content" hx-swap="innerHTML">
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+            <div class="row mb-3">
+                <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-9">
+		{% if field.label == 'Flag' %}
+                    <input type="checkbox" class="form-check-input"  name="aktif" id="id_aktif" onclick="javascript:$(this).val(1)" value={{ object.flag }} {% if object.flag == 1  %}  checked{% else %} {% endif %}/>
+                {% else %}
+                    {{ field|add_class:'form-control' }}
+                {% endif %}
+
+
+                </div>
+                {% for error in field.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <br />
+            <div class="card-footer">
+            <a href="{% url 'vitamin:siswa-list' %}" class="btn btn-secondary">
+        <i class="fa fa-undo"></i> Batal
+      </a>
+                &nbsp;
+                <button type="submit" class="btn btn-primary" >
+                    <i class="fa fa-pencil"></i> Ubah
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% include 'includes/set_title.html' %}

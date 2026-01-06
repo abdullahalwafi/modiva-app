@@ -1,0 +1,51 @@
+{% load uman_tags %}
+    <div class="card">
+        <span id="title" hidden>{{ title }} </span> 
+        <div class="card-body">
+            <div class="table-responsive">
+            {% if perms.uman.add_groupmenu %}
+                <button hx-get="{% url 'uman:groupmenu-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary btn-sm"><i class="fa fa-plus-square"></i> Tambah</button>
+            {% endif %}
+            <br/><br/>
+            <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Group</th>
+                        <th>Menu</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in object_list %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ data.group }}</td>
+                        <td>
+                            <ul>
+                                {% for m in data.menu.all %}
+                                    <li>   
+                                            {% menu_full_path m %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td>
+                            {% if perms.groupuman.change_menu %}
+                            <button hx-get="{% url 'uman:groupmenu-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link"><i class="fa-solid fa-pencil text-warning"></i></button>
+                            {% endif %}
+                            {% if perms.groupuman.delete_menu %}
+                            <button hx-get="{% url 'uman:groupmenu-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link"><i class="fa-solid fa-trash text-danger    "></i></button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+    {% block javascripts %}
+        {% include 'includes/datatables.html' %}
+        {% include 'includes/set_title.html' %}
+    {% endblock %}

@@ -1,0 +1,12 @@
+{% if user.is_authenticated %}
+    Kamu login sebagai:  {{ request.user }}
+{% else %}
+    Ini halaman login aja
+{% endif %}
+
+<br>
+
+<form method="POST">
+    {% include 'includes/form.html' %}
+    <button>Post</button>
+</form>

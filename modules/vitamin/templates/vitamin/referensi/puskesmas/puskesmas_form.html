@@ -1,0 +1,45 @@
+{% load widget_tweaks %}
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+{% include 'includes/spinner.html' %}
+<div class="card-body">
+  <br/>
+  <form hx-indicator='#loading'  hx-post="{% url 'vitamin:puskesmas-create' %}" hx-target="#main-content" hx-swap="innerHTML" hx-encoding='multipart/form-data'>
+    {% csrf_token %}
+
+    {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+    {% endfor %}
+
+    {% for field in form.visible_fields %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        <div class="col-sm-9">
+          {% if field.name == 'flag' %}
+              <input type="checkbox" class="form-check-input" name="{{field.name}}" id="id_{{field.name}}" value="1"/>
+          {% elif field.name == 'is_terdaftar' %}
+              <input type="checkbox" class="form-check-input" 
+                    name="{{ field.name }}" id="id_{{ field.name }}" value="1"
+                    {% if field.value %}checked{% endif %} />
+          {% else %}
+              {{ field|add_class:'form-control' }}
+          {% endif %}
+
+        </div>
+        {% for error in field.errors %}
+          <span class="help-block">{{ error }}</span>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div class="card-footer">
+      <button  hx-indicator='#loading' hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'vitamin:puskesmas-list'  %}" class="btn btn-secondary" onclick="closeAndRefresh()"><i class="fa fa-undo"></i> Batal</button>
+      &nbsp;&nbsp;
+      <button type="submit" class="btn btn-primary" onclick="closeAndRefresh()">
+        <span class="glyphicon glyphicon-ok"></span><i class="fa fa-save"></i> Simpan
+      </button>
+    </div>
+  </form>
+ </div>
+ </div>
+ {% include 'includes/set_title.html' %}

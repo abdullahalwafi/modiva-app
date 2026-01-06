@@ -1,0 +1,55 @@
+{% load widget_tweaks %}
+{% load core_tags %}
+{% load static %}
+<script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+</script>
+
+<div class="card">
+	<div class="card-header justify-content-between align-items-center bg-transparent border-bottom-0">
+                <div class="form-group">
+		<H4>Profil pengguna</H4>
+                        <center>
+			<img height='150' width='150' src="{% if profil %}{% get_media_prefix %}/{{ profil.foto_profil }}{%else%}/static/assets/images/profile_av.png{%endif%}" class="rounded-circle mt-3" id="foto-profile" />
+                        </br>
+                        </br>
+			<form hx-encoding="multipart/form-data">
+                  	{% csrf_token %}
+                        {% if profil %}
+                        <label for="id_foto_profil" style="cursor: pointer; color: red;">Ubah Foto</label>
+                	<input type="file" id="id_foto_profil" name="foto_profil" title="Upload foto" style="opacity: 0;position: absolute;z-index: -1;" hx-encoding="multipart/form-data" hx-post="{% url 'uman:update-foto-profile' profil.id %}" hx-target="#foto-profile" hx-swap="outerHTML" hx-trigger="change"/>
+                        {% endif %}
+                        <p>
+                	<A class='txt txt-primary' title="Ubah password"  hx-get="{% url 'uman:change-password' %}" hx-target="#main-content" hx-swap="innerHTML">Ubah Password</A>
+        		</form>
+                        </center>
+            	</div>
+
+	</div>
+
+	<div class="card-body">
+    		<div class="form-group"> 
+      			<ul class="list-group list-group-custom">
+        			<li class="list-group-item"> Username    : {{ user.username }} </li>
+        			<li class="list-group-item"> Terakhir login: {{ user.last_login }} </li>
+        			<li class="list-group-item"> Group       : {% for grp in user.groups.all%}{{ grp.name|upper}}&nbsp;&nbsp;{% endfor %}</li>
+        			<li class="list-group-item"> Nama Lengkap: {{ user.first_name }} {{ user.last_name }}</li>
+        			<li class="list-group-item"> Kode Satker : {% if profil.kode_satker %}{{ profil.kode_satker }}{% endif %}</li>
+        			<li class="list-group-item"> Provinsi    : {% if pemda.nm_prov %}{{ pemda.nm_prov }}{% endif %}</li>
+        			<li class="list-group-item"> Pemda       : {% if pemda.nm_pemda %}{{ pemda.nm_pemda }}{% endif %}</li>
+        			<li class="list-group-item"> No Handphone: {% if profil.no_hp %}{{ profil.no_hp }}{% endif %}</li>
+        			<li class="list-group-item"> No WA: {% if profil.no_hp %}{{ profil.no_hp }}{% endif %}</li>
+        			<li class="list-group-item"> NIP: {% if profil.nip %}{{ profil.nip }}{% endif %}</li>
+        			<li class="list-group-item"> NIK: {% if profil.nik %}{{ profil.nik }}{% endif %}</li>
+        			{% if user.is_active %}
+            				<li class="list-group-item">Status: Aktif</li>
+        			{% else %}
+            				<li class="list-group-item">Status: Tidak Aktif</li>
+ 			        {% endif %}
+
+      			</ul>
+    		</div>
+ 	</div>
+</div>

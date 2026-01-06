@@ -1,0 +1,41 @@
+{% extends 'includes/base.html' %}
+{% block top_right_corner %}
+<script>
+document.body.addEventListener('htmx:configRequest', (event) => {
+    event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+})
+</script>
+	<form>
+		<select class='tahun-select2 form-select form-select-solid' data-control="select2" name='tahun'>
+                        {% for tahun in tahun_list %}
+			  <option value='{{tahun}}' {% if tahun == tahun_terpilih %}SELECTED{% endif %}> {{tahun}}</option>
+                        {% endfor %}
+		</select>
+	</form>
+{% endblock top_right_corner %}
+
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+        {% include 'core/landing_page_partial.html' %}
+  </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+
+//$(document).ready(function() {
+//    $('.tahun-select2').select2();
+//});
+
+$('.tahun-select2').on("change",function (e){
+htmx.ajax('GET', "{% url 'core:landing-page' %}?tahun="+$(this).val(), {target:'#main-content', swap:'innerHTML', indicator:'#loading'});
+
+});
+
+</script>
+
+ {% endblock %}
+

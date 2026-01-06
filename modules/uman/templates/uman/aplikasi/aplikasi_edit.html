@@ -1,0 +1,40 @@
+{% load widget_tweaks %}
+<div class="card">
+  <span id="title" hidden>{{ title }} </span>
+    <div class="card-body">
+        <form hx-post="{% url 'uman:aplikasi-edit' object.pk %}"  hx-encoding="multipart/form-data" hx-target="#main-content" hx-swap="innerHTML">
+            {% csrf_token %}
+            {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
+            <div class="row mb-3">
+                <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+                <div class="col-sm-9">
+                    {% if field.label == 'Aktif' %}
+                    <input type="checkbox" class="form-check-input"  name="aktif" id="id_aktif" onclick="javascript:$(this).val(1)" value={{ object.aktif }} {% if object.aktif == 1  %}  checked{% else %} {% endif %}/>
+                    {% elif field.name == 'as_modul' %}
+                    <input type="checkbox" class="form-check-input"  name="as_modul" id="id_as_modul" onclick="javascript:$(this).val(1)" value={{ object.as_modul }} {% if object.as_modul == 1  %}  checked{% else %} {% endif %}/>
+                    {% else %}
+                    {{ field|add_class:'form-control' }}
+                    {% endif %}
+                </div>
+                    {% for error in field.errors %}
+                    <span class="help-block text-danger">{{ error }}</span>
+                    {% endfor %}
+            </div>
+            {% endfor %}
+            <br />
+            <div class="card-footer">
+                <a hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click"
+                    hx-get="{% url 'uman:aplikasi-list'  %}" class="btn btn-secondary mr-2"> <i class="fa fa-undo"></i> Batal</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa fa-pencil"></i> Ubah
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% block javascripts %}
+{% include 'includes/set_title.html' %}
+ {% endblock javascripts %}

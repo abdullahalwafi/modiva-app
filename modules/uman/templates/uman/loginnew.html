@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <!-- <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon"> -->
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/aos/aos.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <div id="login">
+    <!-- LEFT SIDE -->
+    <div class="left">
+      <img src="{% static 'assets/img/login background.png' %}" alt="Vitamin" class="bg-image">
+      <div class="overlay">
+        <h1>MONITORING<br>DISTRIBUSI<br>VITAMIN<br>PENAMBAH DARAH</h1>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right">
+      <a href="{% url 'uman:homepage' %}" class="back-arrow"><i class="fas fa-arrow-left"></i></a>
+      <div class="form-container">
+        <a href="{% url 'uman:homepage' %}">
+          <img src="{% static 'assets/img/logo2.png' %}" alt="Logo" class="image">
+        </a>
+        <h3 class="te">Log In</h3>
+        <form action="#">
+          <div class="input-group">
+            <i class="fas fa-user icon"></i>
+            <input type="text" placeholder="Username" required>
+          </div>
+          <div class="input-group">
+            <i class="fas fa-lock icon"></i>
+            <input type="password" id="password" placeholder="Password" required>
+            <i class="fas fa-eye toggle-eye" id="togglePassword"></i>
+          </div>
+          <div class="forgot">
+            <a href="{% url 'landingpage:lupa_password' %}" >Lupa Password?</a><br>
+            <span>Belum Punya Akun? <a href="{% url 'landingpage:daftar' %}" >Daftar</a></span>
+          </div>
+          <button type="submit" class="btn-login">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordField = document.getElementById('password');
+
+  togglePassword.addEventListener('click', function () {
+    // Toggle the type attribute
+    const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordField.setAttribute('type', type);
+
+    // Toggle the eye icon
+    this.classList.toggle('fa-eye-slash');
+  });
+</script>
+
+</html>

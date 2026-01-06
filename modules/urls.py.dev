@@ -1,0 +1,10 @@
+from django.urls import path, include
+
+
+urlpatterns = [
+    path('', include('modules.uman.urls')),
+    path('core/',include('modules.core.urls')),
+    path('mytask/',include('modules.mytask.urls')),
+    path('info/',include('modules.info.urls')),
+  
+]

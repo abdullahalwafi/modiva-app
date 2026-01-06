@@ -1,0 +1,61 @@
+<div class="card">
+    <span id="title" hidden>{{ title }} </span> 
+ {% include 'includes/spinner.html' %}
+ <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+    {% if perms.mytask.add_produk %}
+    <button hx-indicator='#loading' hx-get="{% url 'mytask:produk-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-primary"><i class="fa fa-plus-square"></i> Tambah</button>
+    {% endif %}
+</div>
+
+<div class="card-body">
+    <div class="table-responsive">
+    <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>No</th>
+                <! -- <th>ID Produk</th> -->
+                <th>Tahapan ID</th>
+                <th>Produk</th>
+                <th>Aktif</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in object_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ data.produk_id }}</td>
+                <td>{{ data.nama}}</td>
+                <td>
+                        {% if  data.aktif  %}
+                            <i class="fa fa-check fa-lg text-success" aria-hidden="true"></i>
+                        {% else %}
+                            <i class="fa fa-close fa-lg text-danger" aria-hidden="true"></i>
+                        {% endif %}
+                </td>
+                <td>
+                    {% if perms.mytask.view_produk %}
+                    <button hx-indicator='#loading' hx-get="{% url 'mytask:produk-detail' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link" title='Lihat Detil'><i class="fa-solid fa-eye text-primary"></i></button>
+                    {% endif %}
+                    {% if perms.mytask.change_produk %}
+                    <button hx-indicator='#loading' hx-get="{% url 'mytask:produk-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link" title='Ubah'><i class="fa-solid fa-pencil text-warning"></i></button>
+                    {% endif %}
+                    {% if perms.mytask.delete_produk %}
+                    <button hx-indicator='#loading' hx-get="{% url 'mytask:produk-delete' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link" title='Hapus'><i class="fa fa-trash text-danger"></i></button>
+                    {% endif %}
+                    {% if perms.mytask.add_menuproduk and perms.mytask.change_menuproduk %}
+                    <button hx-indicator='#loading' hx-get="{%  url 'mytask:menuproduk-create' %}?produk={{data.id}}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-link" title='Pilih dan Tambahkan Menu'><i class="fa-solid fa-bars text-success"></i></button>
+                    {% endif %}
+                </td>
+            </tr>    
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+</div>
+  {% block javascripts %}
+	{% include 'includes/datatables.html' %}
+    {% include 'includes/set_title.html' %}
+  {% endblock %}
+

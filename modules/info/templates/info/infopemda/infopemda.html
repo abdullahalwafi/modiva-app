@@ -1,0 +1,45 @@
+{% extends 'includes/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+	{% include 'info/infopemda/infopemda_list.html' %}
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+{% include 'includes/datatables.html' %}
+<script>
+function show_modal(url){
+    var str_html = '<object data="'+url+'" type="application/pdf" width="100%" height="400px"><p>Unable to display PDF file. <a href='+url+'">Download</a> instead.</p></object>';
+    $('#preview_file_pdf').modal("show").find(".modal-body").html(str_html);
+};
+
+/* Cistom code sweetalert - Delete Data */
+$(document).ready(function() {
+  $('button.delete-item').click(function() {
+    let thisId = $(this).data('id');
+    Swal.fire({
+      title: "Anda Yakin Menghapus Info Pemda ?",
+      html: `
+      <span class="text-danger">PERHATIAN: Menghapus infopemda ini juga akan menghapus seluruh child infopemda-nya !</span>
+      `,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Iya, Hapus Data!",
+      cancelButtonText: "Tidak!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success"
+        });
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

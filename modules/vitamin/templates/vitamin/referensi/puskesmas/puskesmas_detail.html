@@ -1,0 +1,92 @@
+{% load static %}
+{% block content %}
+<section class="profile py-4">
+    <div class="container">
+      <div class="row gy-4 flex-column flex-lg-row">
+        <!-- Konten Utama -->
+        <div class="col-md-8 col-lg-8">
+            <div class="d-flex align-items-center mb-3">
+                <img src="{% static 'assets/img/puskesmas/Logo_Puskesmas.jpg' %}" 
+                alt="Logo Puskesmas" 
+                width="70" height="70"
+                class="me-3 rounded-circle border img-fit-cover" />
+                <h1 class="fw-bold text-dark fs-3 mb-0">{{ object.nama }}</h1>
+            </div>
+            <img src="{{ puskesmas.gambar.url }}" 
+              class="img-fluid rounded mb-3 profile-img"
+              alt="{{ puskesmas.nama }}">
+            <p>
+               {{ object.deskripsi }}
+            </p>
+        </div>  
+        
+          <!-- Sidebar -->
+        <div class="col-md-4 col-lg-4">    
+            {% if perms.vitamin.change_puskesmas %}
+                <button 
+                    class="btn btn-warning text-white mt-3 mb-3"
+                    hx-get="{% url 'vitamin:puskesmas-edit' object.id %}"
+                    hx-trigger="click" 
+                    hx-target='#main-content' 
+                    hx-swap="innerHTML"
+                    title='Ubah'>
+                    <i class="fas fa-edit me-1"></i> Ubah
+                </button>
+            {% endif %}
+          <p mt-n1><i class="fas fa-capsules me-2"></i>450 Vitamin telah didistribusikan</p>
+          <p mt-n1><i class="fas fa-school me-2"></i>10 Sekolah sebagai mitra penyaluran:</p>
+          <ul class="list-unstyled mb-4 ps-3">
+            {% for sekolah in sekolah %}
+            <li class="list-group-item">
+                <a href="{% url 'vitamin:sekolah-detail' sekolah.id %}">{{ sekolah.nama }}</a>
+            </li>
+            {% empty %}
+            <li class="list-group-item">Tidak ada sekolah terdaftar.</li>
+            {% endfor %}
+            <!-- <li><i class="fas fa-school me-2"></i>SMKS YAPEMRI DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMAN 2 DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS YAPA DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS GANESA SATRIA 1 DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS 3 DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKN 1 DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS 3 BUDI UTOMO DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS ISLAM ARRIDHO DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS TIRTAYASA DEPOK</li>
+            <li><i class="fas fa-school me-2"></i>SMKS PURNAMA 1 DEPOK</li> -->
+          </ul>
+        
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <div class="mb-3">
+                <iframe
+                    src="https://www.google.com/maps?q={{ object.nama|urlencode }}&output=embed"
+                    width="100%"
+                    height="200"
+                    style="border:0;"
+                    allowfullscreen
+                    loading="lazy">
+                </iframe>
+              </div>
+              
+        
+              <address class="mb-0">
+                <p class="mb-2">
+                  <i class="fas fa-map-marker-alt me-2"></i>{{ object.alamat }}
+                </p>
+                <p class="mb-2">
+                  <i class="fas fa-phone-alt me-2"></i>{{ object.telepon }}
+                </p>
+                <p class="mb-0">
+                  <i class="fas fa-envelope me-2"></i>{{ object.email }}
+                </p>
+              </address>
+            </div>
+          </div>
+        </div>
+          
+      </div>
+    </div>
+  </section>
+ 
+{% endblock content %}
+{% include 'includes/set_title.html' %}

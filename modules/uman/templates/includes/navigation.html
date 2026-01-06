@@ -1,0 +1,62 @@
+{% load static %}
+{% load core_tags %}
+<div class="navigation navbar px-lg-3 px-2 py-lg-3 py-2">
+    <!-- Brand -->
+    <a href="/{% get_root_url %}" class="brand-icon d-flex align-items-center">
+        <span class="fw-bold fs-4 mb-0">SIKD</span>
+    </a>
+    <!-- Menu: icon -->
+    {% if request.user.is_authenticated %}
+    <ul class="nav navbar-nav flex-row flex-grow-1 justify-content-end">
+        <li class="nav-item">
+            <div class="Language position-relative">
+                <a class="nav-link dropdown-toggle pulse py-2 px-2 px-lg-3" href="#" role="button" data-bs-toggle="dropdown">
+                    <i class="fa fa-th"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-end rounded-4 shadow border-0 p-0 mt-2 position-absolute" data-bs-popper="none">
+                    <div class="card border-0">
+                        <div class="card-body">
+                            <ul class="list-unstyled menu-grid d-flex flex-wrap mb-0 rounded mx-auto">
+                                {% for app in aplikasi %}
+                                {% if not app.as_modul %}
+                                <li><a class="m-link" href="{{ app.url }}" target="_blank">
+                                    <img src="{% get_media_prefix %}/{{ app.image }}" class="avatar md rounded-circle" />
+                                    <span>{{ app.name }}</span></a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="nav-item">
+            <div class="Language position-relative">
+                <a class="nav-link dropdown-toggle pulse py-2 px-2 px-lg-3" href="#" role="button" data-bs-toggle="dropdown">
+                      {% if profil.foto_profil %}
+                        <img class="avatar sm rounded-circle" src="{% get_media_prefix %}/{{profil.foto_profil}}" id='foto_profil' alt="Profile pic of {{user.username}}"  title="Profile pic of {{user.username}}">
+                      {% else %}
+                        <img class="avatar sm rounded-circle" src="{% static 'assets/images/profile_av.png' %}" id='foto_profil' alt="Profile pic of {{user.username}}" title="Profile pic of {{user.username}}">
+                      {% endif %}
+                </a>
+                <div class="dropdown-menu dropdown-menu-end rounded-4 shadow border-0 p-0 mt-2 position-absolute" data-bs-popper="none">
+                    <div class="card border-0">
+                        <div class="list-group list-group-custom" style="width: 200px;">
+                            <a href="{% url 'uman:profile-account' %}" class="list-group-item">
+                                <i class="fa fa-user" aria-hidden="true"></i> Profile
+                            </a>
+                            <a href="{% url 'uman:change-password' %}" class="list-group-item">
+                                <i class="fa fa-user" aria-hidden="true"></i> Ubah Password
+                            </a>
+                            <a href="{% url 'uman:logout' %}" class="list-group-item">
+                               <i class="fa fa-sign-out"></i> Logout
+                            </a>
+                       </div>
+                   </div>
+                </div>
+           </div>
+        </li>    
+</ul>
+{% endif %}
+</div>

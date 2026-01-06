@@ -1,0 +1,302 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+    <div class="body-header border-bottom d-flex py-3">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col">
+                    <small class="text-muted">APBD</small>
+                </div>
+            </div>
+        </div>
+</div>
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+            <h3>Grafik APBD</h3>
+        </div>
+                    
+        <div class="card-body">
+{% include 'includes/alerts.html' %}
+            <form method="POST" id="frm">
+                {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-1">
+                        <b>Filter :</b>
+                        </div>    
+                        <div class="col-md-2">
+                            
+                            <select name="tahun" onchange="javascript:frm.submit();" class="form-control">
+                                {% for thn in list_tahun %}
+                                <option value="{{ thn }}" {% if thn == tahun_terpilih %} selected {% endif %}>{{ thn }}</option>  
+                                {% endfor %}
+                               
+                            </select> 
+                        </div>
+                    </div>        
+            </form>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                            <h6 class="m-0">Realisasi Anggaran Pemda Top 10 Tahun {{ tahun_terpilih }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="apex-chart-line-column2"></div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                            <h6 class="m-0">Anggaran Tahun {{ tahun_terpilih }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="apex-simple-donut2"></div>
+                        </div>
+                    </div>
+                </div>    
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom-0">
+                            <h6 class="m-0">Realisasi Anggaran Tahun {{ tahun_terpilih }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="apex-simple-donut3"></div>
+                        </div>
+                    </div>
+                </div>    
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+<script>
+var pemda = [
+        {% for d in anggaran %}
+            '{{ d }}',
+        {% endfor %}
+];
+var prov = [
+        {% for d in anggaran %}
+            '{{ d }}',
+        {% endfor %}
+];
+var anggaran = [
+        {% for k,v in anggaran.items %}
+            nFormat({{ v }}),
+        {% endfor %}
+];
+var realisasi = [
+        {% for k,v in realisasi.items %}
+            nFormat({{ v }}),
+        {% endfor %}
+]; 
+
+var provinsi = [
+        {% for k,v in data_ra.items %}
+            '{{ k }}',
+        {% endfor %}
+]; 
+var total_anggaran = [
+    {% for k,v in data_ra.items %}
+        {{ v }},
+    {% endfor %}
+]; 
+var total_realisasi = [
+    {% for k,v in data_rr.items %}
+        {{ v }},
+    {% endfor %}
+]; 
+// Basic Line Column
+$(document).ready(function() {
+    var options = {
+        chart: {
+            height: 350,
+            type: 'line',
+            toolbar: {
+                show: false,
+            },
+        },
+        colors: ['#008000', '#FFA500'],
+        series: [{
+            name: 'Anggaran',
+            type: 'column',
+            data: anggaran
+        }, {
+            name: 'Realisasi',
+            type: 'line',
+            data: realisasi
+        }],
+        stroke: {
+            width: [0, 4]
+        },   
+        legend: {
+            show: true,
+            position: 'top',
+        },         
+        // labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: prov,
+        xaxis: {
+            type: 'category',
+            labels: {
+                show: true,
+                rotate: -35,
+                rotateAlways: true,
+            }    
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return "Rp. " + nFormat(val) + " T"
+                }
+            }
+        },
+        yaxis: [{
+            title: {
+                text: 'Anggaran (T)',
+            },
+
+        },
+        {
+            opposite: true,
+            title: {
+                text: 'Realisasi (T)'
+            }
+        },
+        
+        ]
+    }
+    var chart = new ApexCharts(
+        document.querySelector("#apex-chart-line-column2"),
+        options
+    );
+
+    chart.render();
+});
+
+
+//--------------pie anggaran-----------------------
+$(document).ready(function() {
+    var options = {
+        chart: {
+            height: 250,
+            type: 'pie',
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        legend: {
+            position: 'bottom',
+            horizontalAlign: 'center',
+            show: true,
+        },
+        // colors: ['#004660', '#ffd55d'],
+        labels: provinsi,
+        //series:  [45,55],
+        series:  total_anggaran,
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return  val + "%"
+                }
+            }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    }
+
+    var chart = new ApexCharts(
+        document.querySelector("#apex-simple-donut2"),
+        options
+    );
+    
+    chart.render();
+});
+
+//--------------pie realisasi anggaran-----------------------
+$(document).ready(function() {
+    var options = {
+        chart: {
+            height: 250,
+            type: 'pie',
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        legend: {
+            position: 'bottom',
+            horizontalAlign: 'center',
+            show: true,
+        },
+        // colors: ['#004660', '#ffd55d'],
+        labels: provinsi,
+        //series:  [45,55],
+        series:  total_realisasi,
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return  val + "%"
+                }
+            }
+        },
+        responsive: [{
+            breakpoint: 480,
+            options: {
+                chart: {
+                    width: 200
+                },
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }]
+    }
+
+    var chart = new ApexCharts(
+        document.querySelector("#apex-simple-donut3"),
+        options
+    );
+    
+    chart.render();
+});
+
+
+function nFormat (labelValue) {
+
+    // Nine Zeroes for Billions
+    return Math.abs(Number(labelValue)) >= 1.0e+12
+
+    ? (Math.abs(Number(labelValue)) / 1.0e+12).toFixed(2) + "T"
+    // Six Zeroes for Triliyun 
+    : Math.abs(Number(labelValue)) >= 1.0e+9
+
+    ? (Math.abs(Number(labelValue)) / 1.0e+9).toFixed(2) + "B"
+    // Six Zeroes for Millions 
+    : Math.abs(Number(labelValue)) >= 1.0e+6
+
+    ? (Math.abs(Number(labelValue)) / 1.0e+6).toFixed(2) + "M"
+    // Three Zeroes for Thousands
+    : Math.abs(Number(labelValue)) >= 1.0e+3
+
+    ? (Math.abs(Number(labelValue)) / 1.0e+3).toFixed(2) + "K"
+
+    : Math.abs(Number(labelValue));
+
+}
+</script>
+{% endblock %}

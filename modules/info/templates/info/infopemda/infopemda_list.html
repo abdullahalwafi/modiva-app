@@ -1,0 +1,128 @@
+{% load core_tags %}
+{% load static %}
+<div class="content flex-row-fluid" id="kt_content">
+    <div class="card mb-5 mb-lg-10">
+        <div class="card-header">
+            <div class="card-title"></div>
+            <div class="card-toolbar flex-row-fluid justify-content-end gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-outline btn-active-light-info btn-sm btn-icon btn-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <ul class="dropdown-menu" id="datatables_infoPemda_export_menu">
+                        <li><a class="dropdown-item" data-kt-export="excel" href="#">Export Excel</a></li>
+                        <li><a class="dropdown-item" data-kt-export="csv" href="#">Export CSV</a></li>
+                        <li><a class="dropdown-item" data-kt-export="pdf" href="#">Export PDF</a></li>
+                    </ul>
+                </div>
+                
+                <!--begin::Hide default export buttons-->
+                <div id="datatables_infoPemda_buttons" class="d-none"></div>
+                <!--end::Hide default export buttons-->
+                
+                
+                {% if perms.info.add_infopemda %}
+                <span class="h-30px border-gray-400 border-start mx-3"></span>
+                <!--begin::Link create data buttons-->
+                <button hx-get="{% url 'info:infopemda-create' %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-sm btn-success">
+                    <i class="fas fa-plus"></i> Tambah Data
+                </button>
+                <!--end::Link create data buttons-->
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="datatables_infoPemda" class="table table-sm table-striped table-row-bordered align-middle">
+                    <thead class="bg-primary text-white">
+                        <!--begin::Table row-->
+                        <tr class="fw-bold text-uppercase align-middle">
+                            <th class="text-center" width="5%">No</th>
+                            {% if request.user.is_superuser %}
+                            <th width="20%">Group Menu</th>
+                            {% endif %}
+                            <th>Keterangan</th>
+                            <th width="2%">File</th>
+                            <th width="10%">Dibuat pada</th>
+                            <th width="30%" class="text-center">Penerima</th>
+                            {% if perms.info.change_infopemda or perms.info.delete_infopemda %}
+                            <th width="2%" class="text-center">Aksi</th>
+                            {% endif %}
+                        </tr>
+                        <!--end::Table row-->
+                    </thead>
+                    <tbody>
+                        {% for data in object_list %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            {% if request.user.is_superuser %}
+                            <td>
+                                {% for g in  data.groupmenu.all %}
+                                <span class="badge badge-light-success">{{g.group.name|upper}}</span> &nbsp;
+                                {% endfor %}
+                            </td>
+                            {% endif %}
+                            <td>{{ data.keterangan }}</td>
+                            <td>
+                                {% if data.file_pdf %}
+                                <a id="btn_{{data.id}}"  href="javascript:void(0);" type="button" class="btn btn-icon btn-active-light-info" onclick='javascript:show_modal("{% get_media_prefix %}{{data.file_pdf}}");'>
+                                    <i class="fas fa-file-pdf text-danger"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                            <td>{{data.created_at}}</td>
+                            <td class="text-center">
+                                {% if data.penerima.all %}
+                                {% comment %}
+                                <button type="button" class="btn btn-secondary btn-sm my-2 me-5" data-bs-toggle="popover" data-bs-placement="left" data-bs-html="true" data-bs-dismiss="true" data-bs-content="{% for p in  data.penerima.all %}<span class='badge bg-success'>{{p.nm_pemda}}</span> {% endfor %} ">
+                                    {{ data.penerima.all|length }} Pemda
+                                </button>
+                                {% endcomment %}
+                                {% if request.user.is_superuser %}
+                                    {% for p in data.penerima.all %}
+                                        <span class="badge badge-secondary mx-1">{{p.nm_pemda|upper}}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="badge badge-secondary">{{pemda.nm_pemda|upper}}</span>
+                                {% endif %}
+                                {% else %}
+                                    <span class="badge badge-secondary">Semua Pemda</span>
+                                {% endif %}
+                            </td>
+                            {% if perms.info.change_infopemda or perms.info.delete_infopemda %}
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    {% if perms.info.change_infopemda %}
+                                        <button hx-get="{% url 'info:infopemda-edit' data.id %}" hx-trigger="click" hx-target='#main-content' hx-swap="innerHTML" class="btn btn-icon btn-active-light-warning"><i class="fas fa-edit"></i></button>
+                                    {% endif %}
+                                    
+                                    {% if perms.info.delete_infopemda %}
+                                        <button hx-get="{% url 'info:infopemda-delete' data.id %}" hx-trigger='click' hx-target='#main-content' hx-swap='innerHTML' class='btn btn-icon btn-active-light-danger'>
+                                            <i class='fas fa-trash'></i>
+                                        </button>
+                                        <!-- <button class='btn btn-icon btn-active-light-danger delete-item' data-id="{{ data.id }}" data-url="{% url 'uman:unit-delete' data.id %}"><i class='fas fa-trash'></i></button> -->
+                                    {% endif %}
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>    
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% include 'info/infopemda/modal.html'  %}
+{% block javascripts %}
+{% include 'includes/datatables.html' %}
+{% include 'includes/set_title.html' %}
+
+<script>
+function show_modal(url){
+    var str_html = '<object data="'+url+'" type="application/pdf" width="100%" height="400px"><p>Unable to display PDF file. <a href="'+url+'">Download</a> instead.</p></object>';
+    $('#preview_file_pdf').modal("show").find(".modal-body").html(str_html);
+};
+</script>
+
+{% endblock %}

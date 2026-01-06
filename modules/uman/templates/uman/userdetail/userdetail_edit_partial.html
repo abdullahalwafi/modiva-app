@@ -1,0 +1,59 @@
+{% load widget_tweaks %}
+<div class="card">
+<span id="title" hidden>{{ title }} </span>
+  <div class="card-body">
+     {% include 'includes/spinner.html' %}
+
+    <form hx-post="{% url 'uman:userdetail-edit' object.id %}" hx-encoding='multipart/form-data' hx-indicator="#loading" hx-target="#main-content" hx-swap="innerHTML">
+      {% csrf_token %}
+      {% for hidden in form.hidden_fields %}
+      {{ hidden }}
+      {% endfor %}
+       <div class="row mb-3">
+        <label for="username" class="col-sm-3 col-form-label">Username</label>
+        <div class="col-sm-9">
+                <span class="form-control"> {{object.user.username}} </span>
+        </div>
+      </div>
+
+      {% for field in form.visible_fields %}
+      <div class="row mb-3">
+        <label for="{{ field.id_for_label }}" class="col-sm-3 col-form-label">{{ field.label }}</label>
+        <div class="col-sm-9">
+              {% if field.name == 'group' %}
+                 {% render_field field class="group-select2 form-control" multiple="multiple" %}
+              {% elif field.name == 'is_active' %}
+                    <input type="checkbox" class="form-check-input"  name="is_active" id="id_is_active" onclick="javascript:$(this).val(1)" {% if object.user.is_active  %}value='1'  checked{% else %}value='0' {% endif %}/>
+
+              {% elif field.name == 'is_superuser' %}
+                    <input type="checkbox" class="form-check-input"  name="is_superuser" id="id_is_superuser" onclick="javascript:$(this).val(1)" {% if object.user.is_superuser  %}value='1'  checked{% else %}value='0' {% endif %}/>
+              {% else %}
+              	{{ field|add_class:'form-control' }}
+              {% endif %}
+        </div>
+        {% for error in field.errors %}
+        <span class="help-block text-danger">{{ error }}</span>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      <div class="card-footer">
+        <button hx-indicator="#loading" hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'uman:userdetail-list'  %}"
+          class="btn btn-secondary mr-2" onclick="closeAndRefresh()"><i class="fa fa-undo"></i> Batal</button>
+        <button type="submit" class="btn btn-primary" onclick="closeAndRefresh()">
+            <i class="fa fa-save"></i> Simpan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    $('.group-select2').select2();
+   
+});
+</script>
+{% include 'includes/set_title.html' %}
+{% endblock javascripts %}
+

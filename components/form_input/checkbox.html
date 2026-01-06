@@ -1,0 +1,17 @@
+<div class="row mb-6">
+    <label class="col-lg-4 col-form-label fw-semibold fs-6 {% slot 'required' %}{% endslot %}">
+        {% slot "label" %}{% endslot %}
+    </label>
+    <div class="col-lg-8 fv-row fv-plugins-icon-container">
+        <div class="d-flex align-items-center mt-3">
+            <!--begin::Option-->
+            <label class="form-check form-check-custom form-check-inline form-check-solid me-5">
+                <input class="form-check-input" name="communication[]" type="checkbox" value="1">
+                <span class="fw-semibold ps-2 fs-6">{% slot "label_box" %}{% endslot %}</span>
+            </label>
+        </div>
+    </div>
+    
+</div>
+
+

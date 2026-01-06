@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    {% load static %}
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Sistem MODIVA</title>
+
+  <!-- Favicon -->
+  <link href="{% static 'modiva3/img/favicon.png' %}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS -->
+  <link href="{% static 'modiva3/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'modiva3/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <!-- Main CSS -->
+  <link href="{% static 'modiva3/css/main.css' %}" rel="stylesheet">
+</head>
+<body id="dashboard-layout">
+
+{% include 'includes/modiva_sidebar3.html' with user=user %}
+
+  
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+{% include 'includes/modiva_navbar3.html' with user=user %}
+
+
+
+{% include 'includes/main_chatbot.html' with user=user %}
+
+ {% block content %}
+
+
+ 
+      
+
+  {% endblock content %}

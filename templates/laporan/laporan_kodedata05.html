@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    
+    <h2>Daftar Jumlah dan Rincian Gaji {{ kode_gaji }}</h2>
+    <p>
+        Nama Daerah : {{ nama_daerah }}<br>
+        Bulan : {{ bulan }}<br>
+        Tahun : {{ tahun }}
+    </p>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Golongan</th>
+                <th>Jumlah</th>
+                <th>Gaji Pokok</th>
+                <th>Tunjangan Keluarga</th>
+                <th>Tunjangan Jabatan</th>
+                <th>Tunjangan Umum</th>
+                <th>Tunjangan PPH</th>
+                <th>Tunjangan Beras</th>
+                <th>Tunjangan Lainnya</th>
+                <th>Lain-lain Pembulatan</th>
+                <th>Gaji Kotor</th>
+                <th>Tunjangan Perbaikan Penghasilan</th>
+                <th>Kode Bayar</th>
+                <th>Total Penghasilan</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+    <br>
+    <table width="100%">
+        <tr>
+            <td style="text-align: right;">{{ kota }}, {{tanggal}}</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Mengetahui</td>
+        </tr>
+        <tr>
+            <td style="text-align: left;width:50%">KEPALA BADAN PENGELOLAAN KEUANGAN DAERAH</td>
+            <td style="text-align: left;width:50%">KUASA BENDAHARA UMUM DAERAH</td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 50px;"></td>
+        </tr>
+        <tr>
+            <td>{{ nama_pjb1 }}</td>
+            <td>{{ nama_pjb2 }}</td>
+        </tr>
+        <tr>
+            <td>{{ nip_pjb1 }}</td>
+            <td>{{ nip_pjb2 }}</td>
+    </table>
+</body>
+</html>

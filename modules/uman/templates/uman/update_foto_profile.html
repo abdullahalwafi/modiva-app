@@ -1,0 +1,10 @@
+{% load static %}
+<img height='150' width='150' src="{% get_media_prefix %}/{{ object.foto_profil }}" class="rounded-circle mt-3" id="foto-profile" />
+{% block javascripts %}
+<script>
+var foto = document.getElementById('foto_profil');
+foto.src = '{% get_media_prefix %}/{{ object.foto_profil }}';
+var foto2 = document.getElementById('foto_profil2');
+foto2.src = '{% get_media_prefix %}/{{ object.foto_profil }}';
+</script>
+{% endblock javascripts %}

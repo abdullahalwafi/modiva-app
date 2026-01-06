@@ -1,0 +1,300 @@
+// Admin Layout (ALUI)
+// @author: WrapTheme ( https://themeforest.net/user/wrraptheme )
+// @design by: ThemeMakker Infotech LLP.
+// @event-namespace: ALUI
+// Copyright 2021 WrapTheme
+
+
+// dropdown-menu
+.dropdown-menu {
+    &.dropdown-animation{
+		padding: .9rem;
+
+		a.dropdown-item{
+			@include transition(all .3s ease 0s);
+			min-width: 180px;
+			padding: 10px 15px 10px 0;
+			border-radius: 3px;
+			position: relative;
+			i{
+				@include transition(all .3s ease 0s);
+				margin-left: 0;
+				opacity: 0;
+			}
+			&:hover{
+				padding-left: 10px;
+				i{
+					color: var(--primary-color);
+					opacity: 1;
+					margin-left: 8px;
+				}
+			}
+		}
+	}
+}
+
+// drop slidedown animation
+.slidedown{
+	@include transition(all .3s ease 0s);
+	visibility: hidden;
+	opacity: 0;
+	transform-origin: 0 0 0;
+	transform: scaleY(0);
+
+	&.show,
+	&.open{
+		opacity: 1;
+		visibility: visible;
+		transform: scaleY(1);
+	}
+
+	.dropdown-menu{
+		@include transition(all .3s ease 0s);
+		display: block;
+		visibility: hidden;
+		top: 100%;
+		z-index: 999;
+		opacity: 0;
+		transform-origin: 0 0 0;
+		transform: scaleY(0);
+
+		&.show{
+			visibility: visible;
+			transform: scaleY(1);
+			top: 100%;
+			opacity: 1;
+		}
+	}
+}
+
+// ul li animation 
+.animation_delay{
+    > li {
+		opacity: 0;
+		transform: translateY(15px);
+		-webkit-animation: eliment-animation .3s ease-in-out .33333s;
+		animation: eliment-animation .3s ease-in-out .33333s;
+		-webkit-animation-fill-mode: forwards;
+		animation-fill-mode: forwards;
+
+		&:nth-child(1){
+			-webkit-animation-delay: .1s;
+			animation-delay: .1s;
+		}
+		&:nth-child(2){
+			-webkit-animation-delay: .15s;
+			animation-delay: .15s;
+		}
+		&:nth-child(3){
+			-webkit-animation-delay: .2s;
+			animation-delay: .2s;
+		}
+		&:nth-child(4){
+			-webkit-animation-delay: .25s;
+			animation-delay: .25s;
+		}
+		&:nth-child(5){
+			-webkit-animation-delay: .3s;
+			animation-delay: .3s;
+		}
+		&:nth-child(6){
+			-webkit-animation-delay: .35s;
+			animation-delay: .35s;
+		}
+		&:nth-child(7){
+			-webkit-animation-delay: .4s;
+			animation-delay: .4s;
+		}
+		&:nth-child(8){
+			-webkit-animation-delay: .45s;
+			animation-delay: .45s;
+		}
+		&:nth-child(9){
+			-webkit-animation-delay: .5s;
+			animation-delay: .5s;
+		}
+		&:nth-child(10){
+			-webkit-animation-delay: .55s;
+			animation-delay: .55s;
+		}
+		&:nth-child(11){
+			-webkit-animation-delay: .6s;
+			animation-delay: .6s;
+		}
+		&:nth-child(12){
+			-webkit-animation-delay: .65s;
+			animation-delay: .65s;
+		}
+		&:nth-child(13){
+			-webkit-animation-delay: .7s;
+			animation-delay: .7s;
+		}
+		&:nth-child(14){
+			-webkit-animation-delay: .75s;
+			animation-delay: .75s;
+		}
+    }
+    @-webkit-keyframes eliment-animation{to{opacity:1;transform:translateX(0)}}
+    @keyframes eliment-animation{to{opacity:1;transform:translateX(0)}}
+}
+
+// lift div card, btn and other
+.lift{
+	transition: box-shadow .25s ease,
+	transform .25s ease;
+
+	&:focus,
+	&:hover{
+		box-shadow: 0 6px 1rem rgba($dark,.1),0 .5rem 1rem -.75rem rgba($dark,.1)!important;
+		transform: translate3d(0,-3px,0)
+	}
+}
+
+// login page top to bottom line animation
+.animate_lines{
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 90vw;
+    z-index: 1;
+
+    .line {
+        position: absolute;
+        overflow: hidden;
+        width: 1px;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(23,25,28,0.05);
+
+        &:nth-child(1) {
+            margin-left: 22%;
+            &::after{
+                animation-delay: 2s;
+            }
+        }
+        &:nth-child(3) {
+            margin-left: 12%;
+            &::after{
+                animation-delay: 1.8s;
+            }
+        }
+        &:nth-child(4) {
+            margin-left: 80%;
+            &::after{
+                animation-delay: 3.5s;
+            }
+        }
+        &:nth-child(5) {
+            margin-left: 85%;
+            &::after{
+                animation-delay: 3s;
+            }
+        }
+        &:nth-child(6) {
+            margin-left: 100%;
+            &::after{
+                animation-delay: 1.7s;
+            }
+        }
+        &:after {
+            background: -webkit-gradient(linear, left top, left bottom, from(var(--border-color)), color-stop(75%, var(--primary-color)), to(var(--secondary-color)));
+            background: linear-gradient(to bottom, var(--border-color) 0%, var(--primary-color) 75%, var(--secondary-color) 100%);
+            content: "";
+            display: block;
+            position: absolute;
+            height: 15vh;
+            width: 100%;
+            top: -50%;
+            left: 0;
+            -webkit-animation: run 7s 0s infinite;
+            animation: run 7s 0s infinite;
+            animation-timing-function: ease;
+            animation-delay: 0s;
+            animation-fill-mode: none;
+            -webkit-animation-fill-mode: forwards;
+            animation-fill-mode: forwards;
+            -webkit-animation-timing-function: cubic-bezier(0.4, 0.26, 0, 0.97);
+            animation-timing-function: cubic-bezier(0.4, 0.26, 0, 0.97);
+        }
+    }
+	
+    @-webkit-keyframes run{0%{top:-50%}100%{top:110%}}
+    @keyframes run{0%{top:-10%}100%{top:100%}}
+}
+
+// notification round ring animation
+.pulse {
+
+    .pulse-ring {
+        border-color: var(--primary-color);
+        display: block;
+        position: absolute;
+        -webkit-animation: animation-pulse 3.5s ease-out;
+        animation: animation-pulse 3.5s ease-out;
+        -webkit-animation-iteration-count: infinite;
+        animation-iteration-count: infinite;
+        border-style: solid;
+        top: 0;
+        left: 3px;
+        border-radius: 40px;
+        height: 40px;
+        width: 40px;
+        opacity: 0;
+        border-width: 5px;
+    }
+
+    &::after{
+        display: none;
+    }
+
+    @-webkit-keyframes animation-pulse {
+        0% { -webkit-transform: scale(0.1, 0.1); opacity: 0.0; }
+        60% { -webkit-transform: scale(0.1, 0.1); opacity: 0.0; }
+        65% { opacity: 1; }
+        100% { -webkit-transform: scale(1.2, 1.2); opacity: 0.0; }
+    }      
+    @keyframes animation-pulse {
+        0% { -webkit-transform: scale(0.1, 0.1); opacity: 0.0; }
+        60% { -webkit-transform: scale(0.1, 0.1); opacity: 0.0; }
+        65% { opacity: 1; }
+        100% { -webkit-transform: scale(1.2, 1.2); opacity: 0.0; }
+    }
+}
+
+// Preloader
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    overflow: hidden;
+    background: var(--card-color);
+
+    &::before {
+        content: "";
+        position: fixed;
+        top: calc(50% - 30px);
+        left: calc(50% - 30px);
+        border: 6px solid var(--primary-color);
+        border-top-color: var(--border-color);
+        border-radius: 50%;
+        width: 60px;
+        height: 60px;
+        -webkit-animation: animate-preloader 1s linear infinite;
+        animation: animate-preloader 1s linear infinite;
+    }
+    @-webkit-keyframes animate-preloader {
+        0% {transform: rotate(0deg);}
+        100% {transform: rotate(360deg);}
+    }
+    @keyframes animate-preloader {
+        0% {transform: rotate(0deg);}
+        100% {transform: rotate(360deg);}
+    }
+}

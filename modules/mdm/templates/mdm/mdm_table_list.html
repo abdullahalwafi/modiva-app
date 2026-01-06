@@ -1,0 +1,46 @@
+{% load core_tags %}
+{% load static %}
+{% include 'mdm/modal.html'  %}
+<div class="card">
+    <div class="card-body">
+        <button id="APIButton" class="btn btn-primary" style= "border-radius: 10px; ">Go to Master API</button>
+    </div>
+    <span id="title" hidden>{{ title }} </span>
+    <div class="card-body">
+        <div class="table-responsive">
+        <table id="myDataTable" class="myDataTable table table-hover align-middle mb-0" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                </tr>
+            </thead>
+            <tbody id="desa">
+                {% for data in list_data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td><a href="{% url 'mdm:table_records' mdm_table_name=data.0 %}">{{ data.1 }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+{% block javascripts %}
+{% include 'includes/datatables.html' %}
+{% include 'includes/set_title.html' %}
+
+<script>
+function show_modal(url){
+    var str_html = '<object data="'+url+'" type="application/pdf" width="100%" height="400px"><p>Unable to display PDF file. <a href="'+url+'">Download</a> instead.</p></object>';
+    $('#preview_file_pdf').modal("show").find(".modal-body").html(str_html);
+};
+
+// Function to handle button click and redirect
+document.getElementById('APIButton').addEventListener('click', function () {
+window.location.href = "{% url 'mdm:master_api_referensi' %}";
+});
+</script>
+
+{% endblock %}

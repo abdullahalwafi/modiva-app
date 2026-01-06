@@ -1,0 +1,77 @@
+{% load widget_tweaks %}
+<div class="content flex-row-fluid" id="kt_content">
+	<div class="card mb-5 mb-lg-10">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Ubah Informasi Pemda</h3>
+			</div>
+			<form hx-post="{% url 'info:infopemda-edit'  object.id %}" hx-target="#main-content" hx-swap="innerHTML" hx-encoding="multipart/form-data">
+				{% csrf_token %}
+				<div class="card-body">
+					{% for hidden in form.hidden_fields %}
+					{{ hidden }}
+					{% endfor %}
+					{% for field in form.visible_fields %}
+					<div class="form-group row mb-4">
+						<label for="{{ field.id_for_label }}" class="col-lg-1 col-form-label">{{ field.label }}</label>
+						<div class="col-lg-11">
+							{% if field.name == 'groupmenu' %}
+									{% render_field field class="groupmenu-select2 form-control" multiple="multiple" placeholder="Pilih Group" %}
+							{% elif field.name == 'penerima' %}
+								<div class="form-check form-check-solid mb-4">
+									<input class="form-check-input" type="checkbox" name="all" id="id_all" value="1"/>
+									<label class="form-check-label" for="flexSwitchDefault">
+										Semua Pemda <i class="fas fa-info-circle text-primary" title="Centang untuk Semua Pemda"></i>
+									</label>
+								</div>
+								{% render_field field class="penerima-select2 form-control" multiple="multiple" placeholder="Pilih Penerima" %}
+							{% else %}
+									{{ field|add_class:'form-control' }}
+							{% endif %}
+							{% for error in field.errors %}
+								<span class="help-block text-danger">!!! {{ error }} !!!</span>
+							{% endfor %}
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+				<div class="card-footer d-flex flex-end">
+					<div class="form-group">
+						<button hx-target="#main-content" hx-swap="innerHTML" hx-trigger="click" hx-get="{% url 'info:infopemda-list'  %}" class="btn btn-secondary">
+							<i class="fa fa-undo"></i> Batal
+						</button>
+						<button type="submit" class="btn btn-success">
+							<i class="fa fa-save"></i> Simpan Perubahan
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+	$('.groupmenu-select2').select2({
+		placeholder: 'Cari Grup Menu'
+	});
+	$('.penerima-select2').select2({
+		placeholder: 'Cari Pemda'
+	});
+
+	$('input#id_all').change(function() {
+		if($(this).is(":checked"))
+		{
+			$(".penerima-select2").val(null).trigger("change");
+			$(".penerima-select2").fadeOut('fast');
+		}
+		else
+		{
+			$(".penerima-select2").fadeIn('fast');
+		}
+	});
+});
+</script>
+
+{% endblock javascripts %}

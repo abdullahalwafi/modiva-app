@@ -1,0 +1,14 @@
+{% extends 'includes/base.html' %}
+{% block content %}
+<div class="col-12">
+  <div id="main-content">
+        {% include 'uman/admin_pemda_manage_user/admin_pemda_manage_user_list.html' %}
+  </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+  {% include 'includes/datatables.html' %}
+{% endblock %}
+
