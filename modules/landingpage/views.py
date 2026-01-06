@@ -1,3 +1,5 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
 from modules.landingpage.models import ContactMessage
 from .forms import *
@@ -91,71 +93,32 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 import requests
-import numpy as np
 
 from modules.vector.models import DocumentChunk
+from modules.vector.views import embed, get_chroma, rebuild_chroma_from_db
 
 # =========================
-# CHROMA (in-memory / optional persistent)
+# CHROMA (persistent dari modules.vector)
 # =========================
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
-
-# in-memory (boleh diganti ke persistent)
-client = chromadb.Client()
-
-COLLECTION_NAME = "rag_collection"
-
-# model embedding nyata (lebih akurat)
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
-
-def embed(text: str) -> np.ndarray:
-    """Embedding asli, tidak lagi dummy."""
-    emb = embedder.encode([text])[0]
-    return emb.astype("float32")
-
 def get_collection():
-    try:
-        return client.get_collection(name=COLLECTION_NAME)
-    except Exception:
-        return client.create_collection(name=COLLECTION_NAME)
+    """
+    Ambil koleksi Chroma shared dari modules.vector.
+    Jika belum ada/masih kosong, coba rebuild dari DB.
+    """
+    client, collection = get_chroma()
+    if client is None or collection is None:
+        return None
 
-def rebuild_chroma_index():
-    """Build ulang Chroma dari DocumentChunk."""
     try:
-        client.delete_collection(name=COLLECTION_NAME)
-    except:
+        # Pastikan koleksi terisi (mis. setelah upload baru)
+        if hasattr(collection, "count") and collection.count() == 0:
+            rebuild_chroma_from_db()
+            _, collection = get_chroma()
+    except Exception:
+        # Abaikan, tetap gunakan koleksi sekarang
         pass
 
-    collection = client.create_collection(name=COLLECTION_NAME)
-
-    chunks = DocumentChunk.objects.all().order_by("id")
-    if not chunks:
-        return
-
-    ids = []
-    docs = []
-    metadatas = []
-    embeddings = []
-
-    for chunk in chunks:
-        ids.append(str(chunk.id))
-        docs.append(chunk.content)
-        metadatas.append({
-            "id": str(chunk.id),
-        })
-        embeddings.append(embed(chunk.content).tolist())
-
-    collection.add(
-        ids=ids,
-        documents=docs,
-        metadatas=metadatas,
-        embeddings=embeddings
-    )
-
-# build index sekali di awal
-rebuild_chroma_index()
+    return collection
 
 # =========================
 # CHAT API
@@ -173,24 +136,58 @@ def chat_api(request):
         if not user_message:
             return JsonResponse({"reply": "Pesan kosong."})
 
-        # Default
-        reply = None
-
         # 🔎 Chroma Vector Search
         collection = get_collection()
+        context_text = ""
 
-        try:
-            q_emb = embed(user_message).tolist()
-            results = collection.query(
-                query_embeddings=[q_emb],
-                n_results=3,
-                include=["documents"]
-            )
-            docs = results["documents"][0] if results.get("documents") else []
-            context_text = "\n\n".join(docs)
-        except Exception as e:
-            print("Chroma error:", e)
-            context_text = ""
+        if collection is not None:
+            try:
+                q_emb = embed(user_message)
+                results = collection.query(
+                    query_embeddings=[q_emb],
+                    n_results=3,
+                    include=["documents"],
+                )
+                docs = results.get("documents", [])
+                if isinstance(docs, list) and docs and isinstance(docs[0], list):
+                    docs = docs[0]
+                normalized_docs = []
+                for doc in docs:
+                    if isinstance(doc, dict):
+                        normalized_docs.append(" ".join([str(v) for v in doc.values()]))
+                    else:
+                        normalized_docs.append(str(doc))
+                context_text = "\n\n".join([d for d in normalized_docs if d.strip()])
+            except Exception as e:
+                print("Chroma error:", e)
+                # coba rebuild sekali
+                try:
+                    rebuild_chroma_from_db()
+                    collection = get_collection()
+                    if collection is not None:
+                        results = collection.query(
+                            query_embeddings=[embed(user_message)],
+                            n_results=3,
+                            include=["documents"],
+                        )
+                        docs = results.get("documents", [])
+                        if isinstance(docs, list) and docs and isinstance(docs[0], list):
+                            docs = docs[0]
+                        context_text = "\n\n".join([str(d) for d in docs if str(d).strip()])
+                except Exception as e2:
+                    print("Chroma rebuild/query error:", e2)
+
+        # fallback sederhana lewat DB jika koleksi tidak tersedia / kosong
+        if not context_text.strip():
+            lower_q = user_message.lower()
+            matched = []
+            for chunk in DocumentChunk.objects.all().order_by("-id"):
+                text = str(chunk.content)
+                if lower_q in text.lower():
+                    matched.append(text)
+                if len(matched) >= 3:
+                    break
+            context_text = "\n\n".join(matched)
 
         # ================================
         # Jika ada referensi → RAG
