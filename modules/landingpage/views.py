@@ -1,12 +1,21 @@
+# modules/landingpage/views.py
 import os
+import re
+import json
+import requests
 
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 from modules.landingpage.models import ContactMessage
 from .forms import *
 from django.urls import reverse_lazy
 from modules.vitamin.models import *
-# Create your views here.
 
+# =========================
+# PAGES (tetap)
+# =========================
 def homepage(request):
     if request.method == 'POST':
         form = ContactMessageForm(request.POST)
@@ -85,49 +94,171 @@ def daftar(request):
 def pendaftaran_sukses(request):
     return render(request, 'pendaftaran_sukses.html')
 
+# =========================
+# GROQ CONFIG
+# =========================
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 MODEL_NAME = os.getenv('MODEL_NAME')
 GROQ_URL = os.getenv('GROQ_URL')
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-import json
-import requests
-
-from modules.vector.models import DocumentChunk
-from modules.vector.views import embed, get_chroma, rebuild_chroma_from_db
-
 # =========================
-# CHROMA (persistent dari modules.vector)
+# CHROMA (shared dari modules.vector)
 # =========================
+from modules.vector.views import embed, get_chroma, get_model
+
 def get_collection():
     """
     Ambil koleksi Chroma shared dari modules.vector.
-    Jika belum ada/masih kosong, coba rebuild dari DB.
     """
     client, collection = get_chroma()
     if client is None or collection is None:
         return None
-
-    try:
-        # Pastikan koleksi terisi (mis. setelah upload baru)
-        if hasattr(collection, "count") and collection.count() == 0:
-            rebuild_chroma_from_db()
-            _, collection = get_chroma()
-    except Exception:
-        # Abaikan, tetap gunakan koleksi sekarang
-        pass
-
     return collection
 
+def _safe_get_all_chunks(collection, page_size: int = 500):
+    """
+    Ambil seluruh chunks dari Chroma (FULL SCAN).
+    Return: (docs: list[str], metas: list[dict], ids: list[str])
+    """
+    docs_all, metas_all, ids_all = [], [], []
+
+    # count() tidak selalu ada / bisa error, jadi optional
+    try:
+        total = collection.count()
+    except Exception:
+        total = None
+
+    offset = 0
+    try:
+        while True:
+            res = collection.get(
+                include=["documents", "metadatas"],
+                limit=page_size,
+                offset=offset,
+            )
+            docs = res.get("documents", []) or []
+            metas = res.get("metadatas", []) or []
+            ids = res.get("ids", []) or []
+
+            if not docs:
+                break
+
+            docs_all.extend([str(d) for d in docs])
+            metas_all.extend(metas)
+            ids_all.extend(ids)
+
+            offset += len(docs)
+            if total is not None and offset >= total:
+                break
+
+        return docs_all, metas_all, ids_all
+    except Exception:
+        # fallback: sekali get() tanpa paging
+        res = collection.get(include=["documents", "metadatas"])
+        docs_all = [str(d) for d in (res.get("documents", []) or [])]
+        metas_all = res.get("metadatas", []) or []
+        ids_all = res.get("ids", []) or []
+        return docs_all, metas_all, ids_all
+
+def _extract_keywords(user_message: str):
+    """
+    Ambil token penting untuk pencarian string (deterministik).
+    - buang simbol
+    - token >= 3 huruf
+    - tambahkan juga frasa 2-4 kata (untuk nama)
+    """
+    cleaned = re.sub(r"[^0-9A-Za-zÀ-ÖØ-öø-ÿ\s\-]", " ", user_message).strip()
+    parts = [p for p in re.split(r"\s+", cleaned) if p]
+    tokens = [t for t in parts if len(t) >= 3]
+
+    phrases = []
+    if len(parts) >= 2:
+        for n in (4, 3, 2):
+            if len(parts) >= n:
+                phrases.append(" ".join(parts[:n]))
+        # juga coba 2-3 kata terakhir (sering nama belakang)
+        phrases.append(" ".join(parts[-2:]))
+        if len(parts) >= 3:
+            phrases.append(" ".join(parts[-3:]))
+
+    out = []
+    seen = set()
+    for x in phrases + tokens:
+        k = x.lower()
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(x)
+
+    return out[:12]
+
+def build_context_fullscan(collection, user_message: str, max_chunks: int = 10):
+    """
+    Konsep yang kamu minta:
+    - "baca seluruh dokumen dulu" => ambil semua chunks dari Chroma (FULL SCAN)
+    - pilih konteks relevan secara deterministik:
+        1) keyword contains (nama/istilah)
+        2) kalau tidak ketemu, fallback similarity embedding terhadap semua chunks
+    """
+    import numpy as np
+
+    all_docs, all_metas, all_ids = _safe_get_all_chunks(collection)
+    if not all_docs:
+        return ""
+
+    # =========================
+    # 1) KEYWORD MATCH (deterministik)
+    # =========================
+    keywords = _extract_keywords(user_message)
+    low_docs = [d.lower() for d in all_docs]
+
+    hits = []
+    for kw in keywords:
+        kwl = kw.lower()
+        for i, dlow in enumerate(low_docs):
+            if kwl in dlow:
+                hits.append(all_docs[i])
+
+    if hits:
+        # dedup dan ambil top max_chunks
+        uniq = []
+        seen = set()
+        for h in hits:
+            key = h[:200].lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append(h)
+            if len(uniq) >= max_chunks:
+                break
+        return "\n\n".join(uniq).strip()
+
+    # =========================
+    # 2) FALLBACK: embedding similarity vs semua chunks
+    # =========================
+    q_emb = np.array(embed(user_message), dtype=np.float32)
+
+    model = get_model()
+    embs = model.encode(all_docs, batch_size=64, show_progress_bar=False)
+    embs = np.array(embs, dtype=np.float32)
+
+    # cosine similarity
+    doc_norm = np.linalg.norm(embs, axis=1) + 1e-12
+    q_norm = np.linalg.norm(q_emb) + 1e-12
+    sims = (embs @ q_emb) / (doc_norm * q_norm)
+
+    top_idx = np.argsort(-sims)[:max_chunks]
+    top_docs = [all_docs[int(i)] for i in top_idx if str(all_docs[int(i)]).strip()]
+    return "\n\n".join(top_docs).strip()
+
 # =========================
-# CHAT API
+# CHAT API (FULL SCAN)
 # =========================
 @csrf_exempt
 def chat_api(request):
     if request.method != "POST":
         return JsonResponse(
-            {"message": "Chat API endpoint is running. Gunakan POST untuk mengirim pesan."}
+            {"message": "Chat API endpoint is running (v3-fullscan). Gunakan POST untuk mengirim pesan."}
         )
 
     try:
@@ -136,62 +267,18 @@ def chat_api(request):
         if not user_message:
             return JsonResponse({"reply": "Pesan kosong."})
 
-        # 🔎 Chroma Vector Search
+        debug = str(body.get("debug", "0")) == "1"
+
         collection = get_collection()
-        context_text = ""
+        if collection is None:
+            return JsonResponse({"reply": "Chroma belum siap / collection tidak tersedia."}, status=500)
 
-        if collection is not None:
-            try:
-                q_emb = embed(user_message)
-                results = collection.query(
-                    query_embeddings=[q_emb],
-                    n_results=3,
-                    include=["documents"],
-                )
-                docs = results.get("documents", [])
-                if isinstance(docs, list) and docs and isinstance(docs[0], list):
-                    docs = docs[0]
-                normalized_docs = []
-                for doc in docs:
-                    if isinstance(doc, dict):
-                        normalized_docs.append(" ".join([str(v) for v in doc.values()]))
-                    else:
-                        normalized_docs.append(str(doc))
-                context_text = "\n\n".join([d for d in normalized_docs if d.strip()])
-            except Exception as e:
-                print("Chroma error:", e)
-                # coba rebuild sekali
-                try:
-                    rebuild_chroma_from_db()
-                    collection = get_collection()
-                    if collection is not None:
-                        results = collection.query(
-                            query_embeddings=[embed(user_message)],
-                            n_results=3,
-                            include=["documents"],
-                        )
-                        docs = results.get("documents", [])
-                        if isinstance(docs, list) and docs and isinstance(docs[0], list):
-                            docs = docs[0]
-                        context_text = "\n\n".join([str(d) for d in docs if str(d).strip()])
-                except Exception as e2:
-                    print("Chroma rebuild/query error:", e2)
+        # ✅ FULL SCAN: baca semua chunks dulu, baru pilih konteks relevan
+        context_text = build_context_fullscan(collection, user_message, max_chunks=10)
 
-        # fallback sederhana lewat DB jika koleksi tidak tersedia / kosong
-        if not context_text.strip():
-            lower_q = user_message.lower()
-            matched = []
-            for chunk in DocumentChunk.objects.all().order_by("-id"):
-                text = str(chunk.content)
-                if lower_q in text.lower():
-                    matched.append(text)
-                if len(matched) >= 3:
-                    break
-            context_text = "\n\n".join(matched)
-
-        # ================================
-        # Jika ada referensi → RAG
-        # ================================
+        # =========================
+        # Build payload dulu (baru requests.post)
+        # =========================
         if context_text.strip():
             payload = {
                 "model": MODEL_NAME,
@@ -199,26 +286,36 @@ def chat_api(request):
                     {
                         "role": "system",
                         "content": (
-                            "Jawab hanya berdasarkan teks berikut. "
-                            "Jangan menyebutkan dokumen atau sumber. "
-                            "Gunakan HTML rapi."
+                            "Kamu adalah asisten ekstraksi informasi dari dokumen. "
+                            "Jawab pertanyaan dengan mengambil informasi yang ada di REFERENSI. "
+                            "Jika pertanyaan menanyakan 'siapa', jawab minimal: Nama, lokasi (jika ada), kontak (jika ada), ringkasan singkat. "
+                            "Jika benar-benar tidak ada di referensi, jawab 'Tidak tahu'. "
+                            'wajib kirim dengan bahasa indonesia dan full html'
+                            "Jangan menyebutkan dokumen atau sumber. Gunakan HTML rapi."
                         ),
                     },
                     {
                         "role": "user",
-                        "content": f"Pertanyaan: {user_message}\n\nREFERENSI:\n{context_text}",
+                        "content": (
+                            f"Pertanyaan: {user_message}\n\n"
+                            f"REFERENSI (gunakan untuk menjawab):\n{context_text}\n\n"
+                            "Instruksi: Jawab berdasarkan referensi di atas."
+                        ),
                     },
                 ],
                 "temperature": 0.1,
             }
         else:
-            # Tanpa referensi → fallback
             payload = {
                 "model": MODEL_NAME,
                 "messages": [
                     {
                         "role": "system",
-                        "content": "Jawab langsung, gunakan HTML rapi."
+                        "content": (
+                            "Jika benar-benar tidak ada di referensi, jawab 'Tidak tahu'. "
+                            'wajib kirim dengan bahasa indonesia dan full html'
+                            "Jangan menyebutkan dokumen atau sumber. Gunakan HTML rapi."
+                        )
                     },
                     {"role": "user", "content": user_message},
                 ],
@@ -230,11 +327,27 @@ def chat_api(request):
             "Content-Type": "application/json",
         }
 
+        # Baru call Groq
         res = requests.post(GROQ_URL, headers=headers, json=payload, timeout=60)
-        data = res.json()
-        answer = data["choices"][0]["message"]["content"]
 
+        # ✅ DEBUG: lihat konteks + respon Groq mentah
+        if debug:
+            return JsonResponse({
+                "debug": True,
+                "question": user_message,
+                "context_length": len(context_text or ""),
+                "context_preview": context_text[:1200] if context_text else "",
+                "groq_status": res.status_code,
+                "groq_text": res.text[:2000],
+            })
+
+        data = res.json()
+
+        if "choices" not in data or not data["choices"]:
+            return JsonResponse({"reply": f"Error dari Groq: {data}"}, status=500)
+
+        answer = data["choices"][0]["message"]["content"]
         return JsonResponse({"reply": answer})
 
     except Exception as e:
-        return JsonResponse({"reply": f"Error: {e}"}, status=500)
+        return JsonResponse({"reply": f"Server error: {e}"}, status=500)
