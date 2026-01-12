@@ -39,6 +39,10 @@ from openpyxl import load_workbook
 from io import BytesIO
 
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+   
+
+from modules.vitamin.models import SiswaHB, Sekolah, Puskesmas
+from modules.vitamin.utils.hb_rag_export import export_siswahb_queryset_to_chroma
 
 # ----------------referensi Siswa--------------------
 
@@ -58,6 +62,10 @@ class SiswaHbListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
         context["numlist"] = (int(self.request.GET.get("page",1)) - 1) 
         context["q"] = self.request.GET.get("q",'')
         context["title"] = "Daftar Siswa HB"
+        context["is_admin_user"] = (
+            self.request.user.is_superuser
+            or self.request.user.groups.filter(name="administrator").exists()
+        )
          #-------------awal jika user admin-------------
         app_group = Group.objects.get(name='administrator')
 
@@ -260,4 +268,24 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect('vitamin:siswahb-list')
-    
+ 
+@login_required
+def export_hb_to_rag(request):
+    # hanya admin atau superuser
+    if not (request.user.is_superuser or request.user.groups.filter(name="administrator").exists()):
+        messages.error(request, "Kamu tidak memiliki izin untuk export ke RAG.")
+        return redirect("vitamin:siswahb-list")
+
+    # pakai scope yang sama seperti ListView supaya konsisten
+    qs = SiswaHB.objects.select_related("siswa__sekolah").order_by("-tahun")
+
+    # kalau mau: admin export semuanya, superadmin juga semuanya
+    # kalau suatu saat mau admin export per wilayah, tinggal filter di sini.
+
+    try:
+        total = export_siswahb_queryset_to_chroma(qs)
+        messages.success(request, f"Export ke RAG berhasil. Total data HB diekspor: {total}")
+    except Exception as e:
+        messages.error(request, f"Gagal export ke RAG: {e}")
+
+    return redirect("vitamin:siswahb-list")

@@ -1,16 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const chatModal = new bootstrap.Modal(document.getElementById("chatModal"));
+  const chatModalEl = document.getElementById("chatModal");
   const chatBox = document.getElementById("chat-box");
   const input = document.getElementById("user-input");
+  const openBtn = document.getElementById("openChat");
+  const sendBtn = document.getElementById("sendMessage");
+
+  if (!chatModalEl || !chatBox || !input || !openBtn || !sendBtn) return;
+
+  let chatModal = null;
+  if (window.bootstrap && typeof window.bootstrap.Modal === "function" && chatModalEl.classList.contains("modal")) {
+    chatModal = new window.bootstrap.Modal(chatModalEl);
+  }
 
   const modelSelect = document.getElementById("model-select"); // ⬅️ pindahkan ke sini
   let selectedModel = "llama3-70b-8192"; // Default model awal
 
-  document.getElementById("openChat").addEventListener("click", function () {
-    chatModal.show();
+  openBtn.addEventListener("click", function () {
+    if (chatModal) {
+      chatModal.show();
+    } else {
+      chatModalEl.style.display = "flex";
+    }
   });
 
-  document.getElementById("sendMessage").addEventListener("click", function () {
+  sendBtn.addEventListener("click", function () {
     sendMessage();
   });
 

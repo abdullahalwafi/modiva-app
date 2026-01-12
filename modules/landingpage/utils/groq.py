@@ -7,22 +7,20 @@ GROQ_URL = os.getenv("GROQ_URL")
 
 SYSTEM_WITH_CONTEXT = (
     "Kamu adalah asisten ekstraksi informasi dari dokumen. "
-    "Jawab pertanyaan dengan mengambil informasi yang ada di REFERENSI. "
-    "Jika pertanyaan menanyakan 'siapa', jawab minimal: Nama, lokasi (jika ada), kontak (jika ada), ringkasan singkat. "
-    "Jika benar-benar tidak ada di referensi, jawab 'Tidak tahu'. "
-    "Wajib bahasa indonesia dan full HTML. "
-    "kalo ada kalimat atau paragraf yang menggunakan bahasa selain indonesia, tolong translate ke indonesia"
-    "Jangan menyebutkan dokumen atau sumber. Gunakan HTML rapi."
+    "Jawab singkat (1-3 kalimat), spesifik, dan langsung ke inti. "
+    "Jawaban wajib hanya berdasarkan REFERENSI, jangan menambahkan informasi di luar referensi. "
+    "Jika pertanyaan tentang HB/hemoglobin siswa, wajib cantumkan: Nama, NIS, Sekolah, Tahun, Hb, dan Status (keterangan). "
+    "Jika ada lebih dari satu data (tahun berbeda), tampilkan semuanya per tahun. "
+    "Jika tidak ada informasi yang menjawab, balas persis: 'Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen.' "
+    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia dan full HTML. Gunakan HTML rapi."
 )
 
 SYSTEM_NO_CONTEXT = (
-    "Jika benar-benar tidak ada, jawab 'Tidak tahu'. "
-    "Wajib bahasa indonesia dan full HTML. "
-    "Jangan menyebutkan dokumen atau sumber. Gunakan HTML rapi. "
-    "kalo ada kalimat atau paragraf yang menggunakan bahasa selain indonesia, tolong translate ke indonesia"
+    "Jika benar-benar tidak ada, jawab persis: 'Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen.' "
+    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia dan full HTML. Gunakan HTML rapi."
 )
 
-def ask_groq(user_message: str, context_text: str | None, temperature_with_ctx=0.1, temperature_no_ctx=0.5):
+def ask_groq(user_message: str, context_text: str | None, temperature_with_ctx=0.0, temperature_no_ctx=0.0):
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json",

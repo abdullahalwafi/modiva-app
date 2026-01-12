@@ -26,9 +26,21 @@ def extract_text_from_file(uploaded_file):
     elif filename.endswith(".xlsx") or filename.endswith(".xls"):
         uploaded_file.seek(0)
         try:
-            xls = pd.read_excel(uploaded_file, sheet_name=None, engine="openpyxl")
+            xls = pd.read_excel(
+                uploaded_file,
+                sheet_name=None,
+                engine="openpyxl",
+                dtype=str,
+                keep_default_na=False,
+            )
         except Exception:
-            df = pd.read_excel(uploaded_file, engine="openpyxl")
+            uploaded_file.seek(0)
+            df = pd.read_excel(
+                uploaded_file,
+                engine="openpyxl",
+                dtype=str,
+                keep_default_na=False,
+            )
             xls = {"Sheet1": df}
 
         for _, df in xls.items():

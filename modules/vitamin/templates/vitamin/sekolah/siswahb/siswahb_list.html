@@ -36,6 +36,12 @@
         </a>
         {% endif %}
         {% endif %}
+        {% if is_admin_user %}
+        <a href="{% url 'vitamin:siswahb-export-rag' %}" class="btn btn-warning">
+          Export to RAG
+        </a>
+        {% endif %}
+
       </div>
 
 

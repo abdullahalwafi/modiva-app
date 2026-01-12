@@ -11,6 +11,7 @@ from modules.vitamin.models import Puskesmas, Sekolah
 
 from .utils.chroma import get_collection
 from .utils.context_builder import build_context_fullscan
+from modules.vector.utils.chroma import get_docs_collection
 from .utils.groq import ask_groq
 
 
@@ -130,7 +131,29 @@ def chat_api(request):
         if collection is None:
             return JsonResponse({"reply": "Chroma belum siap / collection tidak tersedia."}, status=500)
 
-        context_text = build_context_fullscan(collection, user_message, max_chunks=10)
+        docs_coll = get_docs_collection()
+        has_docs = False
+        try:
+            count = docs_coll.count()
+            if count is not None and count > 0:
+                has_docs = True
+        except Exception:
+            pass
+        if not has_docs:
+            try:
+                res = docs_coll.get(include=["ids"], limit=1)
+                ids = res.get("ids", []) or []
+                if ids:
+                    has_docs = True
+            except Exception:
+                has_docs = False
+
+        if not has_docs:
+            return JsonResponse({"reply": "Maaf, belum ada dokumen untuk dijadikan referensi."})
+
+        context_text, sources = build_context_fullscan(collection, user_message, max_chunks=8)
+        if not context_text.strip():
+            return JsonResponse({"reply": "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."})
         res = ask_groq(user_message, context_text)
 
         if debug:

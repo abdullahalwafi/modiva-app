@@ -19,7 +19,7 @@
         </form>
 
         <hr>
-        <h5 class="text-black mb-0 fw-semibold">Daftar Dokumen</h5>
+        <h5 class="text-black mb-0 fw-semibold">Daftar Pengetahuan</h5>
         <div class="table-responsive">
             <table id="tabel-user" class="table table-bordered align-middle text-center">
                 <thead>
@@ -37,7 +37,7 @@
                         <td>{{ doc.title }}</td>
                         <td>{{ doc.uploaded_at|date:"d M Y H:i" }}</td>
                         <td>
-                            {% if user.groups.first.name == "Administrator" %}
+                            {% if user.groups.first.name == "Administrator" and doc.id %}
                             <a href="{% url 'vector:delete_document' doc.id %}" class="btn btn-danger btn-sm"
                                 onclick="return confirm('Yakin ingin menghapus dokumen ini?')">
                                 Hapus

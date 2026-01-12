@@ -2,6 +2,7 @@
 from django.urls import path, include
 
 from . import provinsi_views,kabkota_views, kecamatan_views, kelurahan_views, puskesmas_views, vitamin_views, satuan_views, sekolah_views, stokobat_views, disobat_views, distsiswa_views, dashboard_views, masterobat_views, formemail_views, siswa_views, siswahb_views
+from .siswahb_views import export_hb_to_rag
 
 app_name = 'vitamin'
 urlpatterns = [
@@ -141,4 +142,5 @@ urlpatterns = [
    path('download-template-siswahb/', siswahb_views.download_template, name='download_template_siswahb'),
    path('import-excel-siswahb/', siswahb_views.import_excel, name='import_excel_siswahb'),
  
+    path("siswahb/export-rag/", export_hb_to_rag, name="siswahb-export-rag"),
 ]

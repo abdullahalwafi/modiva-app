@@ -21,11 +21,19 @@ def list_docs_from_chroma():
     for i, doc_id in enumerate(ids):
         meta = metas[i] if i < len(metas) and metas[i] is not None else {}
         title = meta.get("title") or (docs[i] if i < len(docs) else "") or str(doc_id)
+        created_at_raw = meta.get("created_at") or ""
+        uploaded_at = None
+        if created_at_raw:
+            try:
+                uploaded_at = datetime.fromisoformat(str(created_at_raw))
+            except Exception:
+                uploaded_at = None
         out.append(
             {
-                "doc_id": str(doc_id),
+                "id": str(doc_id),
                 "title": str(title),
-                "created_at": str(meta.get("created_at") or ""),
+                "uploaded_at": uploaded_at,
+                "created_at": str(created_at_raw),
                 "source_type": str(meta.get("source_type") or ""),
             }
         )
