@@ -55,6 +55,11 @@
       <i class="fas fa-map mb-2"></i>
       <span class="nav-label">Peta</span>
     </a>
+    <a href="{% url 'vector:upload_page' %}"
+      class="nav-item d-flex flex-column align-items-center text-center {% if request.resolver_match.url_name == 'upload_page' %}active{% endif %}">
+      <i class="fas fa-database mb-2"></i>
+      <span class="nav-label">RAG</span>
+    </a>
     {% endif %}
     {% if user.groups.first.name == 'Sekolah' %}
     <a href="{% url 'vitamin:sekolah-list' %}"

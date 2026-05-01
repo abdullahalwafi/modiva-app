@@ -4,6 +4,10 @@ _chroma_client = None
 _rag_collection = None
 _docs_collection = None
 
+
+class ChromaUnavailable(RuntimeError):
+    pass
+
 def get_chroma():
     global _chroma_client, _rag_collection
 
@@ -13,7 +17,15 @@ def get_chroma():
     persist_dir = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_db")
     coll_name = os.environ.get("CHROMA_COLLECTION_NAME", "rag_collection")
 
-    from chromadb import PersistentClient
+    try:
+        from chromadb import PersistentClient
+    except ModuleNotFoundError as exc:
+        if exc.name != "chromadb":
+            raise
+        raise ChromaUnavailable(
+            "Paket Python 'chromadb' belum terpasang untuk interpreter Django."
+        ) from exc
+
     _chroma_client = PersistentClient(path=persist_dir)
     _rag_collection = _chroma_client.get_or_create_collection(
         coll_name, metadata={"type": "rag_chunks"}

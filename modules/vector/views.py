@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .utils.chroma import get_chroma, get_docs_collection
+from .utils.chroma import ChromaUnavailable, get_chroma, get_docs_collection
 from .utils.services import (
     list_docs_from_chroma,
     upload_document_to_chroma,
@@ -16,9 +16,13 @@ def upload_page(request):
     if request.method == "POST" and request.FILES.get("file"):
         uploaded_file = request.FILES["file"]
 
-        # cek chroma siap
-        client, rag = get_chroma()
-        docs_coll = get_docs_collection()
+        try:
+            client, rag = get_chroma()
+            docs_coll = get_docs_collection()
+        except ChromaUnavailable as e:
+            messages.error(request, f"Chroma belum siap / tidak tersedia: {e}")
+            return redirect("vector:upload_page")
+
         if client is None or rag is None or docs_coll is None:
             messages.error(request, "Chroma belum siap / tidak tersedia. Cek instalasi & konfigurasi.")
             return redirect("vector:upload_page")
@@ -39,8 +43,14 @@ def upload_page(request):
         messages.success(request, f"Dokumen '{res['title']}' berhasil diunggah. Chunks tersimpan: {res['chunks']}")
         return redirect("vector:upload_page")
 
-    docs = list_docs_from_chroma()
-    return render(request, "vector/upload.html", {"docs": docs})
+    chroma_error = None
+    try:
+        docs = list_docs_from_chroma()
+    except ChromaUnavailable as e:
+        chroma_error = str(e)
+        docs = []
+
+    return render(request, "vector/upload.html", {"docs": docs, "chroma_error": chroma_error})
 
 
 @login_required
@@ -50,7 +60,6 @@ def delete_document(request, doc_id):
     if not request.user.groups.filter(name__in=ALLOWED_DELETE_GROUPS).exists():
         messages.error(request, "Kamu tidak memiliki izin untuk menghapus dokumen.")
         return redirect("vector:upload_page")
-
     try:
         delete_document_from_chroma(str(doc_id))
         messages.success(request, f"Dokumen (doc_id={doc_id}) berhasil dihapus dari Chroma.")
@@ -65,9 +74,6 @@ def rebuild_index(request):
     ALLOWED_DELETE_GROUPS = ["Administrator", "Puskesmas"]
 
     if not request.user.groups.filter(name__in=ALLOWED_DELETE_GROUPS).exists():
-        messages.error(request, "Kamu tidak memiliki izin untuk menghapus dokumen.")
-        return redirect("vector:upload_page")
-
         messages.error(request, "Kamu tidak memiliki izin untuk rebuild index.")
         return redirect("vector:upload_page")
 

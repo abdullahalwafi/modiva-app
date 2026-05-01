@@ -4,13 +4,15 @@ from modules.vector.utils.embedding import embed, get_model
 from .chroma import safe_get_all_chunks
 from .keywords import extract_keywords
 
-def build_context_fullscan(collection, user_message: str, max_chunks: int = 10, min_similarity: float = 0.2):
+def build_context_fullscan(collection, user_message: str, max_chunks: int = 10, min_similarity: float = 0.35):
     all_docs, all_metas, all_ids = safe_get_all_chunks(collection)
     if not all_docs:
         return "", []
 
     # 1) keyword match (deterministik)
     keywords = extract_keywords(user_message)
+    if not keywords:
+        return "", []
     low_docs = [d.lower() for d in all_docs]
 
     hits = []

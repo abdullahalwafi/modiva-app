@@ -1,7 +1,7 @@
 import io
-import fitz  # PyMuPDF
 import pandas as pd
 from docx import Document as DocxDocument
+from pypdf import PdfReader
 
 def extract_text_from_file(uploaded_file):
     filename = uploaded_file.name.lower()
@@ -9,9 +9,9 @@ def extract_text_from_file(uploaded_file):
 
     if filename.endswith(".pdf"):
         uploaded_file.seek(0)
-        doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
-        for page in doc:
-            text = page.get_text("text").strip()
+        reader = PdfReader(io.BytesIO(uploaded_file.read()))
+        for page in reader.pages:
+            text = (page.extract_text() or "").strip()
             if text:
                 extracted_rows.append(text)
 

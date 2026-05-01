@@ -7,17 +7,18 @@ GROQ_URL = os.getenv("GROQ_URL")
 
 SYSTEM_WITH_CONTEXT = (
     "Kamu adalah asisten ekstraksi informasi dari dokumen. "
-    "Jawab singkat (1-3 kalimat), spesifik, dan langsung ke inti. "
+    "Jangan parafrase; salin jawaban se-literal mungkin dari REFERENSI. "
+    "Jangan gunakan HTML/Markdown/tagging; gunakan teks polos. "
+    "Jika pertanyaan tentang HB/hemoglobin siswa, wajib cantumkan: Nama, NIS, Sekolah, Tahun, Hb, dan Status (keterangan) dan dikirimkan dengan format yang rapih "
     "Jawaban wajib hanya berdasarkan REFERENSI, jangan menambahkan informasi di luar referensi. "
-    "Jika pertanyaan tentang HB/hemoglobin siswa, wajib cantumkan: Nama, NIS, Sekolah, Tahun, Hb, dan Status (keterangan). "
     "Jika ada lebih dari satu data (tahun berbeda), tampilkan semuanya per tahun. "
     "Jika tidak ada informasi yang menjawab, balas persis: 'Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen.' "
-    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia dan full HTML. Gunakan HTML rapi."
+    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia."
 )
 
 SYSTEM_NO_CONTEXT = (
     "Jika benar-benar tidak ada, jawab persis: 'Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen.' "
-    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia dan full HTML. Gunakan HTML rapi."
+    "Jangan menyebutkan dokumen atau sumber. Wajib bahasa indonesia. Jangan gunakan HTML/Markdown."
 )
 
 def ask_groq(user_message: str, context_text: str | None, temperature_with_ctx=0.0, temperature_no_ctx=0.0):
