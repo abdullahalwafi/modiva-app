@@ -81,7 +81,29 @@ document.addEventListener("DOMContentLoaded", function () {
         model: selectedModel, // Ambil dari icon klik
       }),
     })
-      .then((res) => res.json())
-      .then((data) => appendMessage("ai", data.reply));
+      .then(async (res) => {
+        const contentType = res.headers.get("content-type") || "";
+        if (!contentType.includes("application/json")) {
+          const rawText = await res.text();
+          throw new Error(rawText || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.reply || data.message || `HTTP ${res.status}`);
+        }
+        return data;
+      })
+      .then((data) => {
+        appendMessage("ai", data.reply || "Maaf, tidak ada balasan.");
+      })
+      .catch((error) => {
+        console.error("Chat error:", error);
+        appendMessage(
+          "ai",
+          "Maaf, chatbot sedang bermasalah. Coba refresh halaman atau restart server. " +
+            (error && error.message ? `<br><small>${error.message}</small>` : "")
+        );
+      });
   }
 });

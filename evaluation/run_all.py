@@ -2,17 +2,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-def run(cmd):
-    print(f"\n▶ Running: {cmd}")
+def run(args):
+    print(f"\nRunning: {' '.join(args)}", flush=True)
     base_dir = Path(__file__).resolve().parent
-    r = subprocess.run([sys.executable, cmd], check=False, cwd=base_dir)
+    r = subprocess.run([sys.executable, *args], check=False, cwd=base_dir)
     if r.returncode != 0:
         raise SystemExit(r.returncode)
 
 def main():
-    run("generate_candidates_from_api.py")
-    run("eval_rouge.py")
-    run("eval_bertscore.py")
+    run(["test_pertanyaan_dokumen.py", *sys.argv[1:]])
 
 if __name__ == "__main__":
     main()

@@ -40,7 +40,15 @@ def upload_page(request):
             messages.error(request, res.get("error", "Gagal upload"))
             return redirect("vector:upload_page")
 
-        messages.success(request, f"Dokumen '{res['title']}' berhasil diunggah. Chunks tersimpan: {res['chunks']}")
+        messages.success(
+            request,
+            (
+                f"Dokumen '{res['title']}' berhasil diunggah. "
+                f"Chunks tersimpan: {res['chunks']}. "
+                f"Dirapikan AI: {res.get('cleaned_by_ai', 0)}. "
+                f"Pakai raw fallback: {res.get('raw_fallback', 0)}."
+            ),
+        )
         return redirect("vector:upload_page")
 
     chroma_error = None

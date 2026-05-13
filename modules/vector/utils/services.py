@@ -2,7 +2,8 @@ import uuid
 from datetime import datetime, timezone
 
 from .chroma import get_chroma, get_docs_collection
-from .embedding import embed, get_model
+from .cleaner import clean_row_text
+from .embedding import embed
 from .extractors import extract_text_from_file
 from .text import guess_source_type, split_to_sentences
 
@@ -57,11 +58,22 @@ def upload_document_to_chroma(uploaded_file):
 
     ids_batch, docs_batch, metas_batch, embs_batch = [], [], [], []
     added = 0
+    cleaned_by_ai = 0
+    raw_fallback = 0
 
     for idx, row_text in enumerate(extracted_rows):
         row_text = str(row_text).strip()
         if not row_text:
             continue
+
+        cleaned_text, clean_mode = clean_row_text(row_text)
+        if not cleaned_text:
+            continue
+
+        if clean_mode == "cleaner_ai":
+            cleaned_by_ai += 1
+        else:
+            raw_fallback += 1
 
         chunk_id = f"{doc_id}:{idx}"
         meta = {
@@ -70,11 +82,14 @@ def upload_document_to_chroma(uploaded_file):
             "created_at": created_at,
             "source_type": source_type,
             "chunk_index": int(idx),
+            "clean_mode": clean_mode,
+            "raw_length": int(len(row_text)),
+            "clean_length": int(len(cleaned_text)),
         }
 
-        emb = embed(row_text)
+        emb = embed(cleaned_text)
         ids_batch.append(chunk_id)
-        docs_batch.append(row_text)
+        docs_batch.append(cleaned_text)
         metas_batch.append(meta)
         embs_batch.append(emb)
         added += 1
@@ -90,18 +105,27 @@ def upload_document_to_chroma(uploaded_file):
         docs_coll.add(
             ids=[doc_id],
             documents=[uploaded_file.name],
-            metadatas=[{
-                "doc_id": doc_id,
-                "title": uploaded_file.name,
-                "created_at": created_at,
-                "source_type": source_type,
-                "chunks": int(added),
-            }],
+                metadatas=[{
+                    "doc_id": doc_id,
+                    "title": uploaded_file.name,
+                    "created_at": created_at,
+                    "source_type": source_type,
+                    "chunks": int(added),
+                    "cleaned_by_ai": int(cleaned_by_ai),
+                    "raw_fallback": int(raw_fallback),
+                }],
         )
     except Exception:
         pass
 
-    return {"ok": True, "doc_id": doc_id, "chunks": added, "title": uploaded_file.name}
+    return {
+        "ok": True,
+        "doc_id": doc_id,
+        "chunks": added,
+        "title": uploaded_file.name,
+        "cleaned_by_ai": cleaned_by_ai,
+        "raw_fallback": raw_fallback,
+    }
 
 
 def delete_document_from_chroma(doc_id: str):
@@ -141,46 +165,55 @@ def healthcheck_counts():
 
 
 def search_answer(q: str, n: int = 5, threshold: float = 0.60):
+    """
+    Cari jawaban terbaik dari ChromaDB menggunakan native vector query.
+    Lebih cepat karena tidak re-encode semua chunk di memori.
+    """
     _, rag = get_chroma()
     q_emb = embed(q)
 
-    def best_sentence_from_text(doc_text: str):
-        sents = split_to_sentences(doc_text)
-        if not sents:
-            return None, 0.0
-        try:
-            import numpy as np
-            sent_embs = get_model().encode(sents)
-            sent_embs = np.array(sent_embs).astype("float32")
-            qv = np.array(q_emb).astype("float32")
-            sent_norms = np.linalg.norm(sent_embs, axis=1) + 1e-12
-            q_norm = np.linalg.norm(qv) + 1e-12
-            sims = (sent_embs @ qv) / (sent_norms * q_norm)
-            idx = int(np.argmax(sims))
-            return sents[idx], float(sims[idx])
-        except Exception:
-            q_lower = q.lower()
-            for s in sents:
-                if q_lower in s.lower():
-                    return s, 1.0
-            return None, 0.0
-
-    results = rag.query(query_embeddings=[q_emb], n_results=n, include=["documents", "metadatas", "ids"])
+    results = rag.query(
+        query_embeddings=[q_emb],
+        n_results=n,
+        include=["documents", "metadatas", "ids", "distances"],
+    )
 
     ids = results.get("ids", [[]])[0]
     docs = results.get("documents", [[]])[0]
     metas = results.get("metadatas", [[]])[0]
+    distances = results.get("distances", [[]])[0]
 
-    best_overall = None
-    for i, doc_text in enumerate(docs):
-        sent, score = best_sentence_from_text(str(doc_text))
-        meta = metas[i] if i < len(metas) else {}
-        cid = ids[i] if i < len(ids) else None
+    if not docs:
+        return {"answer": "Tidak tahu"}
 
-        if sent and score >= threshold:
-            return {"answer": sent, "source": {"chunk_id": cid, "metadata": meta}}
+    # Ambil chunk terbaik (jarak terkecil = paling mirip)
+    best_doc = docs[0]
+    best_meta = metas[0] if metas else {}
+    best_cid = ids[0] if ids else None
+    best_sim = 1.0 - float(distances[0]) if distances else 0.0
 
-        if sent and (best_overall is None or score > best_overall[0]):
-            best_overall = (score, sent, meta, cid)
+    if best_sim < threshold:
+        return {"answer": "Tidak tahu"}
 
-    return {"answer": "Tidak tahu"}
+    # Pilih kalimat terbaik dari chunk teratas dengan keyword matching
+    best_sent = _pick_best_sentence(best_doc, q)
+    answer = best_sent if best_sent else best_doc.strip()
+
+    return {"answer": answer, "source": {"chunk_id": best_cid, "metadata": best_meta}}
+
+
+def _pick_best_sentence(doc_text: str, query: str) -> str:
+    """Pilih kalimat paling relevan dari chunk menggunakan keyword overlap."""
+    sents = split_to_sentences(doc_text)
+    if not sents:
+        return doc_text.strip()
+
+    q_words = set(query.lower().split())
+    best, best_score = sents[0], -1
+    for s in sents:
+        s_words = set(s.lower().split())
+        score = len(q_words & s_words)
+        if score > best_score:
+            best_score = score
+            best = s
+    return best.strip()

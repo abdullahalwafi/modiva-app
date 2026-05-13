@@ -27,6 +27,10 @@ SECRET_KEY = 'django-insecure-gfal(vfmsc!_3nt5+p%&0huac3xeoi3wfjx*h)rvuc#^a-_88!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+WEB_MODE = os.getenv("WEB_MODE", "production").strip().lower()
+if WEB_MODE not in {"production", "developer"}:
+    WEB_MODE = "production"
+
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [

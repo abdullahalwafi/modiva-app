@@ -1,0 +1,7 @@
+No,Modul,Endpoint,Metode,Ekspektasi,Status
+1,Login,/login,GET,Halaman login dapat diakses dan menampilkan form login.,Berhasil
+2,Chatbot RAG,/chat-api,POST,Endpoint chatbot menerima request dan mengembalikan response JSON.,Berhasil
+3,Data Pengetahuan,/vector/,GET,Halaman data pengetahuan dapat diakses dan menampilkan daftar dokumen RAG.,Berhasil
+4,Upload Dokumen,/vector/,POST,Endpoint upload dokumen dapat menerima request POST tanpa server error.,Berhasil
+5,Hapus Pengetahuan,/vector/delete/blackbox-doc/,GET,Akses hapus pengetahuan tanpa login diarahkan ke halaman login.,Berhasil
+6,Sinkronisasi HB ke RAG,/vitamin/siswahb/export-rag/,GET,Akses sinkronisasi HB ke RAG tanpa login diarahkan ke halaman login.,Berhasil

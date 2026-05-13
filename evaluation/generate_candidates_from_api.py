@@ -28,7 +28,7 @@ def call_chat_api(api_url: str, question: str, timeout_sec: int) -> str:
     request:  {"message": "<pertanyaan>"}
     response: {"reply": "<jawaban>"}
     """
-    payload = {"message": question}
+    payload = {"message": question, "mode": "evaluation"}
     r = requests.post(api_url, json=payload, timeout=timeout_sec)
     r.raise_for_status()
     data = r.json()

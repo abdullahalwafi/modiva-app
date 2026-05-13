@@ -470,6 +470,10 @@
         const data = XLSX.utils.sheet_to_json(sheet);
 
         const dropdown = document.getElementById("dropdownPuskesmas");
+        if (!dropdown) {
+          return;
+        }
+
         data.forEach(row => {
           const option = document.createElement("option");
           option.value = row.Nama;
@@ -483,6 +487,10 @@
     const dropdown = document.getElementById('dropdownPuskesmas');
 
     function updateDropdownColor() {
+      if (!dropdown) {
+        return;
+      }
+
       if (dropdown.value === '') {
         dropdown.classList.remove('has-value');
       } else {
@@ -490,15 +498,20 @@
       }
     }
 
-    dropdown.addEventListener('change', updateDropdownColor);
-    // Set warna awal saat halaman dimuat
-    updateDropdownColor();
+    if (dropdown) {
+      dropdown.addEventListener('change', updateDropdownColor);
+      updateDropdownColor();
+    }
   </script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const selectEl = document.getElementById("dropdownPuskesmas");
       const infoEl = document.getElementById("lainnyaInfo");
+
+      if (!selectEl || !infoEl) {
+        return;
+      }
 
       selectEl.addEventListener("change", function () {
         if (this.value.toLowerCase() === "lainnya") {

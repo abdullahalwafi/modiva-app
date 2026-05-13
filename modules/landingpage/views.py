@@ -3,19 +3,344 @@ import json
 import os
 import re
 
+import numpy as np
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
 from modules.landingpage.models import ContactMessage
 from .forms import ContactMessageForm
 from modules.vitamin.models import Puskesmas, Sekolah
 
-from .utils.chroma import get_collection, safe_get_all_chunks
+from .utils.chroma import get_collection
 from .utils.context_builder import build_context_fullscan
 from .utils.keywords import extract_keywords
 from modules.vector.utils.chroma import get_docs_collection
-from .utils.groq import ask_groq
+from modules.vector.utils.embedding import get_model
+from .utils.gemini import ask_gemini
+
+
+UNKNOWN_REPLY = "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."
+CHATBOT_NAME = "DIVA"
+
+
+def _extract_gemini_text(payload: dict) -> str:
+    try:
+        candidates = payload.get("candidates", []) or []
+        for candidate in candidates:
+            content = candidate.get("content") or {}
+            parts = content.get("parts", []) or []
+            chunks = []
+            for part in parts:
+                text = part.get("text")
+                if text:
+                    chunks.append(str(text))
+            if chunks:
+                return "\n".join(chunks).strip()
+    except Exception:
+        return ""
+    return ""
+
+
+def _split_text_units(text: str) -> list[str]:
+    normalized = re.sub(r"(?<![.!?])\s*\n\s*", " ", str(text))
+    units: list[str] = []
+    for block in re.split(r"[\n\r]+", normalized):
+        block = block.strip()
+        if not block:
+            continue
+        parts = [s.strip() for s in re.split(r"(?<=[.!?])\s+", block) if s.strip()]
+        units.extend(parts or [block])
+    return units
+
+
+def _clean_answer_text(text: str) -> str:
+    cleaned = re.sub(r"\s+", " ", str(text)).strip(" -•\t\r\n")
+    cleaned = re.sub(r"\b\d+\s+BUKU SAKU\b", "BUKU SAKU", cleaned, flags=re.IGNORECASE)
+    return cleaned.strip()
+
+
+def _extract_definition_subject(question: str) -> str:
+    q = _clean_answer_text(question).rstrip("?.! ").strip()
+    q = re.sub(r"(?i)\b(si|sih)\b", " ", q)
+    q = re.sub(r"\s+", " ", q).strip()
+    patterns = [
+        r"(?i)^apa itu\s+(.+)$",
+        r"(?i)^apa yang dimaksud dengan\s+(.+)$",
+        r"(?i)^apa yang dimaksud\s+dengan\s+(.+)$",
+        r"(?i)^yang dimaksud dengan\s+(.+?)\s+apa$",
+        r"(?i)^sebenarnya\s+(.+?)\s+itu\s+apa$",
+        r"(?i)^sebenernya\s+(.+?)\s+itu\s+apa$",
+        r"(?i)^(.+?)\s+itu\s+apa$",
+        r"(?i)^yang dimaksud\s+(.+?)\s+apa$",
+        r"(?i)^yang dimaksud dengan\s+(.+)$",
+        r"(?i)^definisi\s+(.+)$",
+        r"(?i)^arti\s+(.+)$",
+    ]
+    subject = ""
+    for pattern in patterns:
+        match = re.match(pattern, q)
+        if match:
+            subject = match.group(1).strip()
+            break
+    if not subject:
+        return ""
+    subject = re.sub(r"\s+", " ", subject)
+    return subject
+
+
+def _extract_topic_subject(question: str) -> str:
+    q = _clean_answer_text(question).rstrip("?.! ").strip()
+    q = re.sub(r"(?i)\b(si|sih)\b", " ", q)
+    q = re.sub(r"\s+", " ", q).strip()
+    patterns = [
+        r"(?i)^tentang\s+(.+)$",
+        r"(?i)^mengenai\s+(.+)$",
+        r"(?i)^saya ingin tahu tentang\s+(.+)$",
+        r"(?i)^saya ingiin tau tentang\s+(.+)$",
+        r"(?i)^saya ingin tau tentang\s+(.+)$",
+        r"(?i)^saya mau tahu tentang\s+(.+)$",
+        r"(?i)^aku ingin tahu tentang\s+(.+)$",
+        r"(?i)^aku mau tahu tentang\s+(.+)$",
+        r"(?i)^ingin tahu tentang\s+(.+)$",
+        r"(?i)^ingin tau tentang\s+(.+)$",
+        r"(?i)^mau tahu tentang\s+(.+)$",
+        r"(?i)^mau tau tentang\s+(.+)$",
+        r"(?i)^jelaskan\s+(.+)$",
+    ]
+    for pattern in patterns:
+        match = re.match(pattern, q)
+        if match:
+            return re.sub(r"\s+", " ", match.group(1).strip())
+    return ""
+
+
+def _canonicalize_question(question: str) -> str:
+    subject = _extract_definition_subject(question)
+    if subject:
+        return f"apa itu {subject}?"
+    topic_subject = _extract_topic_subject(question)
+    if topic_subject:
+        return f"apa itu {topic_subject}?"
+    return question.strip()
+
+
+def _normalize_simple_text(text: str) -> str:
+    cleaned = _clean_answer_text(text).lower()
+    cleaned = re.sub(r"[^a-z0-9\s]", " ", cleaned)
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
+def _handle_smalltalk(question: str) -> str:
+    normalized = _normalize_simple_text(question)
+    if not normalized:
+        return ""
+
+    greeting_inputs = {
+        "halo", "hallo", "hai", "hi", "hei", "hello", "pagi", "siang", "sore", "malam"
+    }
+    if normalized in greeting_inputs:
+        return f"Halo, saya {CHATBOT_NAME}. Saya bisa bantu jelaskan informasi seputar anemia dan kesehatan dari dokumen yang tersedia."
+
+    identity_patterns = [
+        r"^dengan siapa ini$",
+        r"^ini siapa$",
+        r"^siapa ini$",
+        r"^kamu siapa$",
+        r"^anda siapa$",
+        r"^siapa namamu$",
+        r"^nama kamu siapa$",
+    ]
+    if any(re.match(pattern, normalized) for pattern in identity_patterns):
+        return f"Saya {CHATBOT_NAME}, asisten yang bisa membantu menjelaskan informasi kesehatan dari dokumen yang tersedia."
+
+    thanks_inputs = {"terima kasih", "makasih", "thanks", "thank you"}
+    if normalized in thanks_inputs:
+        return "Sama-sama. Kalau mau, saya bisa bantu jelaskan anemia, gejalanya, penyebabnya, atau cara pencegahannya."
+
+    return ""
+
+
+def _is_gibberish_text(question: str) -> bool:
+    normalized = _normalize_simple_text(question)
+    if not normalized:
+        return True
+
+    tokens = normalized.split()
+    if len(tokens) == 1:
+        token = tokens[0]
+        if len(token) >= 7 and not re.search(r"[aiueo]", token):
+            return True
+        if len(token) >= 8:
+            distinct_ratio = len(set(token)) / max(len(token), 1)
+            if distinct_ratio < 0.6:
+                return True
+        if len(token) >= 8 and token.isalpha():
+            vowel_ratio = sum(1 for ch in token if ch in "aiueo") / len(token)
+            if vowel_ratio < 0.2:
+                return True
+
+    letters = re.sub(r"[^a-z]", "", normalized)
+    if letters and len(letters) >= 8:
+        vowel_ratio = sum(1 for ch in letters if ch in "aiueo") / len(letters)
+        if vowel_ratio < 0.15:
+            return True
+
+    return False
+
+
+def _handle_unclear_input(question: str) -> str:
+    if _is_gibberish_text(question):
+        return (
+            "Maaf, saya belum paham pertanyaannya. "
+            "Coba tulis ulang dengan kalimat yang lebih jelas, misalnya: apa itu anemia, apa gejala anemia, atau bagaimana cara mencegah anemia."
+        )
+    return ""
+
+
+def _is_noisy_unit(text: str) -> bool:
+    cleaned = _clean_answer_text(text)
+    if not cleaned:
+        return True
+
+    low = cleaned.lower()
+    words = cleaned.split()
+    alpha_chars = [ch for ch in cleaned if ch.isalpha()]
+    upper_ratio = (
+        sum(1 for ch in alpha_chars if ch.isupper()) / len(alpha_chars)
+        if alpha_chars else 0.0
+    )
+
+    generic_noise_markers = [
+        "kata pengantar",
+        "daftar isi",
+        "lampiran",
+        "gambar ",
+        "tabel ",
+        "bab ",
+        "bagian ",
+        "halaman ",
+        "copyright",
+    ]
+    if any(marker in low for marker in generic_noise_markers):
+        return True
+    if re.fullmatch(r"[\divxlcdm.\-–\s]+", low):
+        return True
+    if len(words) <= 3 and any(ch.isdigit() for ch in cleaned):
+        return True
+    if upper_ratio > 0.72 and len(words) <= 16 and not re.search(r"[.?!]$", cleaned):
+        return True
+    if cleaned.count("|") >= 1 and len(words) <= 20:
+        return True
+    return False
+
+
+def _rank_candidate_units(context_text: str, question: str, top_k: int = 5) -> list[str]:
+    units = []
+    seen = set()
+    for unit in _split_text_units(context_text):
+        cleaned = _clean_answer_text(unit)
+        if not cleaned:
+            continue
+        key = cleaned.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        units.append(cleaned)
+
+    if not units:
+        return []
+
+    keywords = [k.lower() for k in extract_keywords(question)]
+    q_low = question.lower()
+
+    lexical_scores = []
+    filtered_units = []
+    for unit in units:
+        low = unit.lower()
+        if _is_noisy_unit(unit):
+            continue
+
+        score = sum(2 for kw in keywords if kw and kw in low)
+        score += sum(1 for token in re.findall(r"\w+", q_low) if len(token) >= 3 and token in low)
+        if "%" in unit and any(token in q_low for token in ["berapa", "persentase", "presentase", "prevalensi", "%"]):
+            score += 3
+        if " adalah " in f" {low} " and any(token in q_low for token in ["apa itu", "apakah", "definisi", "arti"]):
+            score += 2
+        filtered_units.append(unit)
+        lexical_scores.append(score)
+
+    if not filtered_units:
+        return []
+
+    try:
+        model = get_model()
+        embeddings = np.array(model.encode(filtered_units), dtype=np.float32)
+        q_emb = np.array(model.encode([question])[0], dtype=np.float32)
+        norms = np.linalg.norm(embeddings, axis=1) + 1e-12
+        q_norm = np.linalg.norm(q_emb) + 1e-12
+        semantic_scores = (embeddings @ q_emb) / (norms * q_norm)
+    except Exception:
+        semantic_scores = np.zeros(len(filtered_units), dtype=np.float32)
+
+    ranked = []
+    for idx, unit in enumerate(filtered_units):
+        final_score = (lexical_scores[idx] * 0.7) + (float(semantic_scores[idx]) * 10.0)
+        ranked.append((final_score, idx, unit))
+
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    return [unit for _, _, unit in ranked[:top_k]]
+
+
+def _extract_best_snippet(text: str, question: str, max_sentences: int = 3) -> str:
+    ranked = _rank_candidate_units(text, question, top_k=max_sentences)
+    if ranked:
+        return " ".join(ranked).strip()
+    fallback_units = _split_text_units(text)
+    return fallback_units[0].strip() if fallback_units else str(text).strip()
+
+
+def _is_factoid_question(question: str) -> bool:
+    q = question.lower()
+    markers = [
+        "berapa",
+        "siapa",
+        "apa itu",
+        "apakah",
+        "kapan",
+        "dimana",
+        "di mana",
+        "prevalensi",
+        "persentase",
+        "presentase",
+        "tujuan",
+        "sumber",
+        "risiko",
+        "resiko",
+    ]
+    return any(marker in q for marker in markers)
+
+
+def _extract_fact_answer(context_text: str, question: str) -> str:
+    subject = _extract_definition_subject(question)
+    if subject:
+        units = _split_text_units(context_text)
+        subject_pattern = re.escape(subject)
+        for unit in units:
+            cleaned = _clean_answer_text(unit)
+            match = re.search(
+                rf"((?:{subject_pattern}|[A-Z][a-z]+)\s+adalah[^.?!]*[.?!]?)",
+                cleaned,
+                flags=re.IGNORECASE,
+            )
+            if match and re.search(subject_pattern, match.group(1), flags=re.IGNORECASE):
+                return _clean_answer_text(match.group(1))
+
+    ranked = _rank_candidate_units(context_text, question, top_k=1)
+    if ranked and _is_factoid_question(question):
+        return ranked[0]
+    return ""
 
 
 # =========================
@@ -129,9 +454,21 @@ def chat_api(request):
             return JsonResponse({"reply": "Pesan kosong."})
 
         debug = str(body.get("debug", "0")) == "1"
+        response_mode = str(body.get("mode", "chatbot")).strip().lower() or "chatbot"
         normalized_question = _normalize_question(user_message)
         if not normalized_question:
-            return JsonResponse({"reply": "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."})
+            return JsonResponse({"reply": UNKNOWN_REPLY})
+
+        if response_mode == "chatbot":
+            smalltalk_reply = _handle_smalltalk(normalized_question)
+            if smalltalk_reply:
+                return JsonResponse({"reply": f"<p>{smalltalk_reply}</p>"})
+
+            unclear_reply = _handle_unclear_input(normalized_question)
+            if unclear_reply:
+                return JsonResponse({"reply": f"<p>{unclear_reply}</p>"})
+
+        retrieval_question = _canonicalize_question(normalized_question)
 
         collection = get_collection()
         if collection is None:
@@ -157,88 +494,54 @@ def chat_api(request):
         if not has_docs:
             return JsonResponse({"reply": "Maaf, belum ada dokumen untuk dijadikan referensi."})
 
-        context_text, sources = build_context_fullscan(collection, normalized_question, max_chunks=8)
+        context_text, sources = build_context_fullscan(collection, retrieval_question, max_chunks=8)
         if not context_text.strip():
-            return JsonResponse({"reply": "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."})
+            return JsonResponse({"reply": UNKNOWN_REPLY})
 
-        def extract_vitamin_line(text: str, vitamin_letter: str) -> str:
-            pattern = re.compile(rf"(vitamin\s+{vitamin_letter}\s*[:-]\s*[^\n]+)", re.IGNORECASE)
-            match = pattern.search(text)
-            if match:
-                return match.group(1).strip()
-            for line in text.splitlines():
-                if re.search(rf"vitamin\s+{vitamin_letter}\b", line, re.IGNORECASE):
-                    return line.strip()
-            try:
-                all_docs, _, _ = safe_get_all_chunks(collection)
-                for doc in all_docs:
-                    match = pattern.search(doc)
-                    if match:
-                        return match.group(1).strip()
-            except Exception:
-                pass
-            return ""
+        best_snippet = _extract_best_snippet(context_text, retrieval_question, max_sentences=2)
+        if not best_snippet.strip():
+            best_snippet = context_text
 
-        def extract_best_snippet(text: str, question: str, max_sentences: int = 3) -> str:
-            sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", text) if s.strip()]
-            if not sentences:
-                return text.strip()
+        deterministic_answer = _extract_fact_answer(context_text, normalized_question)
+        if deterministic_answer:
+            return JsonResponse({"reply": deterministic_answer})
 
-            keywords = [k.lower() for k in extract_keywords(question)]
-            if not keywords:
-                return ""
+        # Bersihkan whitespace berlebih dari context sebelum dikirim ke Gemini
+        context_clean = re.sub(r"[ \t]*\n[ \t]*", "\n", best_snippet).strip()
+        context_clean = re.sub(r"\n{3,}", "\n\n", context_clean)
 
-            def is_noisy_sentence(s: str) -> bool:
-                if "Buku Saku" in s and "Isi Buku" in s:
-                    return True
-                dot_ratio = s.count(".") / max(len(s), 1)
-                if dot_ratio > 0.08:
-                    return True
-                if len(s) < 10:
-                    return True
-                return False
+        # Batasi panjang konteks (Gemini bisa handle lebih, tapi hemat token)
+        MAX_CONTEXT = 3000
+        if len(context_clean) > MAX_CONTEXT:
+            context_clean = context_clean[:MAX_CONTEXT].rsplit(" ", 1)[0] + "…"
 
-            scored = []
-            for idx, s in enumerate(sentences):
-                if is_noisy_sentence(s):
-                    continue
-                s_low = s.lower()
-                score = sum(1 for k in keywords if k and k in s_low)
-                scored.append((score, idx, s))
-
-            scored.sort(key=lambda x: (-x[0], x[1]))
-            chosen = [s for score, _, s in scored if score > 0][:max_sentences]
-            if not chosen:
-                return ""
-
-            return " ".join(chosen).strip()
-
-        vitamin_match = re.search(r"\bvitamin\s+([a-e])\b", normalized_question.lower())
-        if vitamin_match:
-            snippet = extract_vitamin_line(context_text, vitamin_match.group(1))
-        else:
-            snippet = ""
-
-        if not snippet:
-            snippet = extract_best_snippet(context_text, normalized_question, max_sentences=2)
-        if not snippet:
-            return JsonResponse({"reply": "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."})
-        snippet = re.sub(r"\s+", " ", snippet).strip()
+        web_mode = getattr(settings, "WEB_MODE", "production")
+        if web_mode == "developer":
+            return JsonResponse({"reply": context_clean})
 
         answer = None
         try:
-            res = ask_groq(normalized_question, snippet, temperature_with_ctx=0.2, temperature_no_ctx=0.0)
+            temperature_with_ctx = 0.2 if response_mode == "chatbot" else 0.0
+            res = ask_gemini(
+                normalized_question,
+                context_clean,
+                response_mode=response_mode,
+                temperature_with_ctx=temperature_with_ctx,
+                temperature_no_ctx=0.0,
+            )
             data = res.json()
-            if "choices" in data and data["choices"]:
-                answer = data["choices"][0]["message"]["content"]
+            answer = _extract_gemini_text(data)
         except Exception:
             answer = None
 
         if not answer:
             max_len = 320
-            if len(snippet) > max_len:
-                snippet = snippet[: max_len - 1].rstrip() + "…"
-            return JsonResponse({"reply": f"<p>{snippet}</p>"})
+            fallback_text = context_clean
+            if len(fallback_text) > max_len:
+                fallback_text = fallback_text[: max_len - 1].rstrip() + "…"
+            if response_mode == "evaluation":
+                return JsonResponse({"reply": fallback_text})
+            return JsonResponse({"reply": f"<p>{fallback_text}</p>"})
 
         return JsonResponse({"reply": answer})
 
