@@ -56,13 +56,23 @@ def export_siswahb_queryset_to_chroma(qs):
             "doc_id": HB_DOC_ID,
             "title": "Data HB Siswa",
             "source_type": "db",
+            "source_doc": "Data HB Siswa",
+            "domain": "hb_records",
+            "doc_type": "hb_record",
+            "record_type": "hb",
+            "audience": "internal",
+            "topic": "hemoglobin",
             "created_at": now_iso,
             "type": "hb",
             "hb_id": int(obj.pk),
             "tahun": int(obj.tahun),
+            "year": int(obj.tahun),
             "nis": str(getattr(siswa, "nis", "")),
             "nama": str(getattr(siswa, "nama", "")),
+            "entity": str(getattr(siswa, "nama", "")),
             "sekolah": str(getattr(sekolah, "nama", "")),
+            "hb": str(obj.hb),
+            "status": str(obj.keterangan or ""),
         }
 
         text = hb_to_text(obj)
@@ -97,6 +107,12 @@ def export_siswahb_queryset_to_chroma(qs):
         "title": title,
         "created_at": now_iso,
         "source_type": "hb",
+        "source_doc": "Data HB Siswa",
+        "domain": "hb_records",
+        "doc_type": "hb_dataset",
+        "record_type": "hb",
+        "audience": "internal",
+        "topic": "hemoglobin",
         "chunks": int(len(ids)),
     }
     try:

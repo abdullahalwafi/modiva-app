@@ -1,6 +1,14 @@
+import sys
+from pathlib import Path
+
 import pandas as pd
 from bert_score import score as bert_score
-from config import Config
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from evaluation.config import Config
 
 
 def _fmt_pct(val: float) -> str:

@@ -12,7 +12,8 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parent
-PROJECT_DIR = BASE_DIR.parent
+PROJECT_DIR = BASE_DIR.parents[1]
+EVALUATION_DIR = PROJECT_DIR / "evaluation"
 SECTION_HEADING = "## 4.3.4 Hasil Blackbox Testing RAG"
 
 
@@ -239,7 +240,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--evaluation-report",
-        default=str(BASE_DIR / "evaluation_report.md"),
+        default=str(EVALUATION_DIR / "evaluation_report.md"),
         help="Path report evaluasi utama yang akan di-update.",
     )
     parser.add_argument(

@@ -6,6 +6,7 @@ from .cleaner import clean_row_text
 from .embedding import embed
 from .extractors import extract_text_from_file
 from .text import guess_source_type, split_to_sentences
+from modules.landingpage.utils.context_builder import build_domain_metadata
 
 def list_docs_from_chroma():
     docs_coll = get_docs_collection()
@@ -86,6 +87,7 @@ def upload_document_to_chroma(uploaded_file):
             "raw_length": int(len(row_text)),
             "clean_length": int(len(cleaned_text)),
         }
+        meta.update(build_domain_metadata(meta, text=cleaned_text, source=uploaded_file.name))
 
         emb = embed(cleaned_text)
         ids_batch.append(chunk_id)
@@ -102,18 +104,23 @@ def upload_document_to_chroma(uploaded_file):
 
     # catalog doc (kalau gagal, jangan bikin upload gagal)
     try:
+        doc_domain_meta = build_domain_metadata(
+            {
+                "doc_id": doc_id,
+                "title": uploaded_file.name,
+                "created_at": created_at,
+                "source_type": source_type,
+                "chunks": int(added),
+                "cleaned_by_ai": int(cleaned_by_ai),
+                "raw_fallback": int(raw_fallback),
+            },
+            text=" ".join(docs_batch[:3]),
+            source=uploaded_file.name,
+        )
         docs_coll.add(
             ids=[doc_id],
             documents=[uploaded_file.name],
-                metadatas=[{
-                    "doc_id": doc_id,
-                    "title": uploaded_file.name,
-                    "created_at": created_at,
-                    "source_type": source_type,
-                    "chunks": int(added),
-                    "cleaned_by_ai": int(cleaned_by_ai),
-                    "raw_fallback": int(raw_fallback),
-                }],
+            metadatas=[doc_domain_meta],
         )
     except Exception:
         pass

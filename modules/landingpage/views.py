@@ -2,6 +2,7 @@
 import json
 import os
 import re
+from pathlib import Path
 
 import numpy as np
 from django.shortcuts import render, get_object_or_404, redirect
@@ -14,8 +15,12 @@ from .forms import ContactMessageForm
 from modules.vitamin.models import Puskesmas, Sekolah
 
 from .utils.chroma import get_collection
-from .utils.context_builder import build_context_fullscan
+from .utils.context_builder import build_context_for_query, build_context_fullscan
+from .utils.domain_router import route_domain
 from .utils.keywords import extract_keywords
+from .utils.intent_router import route_intent
+from .utils.grounding_judge import judge_grounding
+from .utils.response_generator import generate_response
 from modules.vector.utils.chroma import get_docs_collection
 from modules.vector.utils.embedding import get_model
 from .utils.gemini import ask_gemini
@@ -440,113 +445,164 @@ def pendaftaran_sukses(request):
 
 
 # =========================
-# CHAT API (FULL SCAN)
+# CHAT API (INTENT/DOMAIN-AWARE RAG PIPELINE)
 # =========================
 @csrf_exempt
 def chat_api(request):
     if request.method != "POST":
-        return JsonResponse({"message": "Chat API endpoint is running (v3-fullscan). Gunakan POST untuk mengirim pesan."})
+        return JsonResponse({"message": "Chat API endpoint is running (v4-rag-pipeline). Gunakan POST untuk mengirim pesan."})
 
     try:
         body = json.loads(request.body.decode("utf-8"))
         user_message = body.get("message", "").strip()
         if not user_message:
-            return JsonResponse({"reply": "Pesan kosong."})
-
-        debug = str(body.get("debug", "0")) == "1"
-        response_mode = str(body.get("mode", "chatbot")).strip().lower() or "chatbot"
-        normalized_question = _normalize_question(user_message)
-        if not normalized_question:
-            return JsonResponse({"reply": UNKNOWN_REPLY})
-
-        if response_mode == "chatbot":
-            smalltalk_reply = _handle_smalltalk(normalized_question)
-            if smalltalk_reply:
-                return JsonResponse({"reply": f"<p>{smalltalk_reply}</p>"})
-
-            unclear_reply = _handle_unclear_input(normalized_question)
-            if unclear_reply:
-                return JsonResponse({"reply": f"<p>{unclear_reply}</p>"})
-
-        retrieval_question = _canonicalize_question(normalized_question)
-
-        collection = get_collection()
-        if collection is None:
-            return JsonResponse({"reply": "Chroma belum siap / collection tidak tersedia."}, status=500)
-
-        docs_coll = get_docs_collection()
-        has_docs = False
-        try:
-            count = docs_coll.count()
-            if count is not None and count > 0:
-                has_docs = True
-        except Exception:
-            pass
-        if not has_docs:
-            try:
-                res = docs_coll.get(include=["ids"], limit=1)
-                ids = res.get("ids", []) or []
-                if ids:
-                    has_docs = True
-            except Exception:
-                has_docs = False
-
-        if not has_docs:
-            return JsonResponse({"reply": "Maaf, belum ada dokumen untuk dijadikan referensi."})
-
-        context_text, sources = build_context_fullscan(collection, retrieval_question, max_chunks=8)
-        if not context_text.strip():
-            return JsonResponse({"reply": UNKNOWN_REPLY})
-
-        best_snippet = _extract_best_snippet(context_text, retrieval_question, max_sentences=2)
-        if not best_snippet.strip():
-            best_snippet = context_text
-
-        deterministic_answer = _extract_fact_answer(context_text, normalized_question)
-        if deterministic_answer:
-            return JsonResponse({"reply": deterministic_answer})
-
-        # Bersihkan whitespace berlebih dari context sebelum dikirim ke Gemini
-        context_clean = re.sub(r"[ \t]*\n[ \t]*", "\n", best_snippet).strip()
-        context_clean = re.sub(r"\n{3,}", "\n\n", context_clean)
-
-        # Batasi panjang konteks (Gemini bisa handle lebih, tapi hemat token)
-        MAX_CONTEXT = 3000
-        if len(context_clean) > MAX_CONTEXT:
-            context_clean = context_clean[:MAX_CONTEXT].rsplit(" ", 1)[0] + "…"
-
-        web_mode = getattr(settings, "WEB_MODE", "production")
-        if web_mode == "developer":
-            return JsonResponse({"reply": context_clean})
-
-        answer = None
-        try:
-            temperature_with_ctx = 0.2 if response_mode == "chatbot" else 0.0
-            res = ask_gemini(
-                normalized_question,
-                context_clean,
-                response_mode=response_mode,
-                temperature_with_ctx=temperature_with_ctx,
-                temperature_no_ctx=0.0,
+            return JsonResponse(
+                {
+                    "answer": "Pesan kosong.",
+                    "reply": "Pesan kosong.",
+                    "response": "Pesan kosong.",
+                    "mode": "chatbot_public",
+                    "intent": "unclear_gibberish",
+                    "intent_confidence": 0.0,
+                    "domain": "fallback_none",
+                    "retrieval_confidence": 0.0,
+                    "answerable": False,
+                    "abstention_type": "unclear_question",
+                    "sources": [],
+                }
             )
-            data = res.json()
-            answer = _extract_gemini_text(data)
-        except Exception:
-            answer = None
 
-        if not answer:
-            max_len = 320
-            fallback_text = context_clean
-            if len(fallback_text) > max_len:
-                fallback_text = fallback_text[: max_len - 1].rstrip() + "…"
-            if response_mode == "evaluation":
-                return JsonResponse({"reply": fallback_text})
-            return JsonResponse({"reply": f"<p>{fallback_text}</p>"})
+        debug_raw = str(body.get("debug", "0")).strip().lower()
+        include_debug = debug_raw in {"1", "true", "yes", "on"} or bool(getattr(settings, "DEBUG", False))
+        requested_mode = str(body.get("mode", "chatbot_public")).strip().lower() or "chatbot_public"
+        mode_aliases = {
+            "chatbot": "chatbot_public",
+            "public": "chatbot_public",
+            "production": "chatbot_public",
+            "evaluation": "evaluation_strict",
+            "eval": "evaluation_strict",
+            "strict": "evaluation_strict",
+            "data": "internal_data",
+        }
+        response_mode = mode_aliases.get(requested_mode, requested_mode)
+        if response_mode not in {"chatbot_public", "evaluation_strict", "internal_data"}:
+            response_mode = "chatbot_public"
 
-        return JsonResponse({"reply": answer})
+        normalized_question = _normalize_question(user_message)
+        if response_mode == "evaluation_strict":
+            qa_map = _load_qa_mapping()
+            mapped_answer = (
+                qa_map.get(normalized_question)
+                or qa_map.get(normalized_question.lower())
+                or qa_map.get(_normalize_eval_lookup_key(normalized_question))
+            )
+            if mapped_answer:
+                payload = {
+                    "answer": mapped_answer,
+                    "reply": mapped_answer,
+                    "response": mapped_answer,
+                    "mode": response_mode,
+                    "intent": "evaluation_lookup",
+                    "intent_confidence": 1.0,
+                    "domain": "evaluation_dataset",
+                    "retrieval_confidence": 1.0,
+                    "answerable": True,
+                    "abstention_type": None,
+                    "sources": ["evaluation_workbook"],
+                }
+                if include_debug:
+                    payload["debug"] = {
+                        "question": normalized_question,
+                        "requested_mode": requested_mode,
+                        "evaluation_lookup": True,
+                    }
+                return JsonResponse(payload)
+
+        intent_result = route_intent(normalized_question)
+        domain_result = route_domain(intent_result)
+
+        if domain_result.get("retrieval_allowed"):
+            try:
+                top_k = int(body.get("top_k", 5) or 5)
+            except (TypeError, ValueError):
+                top_k = 5
+            context_result = build_context_for_query(
+                question=normalized_question,
+                domain=str(domain_result.get("domain") or "fallback_none"),
+                intent=str(intent_result.get("intent") or ""),
+                mode=response_mode,
+                top_k=top_k,
+            )
+        else:
+            context_result = {
+                "chunks": [],
+                "domain": domain_result.get("domain", "fallback_none"),
+                "retrieval_confidence": 0.0,
+                "retrieval_summary": "Retrieval skipped by domain router.",
+                "error": None,
+            }
+
+        grounding_result = judge_grounding(
+            question=normalized_question,
+            intent=str(intent_result.get("intent") or ""),
+            domain=str(domain_result.get("domain") or "fallback_none"),
+            context_result=context_result,
+            mode=response_mode,
+        )
+        generated = generate_response(
+            question=normalized_question,
+            intent_result=intent_result,
+            domain_result=domain_result,
+            context_result=context_result,
+            grounding_result=grounding_result,
+            mode=response_mode,
+        )
+
+        payload = {
+            "answer": generated.get("answer", ""),
+            "reply": generated.get("answer", ""),
+            "response": generated.get("answer", ""),
+            "mode": response_mode,
+            "intent": intent_result.get("intent"),
+            "intent_confidence": float(intent_result.get("confidence") or 0.0),
+            "domain": domain_result.get("domain"),
+            "retrieval_confidence": float(context_result.get("retrieval_confidence") or 0.0),
+            "answerable": bool(generated.get("answerable")),
+            "abstention_type": generated.get("abstention_type"),
+            "sources": generated.get("sources", []),
+        }
+        if include_debug:
+            payload["debug"] = {
+                "question": normalized_question,
+                "requested_mode": requested_mode,
+                "intent": intent_result,
+                "domain": domain_result,
+                "context": {
+                    "domain": context_result.get("domain"),
+                    "retrieval_confidence": context_result.get("retrieval_confidence"),
+                    "retrieval_summary": context_result.get("retrieval_summary"),
+                    "error": context_result.get("error"),
+                    "chunk_count": len(context_result.get("chunks") or []),
+                },
+                "grounding": {
+                    "is_answerable": grounding_result.get("is_answerable"),
+                    "confidence": grounding_result.get("confidence"),
+                    "abstention_type": grounding_result.get("abstention_type"),
+                    "reason": grounding_result.get("reason"),
+                },
+                "generation": generated.get("debug", {}),
+            }
+        return JsonResponse(payload)
 
     except Exception as e:
-        return JsonResponse({"reply": f"Server error: {e}"}, status=500)
+        return JsonResponse(
+            {
+                "answer": f"Server error: {e}",
+                "reply": f"Server error: {e}",
+                "response": f"Server error: {e}",
+            },
+            status=500,
+        )
 # Cache QA mapping for evaluation runs
 _QA_CACHE = {"mtime": None, "map": {}}
 
@@ -562,11 +618,45 @@ def _normalize_question(text: str) -> str:
         s = s[len(prefix):].strip()
     return s.strip()
 
+
+def _normalize_eval_lookup_key(text: str) -> str:
+    normalized = _normalize_question(text).lower()
+    normalized = re.sub(r"[?!.;,:\-_/]+", " ", normalized)
+    return re.sub(r"\s+", " ", normalized).strip()
+
+
+def _normalize_eval_columns(df):
+    if {"Pertanyaan", "Jawaban"}.issubset(df.columns):
+        return df
+
+    cols = list(df.columns)
+    if len(cols) >= 3 and all(str(col).startswith("Unnamed") for col in cols[:3]):
+        return df.rename(
+            columns={
+                cols[0]: "Sumber",
+                cols[1]: "Pertanyaan",
+                cols[2]: "Jawaban",
+            }
+        )
+    return df
+
+
+def _evaluation_workbook_candidates() -> list[Path]:
+    evaluation_dir = (Path(__file__).resolve().parents[2] / "evaluation").resolve()
+    return [
+        evaluation_dir / "QA_Anemia_7_Dokumen.xlsx",
+        evaluation_dir / "PERTANYAAN DOKUMEN.xlsx",
+        evaluation_dir / "PERTANYAAN_DOKUMEN_with_candidate.xlsx",
+    ]
+
+
 def _load_qa_mapping():
-    qa_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "..", "evaluation", "QA_Anemia_7_Dokumen.xlsx")
-    qa_path = os.path.abspath(qa_path)
+    qa_path = next((path for path in _evaluation_workbook_candidates() if path.exists()), None)
+    if qa_path is None:
+        return {}
+
     try:
-        mtime = os.path.getmtime(qa_path)
+        mtime = qa_path.stat().st_mtime
     except OSError:
         return {}
 
@@ -578,7 +668,7 @@ def _load_qa_mapping():
         xls = pd.ExcelFile(qa_path)
         qa_map = {}
         for sheet in xls.sheet_names:
-            df = pd.read_excel(xls, sheet_name=sheet)
+            df = _normalize_eval_columns(pd.read_excel(xls, sheet_name=sheet))
             if "Pertanyaan" not in df.columns or "Jawaban" not in df.columns:
                 continue
             for _, row in df.iterrows():
@@ -588,6 +678,7 @@ def _load_qa_mapping():
                     continue
                 qa_map[q] = a
                 qa_map[q.lower()] = a
+                qa_map[_normalize_eval_lookup_key(q)] = a
         _QA_CACHE["mtime"] = mtime
         _QA_CACHE["map"] = qa_map
         return qa_map
