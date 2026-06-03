@@ -36,35 +36,7 @@
 
 <body class="index-page">
 
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center">
-
-      <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
-        <img src="{% static 'assets/img/logo2.png' %}" alt="">
-        <!-- <h1 class="sitename">MODIVA</h1> -->
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="{% url 'uman:homepage' %}">Home</a></li>
-          <li><a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
-          <li><a href="{% url 'landingpage:daftar' %}" class="active">Daftar</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
-
-<a class="btn-getstarted d-flex align-items-center gap-2" 
-   href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
-    <i class="bi bi-person-fill me-2"></i>
-    {% if user.is_authenticated %}
-        {{ user.first_name|default:user.username }}
-    {% else %}
-        Login
-    {% endif %}
-</a>
-    </div>
-  </header>
+  {% include 'landingpage/includes/public_navbar.html' %}
 
   <main class="main">
 
@@ -85,9 +57,11 @@
               <li class="breadcrumb-item active text-dark" aria-current="page">Daftar</li>
             </ol>
           </nav>
-      </div>
-    </div>
+        </span>
+      </div><!-- end custom-breadcrumb -->
+    </div><!-- end container -->
     <!-- /Breadcrumb Section -->
+
 
     <!-- Contact Section -->
     <section id="contact" class="contact section">
@@ -108,7 +82,7 @@
           <!-- Form Box -->
           <div class="form-box mx-auto">
             <form method="post" novalidate>
-{% csrf_token %}
+              {% csrf_token %}
               <div class="mb-3">
                 <label for="{{ form.puskesmas.id_for_label }}" class="form-label text-start w-100">
                   Nama Puskesmas

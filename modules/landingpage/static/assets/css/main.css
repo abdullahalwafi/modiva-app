@@ -21,28 +21,44 @@
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root {
-  --background-color: #ffffff; /* Background color for the entire website, including individual sections */
-  --default-color: #000000; /* Default color used for the majority of the text content across the entire website */
-  --heading-color: #ececec; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #ff3d3d; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
-  --accent-hover: #ff6666; /* untuk hover button/link */
+  --background-color: #ffffff;
+  /* Background color for the entire website, including individual sections */
+  --default-color: #000000;
+  /* Default color used for the majority of the text content across the entire website */
+  --heading-color: #ececec;
+  /* Color for headings, subheadings and title throughout the website */
+  --accent-color: #ff3d3d;
+  /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --accent-hover: #ff6666;
+  /* untuk hover button/link */
   --accent-hoverdarker: #d72525;
-  --accent-light: #fdf4f4; /* untuk background soft */
-  --accent-dark: #cc0000; /* untuk klik aktif */
+  --accent-light: #fdf4f4;
+  /* untuk background soft */
+  --accent-dark: #cc0000;
+  /* untuk klik aktif */
   --accent-button: #1291f2;
-  --border-light: #faa4a4; /* untuk garis/pembatas lembut */
-  --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
-  --green-color: #2fb95d; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
+  --border-light: #faa4a4;
+  /* untuk garis/pembatas lembut */
+  --surface-color: #ffffff;
+  /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
+  --green-color: #2fb95d;
+  /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
 
 /* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
 :root {
-  --nav-color: #020202; /* The default color of the main navmenu links */
-  --nav-hover-color: #e60000; /* Applied to main navmenu links when they are hovered over or active */
-  --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
-  --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
-  --nav-dropdown-color: #6d6d6d; /* Used for navigation links of the dropdown items in the navigation menu. */
-  --nav-dropdown-hover-color: #ff4d4d; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+  --nav-color: #020202;
+  /* The default color of the main navmenu links */
+  --nav-hover-color: #e60000;
+  /* Applied to main navmenu links when they are hovered over or active */
+  --nav-mobile-background-color: #ffffff;
+  /* Used as the background color for mobile navigation menu */
+  --nav-dropdown-background-color: #ffffff;
+  /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
+  --nav-dropdown-color: #6d6d6d;
+  /* Used for navigation links of the dropdown items in the navigation menu. */
+  --nav-dropdown-hover-color: #ff4d4d;
+  /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
 }
 
 /* Color Presets - These classes override global colors when applied to any section or element, providing reuse of the sam color scheme. */
@@ -166,10 +182,8 @@ h6 {
 .pulsating-play-btn {
   width: 94px;
   height: 94px;
-  background: radial-gradient(
-    var(--accent-color) 50%,
-    color-mix(in srgb, var(--accent-color), transparent 75%) 52%
-  );
+  background: radial-gradient(var(--accent-color) 50%,
+      color-mix(in srgb, var(--accent-color), transparent 75%) 52%);
   border-radius: 50%;
   display: block;
   position: relative;
@@ -300,6 +314,7 @@ h6 {
 }
 
 .scrolled .header {
+  background-color: var(--background-color);
   box-shadow: 0px 0 18px rgba(0, 0, 0, 0.1);
   border-bottom: 0.3px solid var(--accent-color);
 }
@@ -356,7 +371,7 @@ h6 {
     padding-right: 0;
   }
 
-  .navmenu li:hover > a,
+  .navmenu li:hover>a,
   .navmenu .active,
   .navmenu .active:focus {
     color: var(--nav-hover-color);
@@ -395,11 +410,11 @@ h6 {
 
   .navmenu .dropdown ul a:hover,
   .navmenu .dropdown ul .active:hover,
-  .navmenu .dropdown ul li:hover > a {
+  .navmenu .dropdown ul li:hover>a {
     color: var(--nav-dropdown-hover-color);
   }
 
-  .navmenu .dropdown:hover > ul {
+  .navmenu .dropdown:hover>ul {
     opacity: 1;
     top: 100%;
     visibility: visible;
@@ -411,7 +426,7 @@ h6 {
     visibility: hidden;
   }
 
-  .navmenu .dropdown .dropdown:hover > ul {
+  .navmenu .dropdown .dropdown:hover>ul {
     opacity: 1;
     top: 0;
     left: -100%;
@@ -428,11 +443,13 @@ h6 {
   .header .navmenu {
     order: 3;
   }
+
   .header .btn-getstarted {
     order: 2;
     margin: 0 15px 0 0;
     padding: 2px 15px;
   }
+
   .mobile-nav-toggle {
     color: var(--nav-color);
     font-size: 28px;
@@ -526,7 +543,7 @@ h6 {
     background-color: rgba(33, 37, 41, 0.1);
   }
 
-  .navmenu .dropdown > .dropdown-active {
+  .navmenu .dropdown>.dropdown-active {
     display: block;
     background-color: rgba(33, 37, 41, 0.03);
   }
@@ -553,7 +570,7 @@ h6 {
     transition: 0.3s;
   }
 
-  .mobile-nav-active .navmenu > ul {
+  .mobile-nav-active .navmenu>ul {
     display: block;
   }
 }
@@ -659,8 +676,7 @@ h6 {
 
 .footer .copyright {
   padding: 20px 0;
-  border-top: 1px solid
-    color-mix(in srgb, var(--surface-color), transparent 40%);
+  border-top: 1px solid color-mix(in srgb, var(--surface-color), transparent 40%);
 }
 
 .footer .copyright p {
@@ -740,6 +756,7 @@ h6 {
   opacity: 1;
   bottom: 15px;
 }
+
 /*--------------------------------------------------------------
 # Disable aos animation delay on mobile devices
 --------------------------------------------------------------*/
@@ -775,11 +792,11 @@ h6 {
   font-weight: 400;
 }
 
-.page-title .breadcrumbs ol li + li {
+.page-title .breadcrumbs ol li+li {
   padding-left: 10px;
 }
 
-.page-title .breadcrumbs ol li + li::before {
+.page-title .breadcrumbs ol li+li::before {
   content: "/";
   display: inline-block;
   padding-right: 10px;
@@ -799,6 +816,7 @@ section,
 }
 
 @media (max-width: 1199px) {
+
   section,
   .section {
     scroll-margin-top: 66px;
@@ -879,6 +897,7 @@ section,
   margin: 0;
   font-size: 1.8rem;
 }
+
 .hero .welcome {
   color: var(--accent-hoverdarker);
   font-size: 4.5rem;
@@ -967,6 +986,7 @@ section,
     font-size: 13px;
   }
 }
+
 @media (max-width: 640px) {
   .hero h1 {
     font-size: 28px;
@@ -981,7 +1001,77 @@ section,
 
   .hero .btn-get-started,
   .hero .btn-watch-video {
-    font-size: 13px;
+    font-size: 12px;
+  }
+}
+
+/* Mobile hero stats layout optimization */
+@media (max-width: 575px) {
+  .hero .d-flex.flex-wrap.gap-4 {
+    flex-direction: column;
+    gap: 16px !important;
+  }
+}
+
+/* -----------------------------------------------
+   Hero — Mobile kecil (≤575px)
+   Hanya override ukuran font & padding, tidak ubah
+   layout desktop. Aman untuk halaman lain.
+----------------------------------------------- */
+@media (max-width: 575px) {
+  .hero {
+    padding: 60px 0 30px 0;
+    min-height: auto;
+  }
+
+  .hero .welcome {
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+  }
+
+  .hero h2 {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 15px;
+  }
+
+  .hero p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 8px 0 20px 0;
+  }
+
+  .hero .gabunganlogo {
+    height: 36px;
+  }
+
+  .hero .totaljoin {
+    font-size: 1.6rem;
+  }
+
+  .hero .join {
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  /* Chat widget — kecilkan & geser agar tidak overlap */
+  #openChat {
+    width: 48px !important;
+    height: 48px !important;
+    bottom: 16px !important;
+    right: 12px !important;
+  }
+
+  #chatModal {
+    width: calc(100vw - 24px) !important;
+    right: 12px !important;
+    bottom: 76px !important;
+    max-height: 420px !important;
+  }
+
+  /* Scroll-top — geser sedikit ke atas agar tidak ketutup chat */
+  .scroll-top.active {
+    bottom: 76px;
   }
 }
 
@@ -1005,7 +1095,8 @@ section,
 
 .featured-services p {
   margin: 0 auto;
-  max-width: 900px; /* batasi lebar paragraf */
+  max-width: 900px;
+  /* batasi lebar paragraf */
   padding: 0 10px;
 }
 
@@ -1023,11 +1114,27 @@ section,
   z-index: 1;
 }
 
+@media (max-width: 768px) {
+  .featured-services .service-item {
+    padding: 30px 20px;
+  }
+
+  .featured-services .service-item h4 {
+    font-size: 18px;
+  }
+
+  .featured-services .service-item p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+}
+
 .featured-services .service-item .icon {
   margin-bottom: 10px;
   width: 54px;
   height: 54px;
-  background-color: #0d6efd; /* Biru Bootstrap */
+  background-color: #0d6efd;
+  /* Biru Bootstrap */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1118,6 +1225,7 @@ section,
     font-size: 24px;
   }
 }
+
 /*--------------------------------------------------------------
 # Stats Section
 --------------------------------------------------------------*/
@@ -1131,7 +1239,8 @@ section,
 
 .stats p {
   margin: 0 auto;
-  max-width: 900px; /* batasi lebar paragraf */
+  max-width: 900px;
+  /* batasi lebar paragraf */
   padding: 0 10px;
 }
 
@@ -1142,6 +1251,24 @@ section,
   border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
   transition: transform 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .stats .stats-item {
+    padding: 20px;
+  }
+
+  .stats .stats-item span {
+    font-size: 36px;
+  }
+
+  .stats .stats-item .plus {
+    font-size: 36px;
+  }
+
+  .stats .stats-item p {
+    font-size: 13px;
+  }
 }
 
 .stats .stats-item span {
@@ -1248,6 +1375,38 @@ section,
   color: #1e2b3c;
 }
 
+@media (max-width: 768px) {
+  .title {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .faq-title {
+    font-size: 32px;
+    margin-bottom: 10px;
+  }
+
+  .faq-description {
+    font-size: 14px;
+    max-width: 100%;
+  }
+
+  .faq-box {
+    margin-right: 0;
+    padding: 24px;
+  }
+
+  .faq-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+
+  .faq-text {
+    font-size: 14px;
+  }
+}
+
 /* Deskripsi FAQ */
 .faq-description {
   font-size: 16px;
@@ -1283,7 +1442,8 @@ section,
 
 .faq-icon:hover,
 .faq-text:hover {
-  color: #007bff; /* biru */
+  color: #007bff;
+  /* biru */
 }
 
 /* Teks Pertanyaan */
@@ -1622,12 +1782,28 @@ section,
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .form-wrapper {
-    padding: 10px 15px;
+  .contact .form-wrapper {
+    padding: 20px 15px;
+    background: linear-gradient(180deg, #ff4a4a12 0%, rgba(255, 255, 255, 0) 60%);
   }
 
-  .form-box {
+  .contact .form-box {
     padding: 20px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 575px) {
+  .contact .form-wrapper {
+    padding: 15px 10px;
+  }
+
+  .contact .form-box {
+    padding: 15px;
+  }
+
+  .contact .php-email-form {
+    padding: 15px;
   }
 }
 
@@ -1639,7 +1815,8 @@ section,
 
 .contact p {
   margin: 0 auto;
-  max-width: 900px; /* batasi lebar paragraf */
+  max-width: 900px;
+  /* batasi lebar paragraf */
   padding: 0 10px;
 }
 
@@ -1763,20 +1940,14 @@ section,
   position: relative;
 }
 
-.portfolio-details
-  .portfolio-details-slider
-  .swiper-pagination
-  .swiper-pagination-bullet {
+.portfolio-details .portfolio-details-slider .swiper-pagination .swiper-pagination-bullet {
   width: 12px;
   height: 12px;
   background-color: color-mix(in srgb, var(--default-color), transparent 85%);
   opacity: 1;
 }
 
-.portfolio-details
-  .portfolio-details-slider
-  .swiper-pagination
-  .swiper-pagination-bullet-active {
+.portfolio-details .portfolio-details-slider .swiper-pagination .swiper-pagination-bullet-active {
   background-color: var(--accent-color);
 }
 
@@ -1791,8 +1962,7 @@ section,
   font-weight: 700;
   margin-bottom: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--default-color), transparent 85%);
+  border-bottom: 1px solid color-mix(in srgb, var(--default-color), transparent 85%);
 }
 
 .portfolio-details .portfolio-info ul {
@@ -1801,7 +1971,7 @@ section,
   font-size: 15px;
 }
 
-.portfolio-details .portfolio-info ul li + li {
+.portfolio-details .portfolio-info ul li+li {
   margin-top: 10px;
 }
 
@@ -1829,15 +1999,14 @@ section,
   box-shadow: 0px 2px 20px rgba(0, 0, 0, 0.1);
 }
 
-.service-details .service-box + .service-box {
+.service-details .service-box+.service-box {
   margin-top: 30px;
 }
 
 .service-details .service-box h4 {
   font-size: 20px;
   font-weight: 700;
-  border-bottom: 2px solid
-    color-mix(in srgb, var(--default-color), transparent 92%);
+  border-bottom: 2px solid color-mix(in srgb, var(--default-color), transparent 92%);
   padding-bottom: 15px;
   margin-bottom: 15px;
 }
@@ -1886,8 +2055,7 @@ section,
   align-items: center;
   padding: 10px 0;
   transition: 0.3s;
-  border-top: 1px solid
-    color-mix(in srgb, var(--default-color), transparent 90%);
+  border-top: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
 }
 
 .service-details .download-catalog a:first-child {
@@ -1971,7 +2139,7 @@ section,
   margin-bottom: 0;
 }
 
-.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+.custom-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
   color: var(--default-color);
 }
 
@@ -2029,7 +2197,8 @@ section,
   border: 1px solid #eee;
   overflow: hidden;
   transition: transform 0.3s ease;
-  background-color: #ffffff; /* Warna dasar putih */
+  background-color: #ffffff;
+  /* Warna dasar putih */
 }
 
 .modiva-card:hover {
@@ -2080,6 +2249,7 @@ section,
   flex: 1 1 300px;
   max-width: 400px;
 }
+
 /* Responsive fix spacing (optional) */
 @media (max-width: 575.98px) {
   .modiva-card img {
@@ -2427,3 +2597,1388 @@ section,
 /* .starter-section { */
 /* Add your styles here */
 /* } */
+
+/*--------------------------------------------------------------
+# Global Responsive Fixes — Tahap 3
+# Konsistensi layout di semua halaman landing (index, about, daftar)
+# Semua rule hanya aktif di breakpoint ≤768px / ≤575px
+# Tidak mengubah tampilan desktop sama sekali.
+--------------------------------------------------------------*/
+
+/* ── Tablet & Mobile (≤768px) ────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* [GLOBAL] Kurangi padding section agar konten tidak terlalu jauh */
+  section,
+  .section {
+    padding: 25px 0;
+  }
+
+  /* [ABOUT] Rata tengah di tablet sudah ada, tambah padding gambar */
+  .about .campaign {
+    padding-top: 10px;
+  }
+
+  .about .about-text {
+    text-align: left;
+    /* paksa teks tetap kiri di tablet */
+    padding: 0 5px;
+  }
+
+  /* [ABOUT] Kurangi jarak antar paragraf */
+  .about p {
+    margin: 10px 0 8px 0;
+    font-size: 15px;
+  }
+
+  /* [CONTACT/DAFTAR] Form wrapper padding lebih kecil */
+  .contact .form-wrapper {
+    padding: 0 15px;
+  }
+
+  /* [CONTACT/DAFTAR] Form box pakai lebar penuh */
+  .contact .form-box {
+    max-width: 100%;
+    width: 100%;
+    padding: 0;
+  }
+
+  /* [BREADCRUMB] Ukuran font lebih kecil di tablet */
+  .custom-breadcrumb {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+
+  /* [FOOTER] Logo footer lebih kecil */
+  .footer .footer-logo {
+    height: 75px;
+  }
+
+  /* [FOOTER] Teks footer lebih kecil */
+  .footer p {
+    font-size: 12px;
+  }
+
+  /* [SECTION TITLE] Heading h1 di dalam section lebih kecil */
+  .section-title h1,
+  .featured-services h1,
+  .stats h1,
+  .contact .section-title h1 {
+    font-size: 1.6rem;
+  }
+}
+
+/* ── Mobile Kecil (≤575px) ──────────────────────────────── */
+@media (max-width: 575px) {
+
+  /* [GLOBAL] Container jangan terlalu nempel tepi layar */
+  .container,
+  .container-fluid {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  /* [ABOUT] Teks rata kiri di mobile (override dari .about text-align:center) */
+  .about {
+    text-align: left;
+  }
+
+  /* [ABOUT] Ukuran heading h1 lebih kecil */
+  .about h1 {
+    font-size: 1.35rem;
+    text-align: left;
+  }
+
+  /* [ABOUT] Paragraf lebih kecil & mudah dibaca */
+  .about p {
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+  }
+
+  /* [ABOUT] Gambar campaign — tambah margin bawah */
+  .about .campaign {
+    margin-bottom: 12px;
+    padding-top: 8px;
+  }
+
+  /* [CONTACT/DAFTAR] Section title lebih compact */
+  .contact .section-title {
+    padding: 15px 0 10px 0;
+  }
+
+  .contact .section-title h1 {
+    font-size: 1.3rem;
+  }
+
+  .contact .section-title p {
+    font-size: 13px;
+  }
+
+  /* [CONTACT/DAFTAR] Tombol submit penuh lebar */
+  .contact .form-box .btn {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  /* [BREADCRUMB] Compact di layar kecil */
+  .custom-breadcrumb {
+    font-size: 12px;
+    padding: 5px 10px;
+    gap: 6px !important;
+  }
+
+  .custom-btn-kembali {
+    padding: 3px 10px;
+    font-size: 9px;
+  }
+
+  /* [FOOTER] Logo footer lebih kecil di mobile */
+  .footer .footer-logo {
+    height: 60px;
+  }
+
+  /* [FOOTER] Jarak antar blok logo */
+  .footer .footer-top .d-flex.flex-wrap {
+    gap: 16px !important;
+  }
+
+  /* [FOOTER] Copyright teks lebih kecil */
+  .footer .copyright p {
+    font-size: 12px;
+  }
+
+  /* [FAQ] Ukuran judul FAQ di mobile */
+  .faq-title {
+    font-size: 1.6rem;
+  }
+
+  .faq-description {
+    font-size: 13px;
+  }
+
+  /* [INDEX] Featured services card — pastikan stack vertikal */
+  .featured-services .service-item {
+    width: 100%;
+  }
+
+  /* [INDEX] Stats — pastikan angka tidak terlalu besar */
+  .stats .stats-item span {
+    font-size: 2.5rem;
+  }
+
+  .stats .stats-item p {
+    font-size: 13px;
+  }
+}
+
+/* MODIVA Public Navbar */
+.navmenu .nav-download-app {
+  color: #ffffff !important;
+  background: var(--accent-color);
+  border-radius: 999px;
+  padding: 10px 18px !important;
+  font-weight: 600;
+  box-shadow: 0 8px 18px rgba(255, 61, 61, 0.18);
+}
+
+.navmenu .nav-download-app:hover,
+.navmenu .nav-download-app:focus {
+  color: #ffffff !important;
+  background: var(--accent-hoverdarker);
+}
+
+/* Active navbar */
+.navmenu a.active {
+  color: var(--nav-hover-color) !important;
+  font-weight: 700;
+}
+
+.navmenu a.active::after {
+  width: 100%;
+}
+
+@media (max-width: 1199.9px) {
+  .navmenu .nav-download-app {
+    justify-content: flex-start;
+    margin: 8px 16px;
+    width: fit-content;
+  }
+}
+
+/* MODIVA Mobile App Page */
+.mobile-app-page.section {
+  padding: 36px 0 42px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fff5f3 100%);
+}
+
+.mobile-app-card {
+  background: #ffffff;
+  border-radius: 32px;
+  padding: 44px 48px 40px;
+  border: 1px solid rgba(255, 61, 61, 0.12);
+  box-shadow: 0 22px 55px rgba(31, 43, 60, 0.09);
+}
+
+.mobile-app-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 61, 61, 0.1);
+  color: var(--accent-color);
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: 14px;
+  margin-bottom: 18px;
+}
+
+.mobile-app-content h1 {
+  color: #1e2b3c !important;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.18;
+  margin-bottom: 18px;
+}
+
+.mobile-app-content p {
+  color: #6c6c6c;
+  font-size: 16px;
+  line-height: 1.8;
+  margin-bottom: 14px;
+  text-align: justify;
+}
+
+.mobile-app-download-text {
+  background: #fff7f5;
+  border-left: 5px solid var(--accent-color);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-top: 24px;
+  color: #1e2b3c !important;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.mobile-app-download-text a {
+  color: var(--accent-color);
+  font-weight: 800;
+  text-decoration: underline;
+}
+
+.mobile-app-download-text a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
+
+.mobile-app-visual {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mobile-phone-mockup {
+  width: 270px;
+  height: 550px;
+  border-radius: 40px;
+  background: #1e2b3c;
+  padding: 12px;
+  box-shadow: 0 30px 60px rgba(31, 43, 60, 0.22);
+  position: relative;
+  border: 4px solid #2d3748;
+}
+
+.mobile-phone-mockup::before {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.25);
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.mobile-phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: 28px;
+  background: #fbfbfb;
+  padding: 24px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* Mockup Screen Details */
+.mockup-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #8892b0;
+  margin-bottom: 2px;
+  padding: 0 4px;
+}
+
+.mockup-status-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mockup-app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.mockup-app-logo {
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--accent-color);
+  letter-spacing: -0.5px;
+}
+
+.mockup-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffe3df;
+  border: 1.5px solid var(--accent-color);
+  position: relative;
+}
+
+.mockup-user-avatar::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffe3df;
+  border-radius: 50%;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mockup-welcome-card {
+  background: linear-gradient(135deg, var(--accent-color) 0%, #ff6b6b 100%);
+  border-radius: 16px;
+  padding: 14px;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(255, 61, 61, 0.2);
+}
+
+.mockup-welcome-card h4 {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #ffffff !important;
+}
+
+.mockup-welcome-card p {
+  font-size: 10px;
+  margin-bottom: 0;
+  opacity: 0.9;
+  color: #ffffff !important;
+  line-height: 1.4;
+}
+
+.mockup-tracker-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid rgba(255, 61, 61, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.mockup-tracker-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e2b3c;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mockup-tracker-badge {
+  font-size: 9px;
+  background: #e6fffa;
+  color: #047481;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+}
+
+.mockup-progress-bar-container {
+  height: 6px;
+  background: #edf2f7;
+  border-radius: 99px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.mockup-progress-bar-fill {
+  width: 75%;
+  height: 100%;
+  background: var(--accent-color);
+  border-radius: 99px;
+}
+
+.mockup-progress-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: #718096;
+}
+
+.mockup-edu-card {
+  background: #fff8f7;
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(255, 61, 61, 0.2);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.mockup-edu-icon {
+  color: var(--accent-color);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.mockup-edu-text {
+  font-size: 9.5px;
+  line-height: 1.4;
+  color: #4a5568;
+}
+
+.mockup-action-btn {
+  background: #2fb95d;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(47, 185, 93, 0.2);
+  transition: 0.2s;
+  margin-top: auto;
+}
+
+.mockup-action-btn i {
+  font-size: 13px;
+}
+
+/* Feature Cards */
+.mobile-feature-card {
+  height: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(255, 61, 61, 0.12);
+  border-radius: 24px;
+  padding: 36px 30px;
+  box-shadow: 0 10px 30px rgba(31, 43, 60, 0.04);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.mobile-feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 35px rgba(255, 61, 61, 0.08);
+  border-color: rgba(255, 61, 61, 0.25);
+}
+
+.feature-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #fff5f3;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 22px;
+  transition: all 0.3s ease;
+}
+
+.mobile-feature-card:hover .feature-icon-wrapper {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.mobile-feature-card h3 {
+  color: #1e2b3c !important;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.mobile-feature-card p {
+  color: #737373;
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 991.9px) {
+  .mobile-app-card {
+    padding: 40px 30px;
+  }
+
+  .mobile-app-content {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .mobile-app-download-text {
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-app-page {
+    padding: 56px 0;
+  }
+
+  .mobile-app-card {
+    padding: 34px 20px;
+    border-radius: 24px;
+  }
+
+  .mobile-app-content h1 {
+    font-size: 30px;
+  }
+
+  .mobile-phone-mockup {
+    width: 250px;
+    height: 510px;
+  }
+
+  .mobile-phone-screen {
+    padding: 20px 12px 12px;
+    gap: 10px;
+  }
+}
+
+/*--------------------------------------------------------------
+# Visitor Stats Section
+--------------------------------------------------------------*/
+#visitor-stats.visitor-stats-section {
+  position: relative;
+  overflow: hidden;
+  padding: 54px 0 58px;
+  background: linear-gradient(180deg, #ffffff 0%, #fff8f7 100%);
+}
+
+/* Dekorasi lingkaran merah soft agar section tidak terlalu monoton */
+#visitor-stats.visitor-stats-section::before {
+  content: "";
+  position: absolute;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: rgba(255, 61, 61, 0.07);
+  top: -180px;
+  right: -110px;
+  z-index: 0;
+}
+
+#visitor-stats.visitor-stats-section::after {
+  content: "";
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background: rgba(255, 61, 61, 0.045);
+  bottom: -110px;
+  left: -80px;
+  z-index: 0;
+}
+
+#visitor-stats .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header statistik */
+#visitor-stats .visitor-stats-header {
+  max-width: 760px;
+  margin: 0 auto 14px;
+  position: relative;
+}
+
+#visitor-stats .visitor-stats-header::before {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--accent-color);
+  margin: 0 auto 14px;
+}
+
+#visitor-stats .visitor-stats-header h1 {
+  color: #1e2b3c !important;
+  font-family: var(--heading-font);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 10px;
+}
+
+#visitor-stats .visitor-stats-header p {
+  color: #6c6c6c;
+  font-family: var(--default-font);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* Wrapper card */
+#visitor-stats .visitor-stats-wrapper {
+  margin-top: 0;
+}
+
+/* Card statistik */
+#visitor-stats .visitor-stat-card {
+  background: #ffffff;
+  border: 1px solid rgba(255, 61, 61, 0.14);
+  border-radius: 20px;
+  padding: 24px;
+  min-height: 128px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 12px 28px rgba(31, 43, 60, 0.045);
+  transition: all 0.3s ease;
+}
+
+#visitor-stats .visitor-stat-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 61, 61, 0.28);
+  box-shadow: 0 16px 34px rgba(255, 61, 61, 0.09);
+}
+
+#visitor-stats .visitor-stat-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: #fff1ef;
+  color: var(--accent-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+#visitor-stats .visitor-stat-card:hover .visitor-stat-icon {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+#visitor-stats .visitor-stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+#visitor-stats .visitor-stat-content .stat-number {
+  color: #1e2b3c !important;
+  font-family: var(--heading-font);
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+#visitor-stats .visitor-stat-content .stat-label {
+  color: #737373;
+  font-family: var(--default-font);
+  font-size: 14px;
+  font-weight: 500;
+  margin: 5px 0 0;
+}
+
+/* Responsive Visitor Stats */
+@media (max-width: 991.9px) {
+  #visitor-stats.visitor-stats-section {
+    padding: 48px 0 52px;
+  }
+
+  #visitor-stats .visitor-stats-header {
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  #visitor-stats.visitor-stats-section {
+    padding: 42px 0 44px;
+  }
+
+  #visitor-stats .visitor-stats-header h1 {
+    font-size: 26px;
+  }
+
+  #visitor-stats .visitor-stats-header p {
+    font-size: 14px;
+  }
+
+  #visitor-stats .visitor-stat-card {
+    padding: 20px;
+    min-height: auto;
+  }
+
+  #visitor-stats .visitor-stat-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+  }
+
+  #visitor-stats .visitor-stat-content .stat-number {
+    font-size: 23px;
+  }
+}
+
+/*--------------------------------------------------------------
+# MODIVA FAQ Popup Enhancement
+--------------------------------------------------------------*/
+.faq-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 61, 61, 0.1);
+  color: var(--accent-color);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.faq-item {
+  position: relative;
+  padding: 6px 4px;
+  border-radius: 14px;
+  transition: all 0.25s ease;
+}
+
+.faq-item:hover {
+  background: #fff7f5;
+  transform: translateX(4px);
+}
+
+.faq-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #e6f0ff;
+  color: #005bbb;
+  font-weight: 800;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.faq-text {
+  border: none;
+  background: transparent;
+  padding: 4px 0 0;
+  font-size: 16px;
+  color: #1e2b3c;
+  font-weight: 700;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.faq-item:hover .faq-icon,
+.faq-icon:hover,
+.faq-icon:focus {
+  background: var(--accent-color);
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(255, 61, 61, 0.22);
+}
+
+.faq-item:hover .faq-text,
+.faq-text:hover,
+.faq-text:focus {
+  color: var(--accent-color);
+}
+
+.faq-icon:focus,
+.faq-text:focus,
+.modiva-faq-close:focus,
+.modiva-faq-button:focus {
+  outline: 3px solid rgba(255, 61, 61, 0.18);
+  outline-offset: 3px;
+}
+
+/* Bootstrap modal backdrop */
+.modiva-faq-modal.modal {
+  backdrop-filter: blur(3px);
+}
+
+.modiva-faq-modal .modal-dialog {
+  max-width: 560px;
+}
+
+.modiva-faq-modal-content {
+  border: 0;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(31, 43, 60, 0.25);
+  background: #ffffff;
+}
+
+.modiva-faq-modal-header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 28px 30px 22px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 61, 61, 0.16), transparent 35%),
+    linear-gradient(180deg, #fff7f5 0%, #ffffff 100%);
+  border-bottom: 1px solid rgba(255, 61, 61, 0.12);
+}
+
+.modiva-faq-modal-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background: var(--accent-color);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+  box-shadow: 0 14px 28px rgba(255, 61, 61, 0.26);
+}
+
+.modiva-faq-modal-title-wrap {
+  flex: 1;
+  padding-right: 34px;
+}
+
+.modiva-faq-modal-title-wrap span {
+  display: inline-block;
+  color: var(--accent-color);
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.modiva-faq-modal-title-wrap h5 {
+  color: #1e2b3c !important;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.modiva-faq-close {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #737373;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 8px 18px rgba(31, 43, 60, 0.08);
+}
+
+.modiva-faq-close:hover {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.modiva-faq-modal-body {
+  color: #4b5563;
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 26px 30px 8px;
+  text-align: justify;
+}
+
+.modiva-faq-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px 30px 28px;
+}
+
+.modiva-faq-button {
+  border: none;
+  border-radius: 999px;
+  background: var(--accent-color);
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 10px 22px rgba(255, 61, 61, 0.22);
+}
+
+.modiva-faq-button:hover {
+  background: var(--accent-hoverdarker);
+  transform: translateY(-2px);
+}
+
+/*--------------------------------------------------------------
+# FAQ Layout Alignment Refinement
+--------------------------------------------------------------*/
+#faq .title {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+#faq .faq-badge,
+#faq .faq-title,
+#faq .faq-description {
+  margin-left: 0;
+}
+
+#faq .faq-badge {
+  margin-bottom: 18px;
+}
+
+#faq .faq-title {
+  color: #1e2b3c !important;
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 18px 0;
+}
+
+#faq .faq-description {
+  max-width: 520px;
+  color: #6c6c6c;
+  font-family: var(--default-font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.7;
+  margin: 0;
+}
+
+#faq .row {
+  justify-content: center;
+}
+
+#faq .col-lg-6.title {
+  padding-left: 12px;
+  padding-right: 40px;
+}
+
+#faq .faq-box {
+  margin-right: 0 !important;
+}
+
+@media (max-width: 991.9px) {
+  #faq .col-lg-6.title {
+    padding-right: 12px;
+  }
+
+  #faq .faq-description {
+    max-width: 100%;
+  }
+}
+
+/*--------------------------------------------------------------
+# FAQ Mobile Final Refinement
+--------------------------------------------------------------*/
+@media (max-width: 575px) {
+  #faq.faq-section {
+    padding-top: 34px !important;
+    padding-bottom: 38px !important;
+  }
+
+  #faq .container {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
+  #faq .row {
+    row-gap: 8px !important;
+  }
+
+  /* Samakan area teks kiri dengan card FAQ */
+  #faq .title,
+  #faq .col-lg-6.title {
+    width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    margin-bottom: 0 !important;
+  }
+
+  #faq .faq-badge {
+    display: inline-flex !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    margin-bottom: 14px !important;
+    padding: 8px 17px !important;
+    font-size: 12.5px !important;
+    line-height: 1.2;
+    transform: none !important;
+  }
+
+  #faq .faq-title {
+    color: #1e2b3c !important;
+    font-size: clamp(36px, 10.5vw, 42px) !important;
+    font-weight: 800 !important;
+    line-height: 1.08 !important;
+    margin: 0 0 14px 0 !important;
+  }
+
+  #faq .faq-description {
+    color: #6c6c6c !important;
+    max-width: 100% !important;
+    font-family: var(--default-font);
+    font-size: 14px !important;
+    font-weight: 400;
+    line-height: 1.7 !important;
+    margin: 0 !important;
+  }
+
+  /* Card didekatkan ke deskripsi dan dibuat sejajar dengan teks kiri */
+  #faq .col-lg-6:not(.title) {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  #faq .faq-box {
+    margin-top: 2px !important;
+    margin-right: 0 !important;
+    padding: 26px 20px !important;
+    border-radius: 22px !important;
+  }
+
+  #faq .faq-item {
+    padding: 7px 0 !important;
+    margin-bottom: 18px !important;
+    gap: 12px;
+  }
+
+  #faq .faq-item:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  #faq .faq-icon {
+    width: 32px !important;
+    height: 32px !important;
+    min-width: 32px !important;
+    margin-right: 0 !important;
+    font-size: 14px !important;
+  }
+
+  #faq .faq-text {
+    font-size: 14.5px !important;
+    line-height: 1.55 !important;
+    padding-top: 4px !important;
+  }
+
+  .modiva-faq-modal .modal-dialog {
+    margin: 16px;
+  }
+
+  .modiva-faq-modal-header {
+    padding: 24px 22px 18px;
+  }
+
+  .modiva-faq-modal-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    font-size: 22px;
+  }
+
+  .modiva-faq-modal-title-wrap h5 {
+    font-size: 18px;
+  }
+
+  .modiva-faq-modal-body {
+    padding: 22px 22px 8px;
+    font-size: 15px;
+  }
+
+  .modiva-faq-modal-footer {
+    padding: 16px 22px 24px;
+  }
+
+  /* Responsive overrides for landing page */
+  @media (max-width: 575px) {
+    body {
+      overflow-x: hidden;
+    }
+
+    .header .logo img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .navmenu {
+      flex-direction: column;
+    }
+
+    .navmenu ul {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #hero {
+      padding: 40px 0;
+    }
+
+    #hero .hero-img {
+      order: 2;
+      text-align: center;
+    }
+
+    #hero .hero-img img {
+      max-width: 100%;
+      height: auto;
+    }
+
+    #hero .col-lg-6.order-1 {
+      order: 1;
+    }
+
+    .service-item {
+      margin-bottom: 1rem;
+    }
+
+    .col-lg-3.d-flex,
+    .col-lg-3.col-md-6 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    .stats .col-lg-3,
+    .visitor-stats-wrapper .col-lg-3 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    #faq .row {
+      flex-direction: column;
+    }
+
+    #faq .faq-item {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    #faq .faq-icon {
+      margin-bottom: 8px;
+    }
+
+    #contact .form-wrapper,
+    #contact .form-box {
+      width: 100%;
+    }
+
+    #contact .form-box .mb-3,
+    #contact .form-box .mb-4 {
+      width: 100%;
+    }
+
+    .footer .row {
+      flex-direction: column;
+    }
+
+    .footer .col-lg-8,
+    .footer .col-lg-2 {
+      max-width: 100%;
+    }
+
+    #openChat {
+      right: 10px;
+      bottom: 10px;
+    }
+
+    .scroll-top {
+      right: 10px;
+      bottom: 70px;
+    }
+  }
+
+  /* Tablet */
+  @media (min-width: 576px) and (max-width: 991px) {
+    body {
+      overflow-x: hidden;
+    }
+
+    #hero {
+      padding: 60px 0;
+    }
+
+    .col-lg-3.d-flex,
+    .col-lg-3.col-md-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+
+    .stats .col-lg-3,
+    .visitor-stats-wrapper .col-lg-3 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+
+    #faq .faq-item {
+      align-items: flex-start;
+    }
+
+    .footer .col-lg-8,
+    .footer .col-lg-2 {
+      max-width: 50%;
+    }
+  }
+
+  /* Ensure images never exceed container */
+  img,
+  .hero-img img,
+  .service-item img,
+  .stats-item img,
+  .visitor-stat-icon i {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Hero specific tweaks */
+  #hero .welcome {
+    position: relative;
+    z-index: 2;
+    margin-top: 0;
+    padding-top: 1rem;
+  }
+
+  #hero .hero-img {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 575px) {
+    #hero .d-flex.align-items-center.justify-content-start.flex-wrap {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .gabunganlogo {
+      margin-bottom: 1rem;
+      max-width: 80%;
+      height: auto;
+    }
+
+    .totaljoin,
+    .join {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    /* Additional hero adjustments for mobile */
+    #hero .hero-img,
+    #hero .col-lg-6.order-2 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    #hero .col-lg-6.order-1 {
+      text-align: center;
+    }
+
+  }
+
+  /* FAQ alignment */
+  #faq .faq-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  #faq .faq-icon {
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+  }
+
+  #faq .faq-text {
+    flex: 1;
+    text-align: left;
+  }
+
+  /* Floating buttons */
+  #openChat {
+    width: 50px;
+    height: 50px;
+    right: 10px;
+    bottom: 20px;
+  }
+
+  .scroll-top {
+    width: 44px;
+    height: 44px;
+    right: 10px;
+    bottom: 80px;
+  }
+
+  @media (max-width: 575px) {
+    #openChat {
+      right: 10px;
+      bottom: 20px;
+    }
+
+    .scroll-top {
+      right: 10px;
+      bottom: 80px;
+    }
+  }
+
+  /* Ensure no horizontal overflow */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+.scroll-top {
+  bottom: 24px !important;
+}
+
+#openChat,
+.chatbot-toggle,
+.chatbot-button {
+  bottom: 24px !important;
+}

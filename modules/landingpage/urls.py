@@ -19,6 +19,7 @@ urlpatterns = [
    #path('daftar/', views.pendaftaran_view, name='contact_form'),
     #path('admin/', admin.site.urls),
    path('pendaftaran-sukses/', views.pendaftaran_sukses, name='pendaftaran_sukses'),
+   path('mobile-app/', views.mobile_app, name='mobile_app'),
 
    path("chat-api", views.chat_api, name="chat_api"),
 

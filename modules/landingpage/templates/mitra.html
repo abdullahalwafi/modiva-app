@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% load static %}
+
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -15,7 +16,9 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap"
+    rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
@@ -32,37 +35,10 @@
 
 <body class="index-page">
 
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center">
-
-      <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
-        <img src="{% static 'assets/img/logo2.png' %}" alt="">
-        <!-- <h1 class="sitename">MODIVA</h1> -->
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="{% url 'uman:homepage' %}">Home</a></li>
-          <li><a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
-          <li><a href="{% url 'landingpage:daftar' %}">Daftar</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>  
-<a class="btn-getstarted d-flex align-items-center gap-2" 
-   href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
-    <i class="bi bi-person-fill me-2"></i>
-    {% if user.is_authenticated %}
-        {{ user.first_name|default:user.username }}
-    {% else %}
-        Login
-    {% endif %}
-</a>
-    </div>
-  </header>
+  {% include 'landingpage/includes/public_navbar.html' %}
 
   <main class="main">
-    
+
     <!-- Breadcrumb Hijau dan Tombol Kembali -->
     <div class="container mt-2">
       <div class="custom-breadcrumb d-flex align-items-center gap-2">
@@ -70,71 +46,72 @@
         <a href="{% url 'uman:homepage' %}" class="btn custom-btn-kembali d-flex align-items-center text-white">
           <i class="bi bi-arrow-left"></i>
         </a>
-    
+
         <!-- Ikon rumah dan slash -->
         <span class="d-flex align-items-center text-dark">
           <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-              <li class="breadcrumb-item text-decoration-none"><a href="{% url 'uman:homepage' %}" class="text-dark bi bi-house-door-fill"></a></li>
+              <li class="breadcrumb-item text-decoration-none"><a href="{% url 'uman:homepage' %}"
+                  class="text-dark bi bi-house-door-fill"></a></li>
               <li class="breadcrumb-item active text-dark" aria-current="page">Mitra</li>
             </ol>
           </nav>
-        </div>
+      </div>
     </div>
-        
+
     <!-- modiva-card Section -->
     <section id="modiva-card" class="modiva-card-section section">
-        <div class="container text-center">
-      
-          <!-- Puskesmas -->
-          <h1 class="fw-bold text-start text-dark fs-3 mb-4">Puskesmas</h1>
-           
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-4">
-            {% for data in puskesmas2 %}
-            <div class="col">
-              <a href="{% url 'landingpage:profilpuskesmas' data.id %}" class="text-decoration-none text-reset">
-                <div class="card modiva-card h-100 shadow-sm">
-                  <img src=" {{ data.gambar.url }}" class="card-img-top" alt="{{ data.nama }}">
-                  <div class="card-body text-center">
-                    <h6 class="card-title fw-bold mb-1">{{ data.nama }}</h6>
-                    <p class="card-text small mb-0">{{ data.kelurahan.nama }}</p>
-                    
-                  </div>
+      <div class="container text-center">
+
+        <!-- Puskesmas -->
+        <h1 class="fw-bold text-start text-dark fs-3 mb-4">Puskesmas</h1>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-4">
+          {% for data in puskesmas2 %}
+          <div class="col">
+            <a href="{% url 'landingpage:profilpuskesmas' data.id %}" class="text-decoration-none text-reset">
+              <div class="card modiva-card h-100 shadow-sm">
+                <img src=" {{ data.gambar.url }}" class="card-img-top" alt="{{ data.nama }}">
+                <div class="card-body text-center">
+                  <h6 class="card-title fw-bold mb-1">{{ data.nama }}</h6>
+                  <p class="card-text small mb-0">{{ data.kelurahan.nama }}</p>
+
                 </div>
-              </a>
-            </div>
-            {% endfor %} 
-
+              </div>
+            </a>
           </div>
+          {% endfor %}
 
-          <div class="text-start mb-5">
-            <a href="{% url 'landingpage:puskesmas' %}" class="btn-get-started mt-2">Lihat Lainnya</a>
-          </div>
-
-          <!-- Sekolah -->
-          <h1 class="fw-bold text-start text-dark fs-3 mb-4">Sekolah</h1>
-          <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-4">
-            {% for data2 in sekolah2 %}
-            <div class="col">
-              <a href="{% url 'landingpage:profilsekolah' data2.id %}" class="text-decoration-none text-reset">
-                <div class="card modiva-card h-100 shadow-sm">
-                  <img src=" {{ data2.gambar.url }} " class="card-img-top" alt="{{ data2.nama }}">
-                  <div class="card-body text-center">
-                    <h6 class="card-title fw-bold mb-1">{{ data2.nama }}</h6>
-                    <p class="card-text small mb-0">{{ data2.kelurahan.nama }}</p>
-                  </div>
-                </div>
-              </a>
-            </div>
-            {% endfor %} 
-
-          </div>
-
-          <div class="text-start">
-            <a href="{% url 'landingpage:sekolah' %}" class="btn-get-started mt-2">Lihat Lainnya</a>
-          </div>
-      
         </div>
+
+        <div class="text-start mb-5">
+          <a href="{% url 'landingpage:puskesmas' %}" class="btn-get-started mt-2">Lihat Lainnya</a>
+        </div>
+
+        <!-- Sekolah -->
+        <h1 class="fw-bold text-start text-dark fs-3 mb-4">Sekolah</h1>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4 mb-4">
+          {% for data2 in sekolah2 %}
+          <div class="col">
+            <a href="{% url 'landingpage:profilsekolah' data2.id %}" class="text-decoration-none text-reset">
+              <div class="card modiva-card h-100 shadow-sm">
+                <img src=" {{ data2.gambar.url }} " class="card-img-top" alt="{{ data2.nama }}">
+                <div class="card-body text-center">
+                  <h6 class="card-title fw-bold mb-1">{{ data2.nama }}</h6>
+                  <p class="card-text small mb-0">{{ data2.kelurahan.nama }}</p>
+                </div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+
+        </div>
+
+        <div class="text-start">
+          <a href="{% url 'landingpage:sekolah' %}" class="btn-get-started mt-2">Lihat Lainnya</a>
+        </div>
+
+      </div>
     </section>
     <!-- /modiva-card Section -->
 
@@ -156,7 +133,7 @@
                 Jawa Barat
               </p>
             </div>
-          
+
             <!-- Kolom 2: Logo DAI + Alamat -->
             <div class="d-flex flex-column align-items-start">
               <img src="{% static 'assets/img/Logo DAI.png' %}" alt="Logo DAI" class="footer-logo">
@@ -196,13 +173,15 @@
     </div>
 
     <div class="container copyright text-center">
-      <p>© <span>Copyright</span> <strong class="px-1 sitename">MODIVA</strong> <span>Layanan situs ini didukung oleh Sekolah Tinggi Teknologi Terpadu Nurul Fikri</span></p>
+      <p>© <span>Copyright</span> <strong class="px-1 sitename">MODIVA</strong> <span>Layanan situs ini didukung oleh
+          Sekolah Tinggi Teknologi Terpadu Nurul Fikri</span></p>
     </div>
 
   </footer>
 
   <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
+      class="bi bi-arrow-up-short"></i></a>
 
   <!-- Preloader -->
   <div id="preloader"></div>

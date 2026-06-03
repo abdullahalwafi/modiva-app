@@ -1,0 +1,77 @@
+{% load static %}
+
+{% with current_app=request.resolver_match.app_name current_url=request.resolver_match.url_name %}
+
+<header id="header" class="header d-flex align-items-center sticky-top">
+    <div class="container-fluid container-xl position-relative d-flex align-items-center">
+
+        <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
+            <img src="{% static 'assets/img/logo2.png' %}" alt="Logo MODIVA">
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+            <ul>
+                <li>
+                    <a href="{% url 'uman:homepage' %}"
+                        class="{% if current_app == 'uman' and current_url == 'homepage' %}active{% endif %}">
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'landingpage:about' %}" class="{% if current_url == 'about' %}active{% endif %}">
+                        Tentang Kami
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'peta:peta-index' %}" class="{% if current_app == 'peta' %}active{% endif %}">
+                        Peta
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'landingpage:mitra' %}"
+                        class="{% if current_url == 'mitra' or current_url == 'puskesmas' or current_url == 'sekolah' or current_url == 'profilpuskesmas' or current_url == 'profilsekolah' %}active{% endif %}">
+                        Mitra
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'landingpage:daftar' %}"
+                        class="{% if current_url == 'daftar' or current_url == 'pendaftaran_sukses' %}active{% endif %}">
+                        Daftar
+                    </a>
+                </li>
+
+                <!-- 
+          Jika APK Mobile MODIVA sudah siap:
+          simpan file APK di static/assets/apk/modiva-mobile.apk
+          lalu ganti href="#" menjadi:
+          href="{% static 'assets/apk/modiva-mobile.apk' %}" download
+        -->
+                <li>
+                    <a href="{% url 'landingpage:mobile_app' %}"
+                        class="{% if current_url == 'mobile_app' %}active{% endif %}">
+                        Mobile App
+                    </a>
+                </li>
+            </ul>
+
+            <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="btn-getstarted d-flex align-items-center gap-2"
+            href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
+            <i class="bi bi-person-fill me-2"></i>
+            {% if user.is_authenticated %}
+            {{ user.first_name|default:user.username }}
+            {% else %}
+            Login
+            {% endif %}
+        </a>
+
+    </div>
+</header>
+
+{% endwith %}

@@ -358,11 +358,11 @@ def homepage(request):
             return redirect("landingpage:pendaftaran_sukses")
     else:
         form = ContactMessageForm()
-    return render(request, "index.html", {"form": form})
+    return render(request, "index.html", {"form": form, "current_url": "home"})
 
 
 def about_us(request):
-    return render(request, "aboutUs.html")
+    return render(request, "aboutUs.html", {"current_url": "about"})
 
 
 def login(request):
@@ -385,15 +385,15 @@ def mitra(request):
         puskesmas2 = None
         sekolah2 = None
         print(f"Error occurred: {e}")
-    return render(request, "mitra.html", {"puskesmas2": puskesmas2, "sekolah2": sekolah2})
+    return render(request, "mitra.html", {"puskesmas2": puskesmas2, "sekolah2": sekolah2, "current_url": "mitra"})
 
 
 def sk(request):
-    return render(request, "sk.html")
+    return render(request, "sk.html", {"current_url": "sk"})
 
 
 def privasi(request):
-    return render(request, "privasi.html")
+    return render(request, "privasi.html", {"current_url": "privasi"})
 
 
 def puskesmas(request):
@@ -402,7 +402,7 @@ def puskesmas(request):
     except Exception as e:
         puskesmas_list = None
         print(f"Error occurred: {e}")
-    return render(request, "puskesmas.html", {"puskesmas": puskesmas_list})
+    return render(request, "puskesmas.html", {"puskesmas": puskesmas_list, "current_url": "puskesmas"})
 
 
 def sekolah(request):
@@ -411,17 +411,17 @@ def sekolah(request):
     except Exception as e:
         sekolah_list = None
         print(f"Error occurred: {e}")
-    return render(request, "sekolah.html", {"sekolah": sekolah_list})
+    return render(request, "sekolah.html", {"sekolah": sekolah_list, "current_url": "sekolah"})
 
 
 def profilpuskesmas(request, pk):
     puskesmas_obj = get_object_or_404(Puskesmas, id=pk)
-    return render(request, "profil-puskesmas.html", {"puskesmas": puskesmas_obj})
+    return render(request, "profil-puskesmas.html", {"puskesmas": puskesmas_obj, "current_url": "puskesmas"})
 
 
 def profilsekolah(request, pk):
     sekolah_obj = get_object_or_404(Sekolah, id=pk)
-    return render(request, "profil-sekolah.html", {"sekolah": sekolah_obj})
+    return render(request, "profil-sekolah.html", {"sekolah": sekolah_obj, "current_url": "sekolah"})
 
 
 def coba(request):
@@ -436,11 +436,15 @@ def daftar(request):
             return redirect("landingpage:pendaftaran_sukses")
     else:
         form = ContactMessageForm()
-    return render(request, "daftar.html", {"form": form})
+    return render(request, "daftar.html", {"form": form, "current_url": "daftar"})
 
 
 def pendaftaran_sukses(request):
-    return render(request, "pendaftaran_sukses.html")
+    return render(request, "pendaftaran_sukses.html", {"current_url": "daftar"})
+
+
+def mobile_app(request):
+    return render(request, "mobile_app.html", {"current_url": "mobile_app"})
 
 
 # =========================

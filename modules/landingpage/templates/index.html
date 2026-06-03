@@ -36,37 +36,7 @@
 
 <body class="index-page">
 
-  <header id="header" class="header d-flex align-items-center sticky-top">
-    <div class="container-fluid container-xl position-relative d-flex align-items-center">
-
-      <a href="{% url 'uman:homepage' %}" class="logo d-flex align-items-center me-auto">
-        <!-- Uncomment the line below if you also wish to use an image logo -->
-        <img src="{% static 'assets/img/logo2.png' %}" alt="">
-        <!-- <h1 class="sitename">MODIVA</h1> -->
-      </a>
-
-      <nav id="navmenu" class="navmenu">
-        <ul>
-          <li><a href="{% url 'uman:homepage' %}" class="active">Home</a></li>
-          <li><a href="{% url 'landingpage:about' %}">Tentang Kami</a></li>
-          <li><a href="{% url 'landingpage:daftar' %}">Daftar</a></li>
-        </ul>
-        <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-      </nav>
-
-      <a class="btn-getstarted d-flex align-items-center gap-2"
-        href="{% if user.is_authenticated %}{% url 'vitamin:dashboard-list' %}{% else %}{% url 'uman:login' %}{% endif %}">
-        <i class="bi bi-person-fill me-2"></i>
-        {% if user.is_authenticated %}
-        {{ user.first_name|default:user.username }}<br>
-        {{ user.last_name|default:user.username }}
-        {% else %}
-        Login
-        {% endif %}
-      </a>
-    </div>
-  </header>
-
+  {% include 'landingpage/includes/public_navbar.html' %}
   <main class="main">
 
     <!-- Tombol Buka Chat -->
@@ -132,10 +102,10 @@
 
       <div class="container">
         <div class="row gy-4">
-          <div class="col-lg-6 order-1 order-lg-1 hero-img" data-aos="zoom-out" data-aos-delay="100">
+          <div class="col-lg-6 order-2 order-lg-1 hero-img" data-aos="zoom-out" data-aos-delay="100">
             <img src="{% static 'assets/img/hero-img4.png' %}" class="img-fluid animated" alt="">
           </div>
-          <div class="col-lg-6 order-2 order-lg-2 d-flex flex-column justify-content-center" style="margin-top: 0px;"
+          <div class="col-lg-6 order-1 order-lg-2 d-flex flex-column justify-content-center" style="margin-top: 0px;"
             data-aos="fade-up">
             <h1 class="welcome">Selamat Datang!</h1>
             <h2>di Sistem Monitoring Distribusi Vitamin
@@ -199,7 +169,7 @@
           <div class="col-lg-3 d-flex" data-aos="fade-up" data-aos-delay="300">
             <div class="service-item position-relative">
               <div class="icon"><i class="bi-check2-circle"></i></div>
-              <h4><a href="" class="stretched-link text-dark">Verivikasi Distribusi</a></h4>
+              <h4><a href="" class="stretched-link text-dark">Verifikasi Distribusi</a></h4>
               <p class="px-0 mx-0">Sekolah memastikan distribusi sudah selesai dan mengunggah laporan ke sistem.</p>
             </div>
           </div><!-- End Service Item -->
@@ -289,16 +259,85 @@
 
     </section><!-- /Stats Section -->
 
+    <!-- Visitor Stats Section -->
+    <section id="visitor-stats" class="visitor-stats-section" data-aos="fade-up">
+      <div class="container">
+
+        <div class="visitor-stats-header text-center">
+          <h1>Statistik Pengunjung</h1>
+          <p>
+            Informasi aktivitas kunjungan dan pemanfaatan sistem MODIVA
+          </p>
+        </div>
+
+        <div class="row g-4 visitor-stats-wrapper">
+          <!-- Card 1: Hari Ini -->
+          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="visitor-stat-card">
+              <div class="visitor-stat-icon">
+                <i class="bi bi-eye"></i>
+              </div>
+              <div class="visitor-stat-content">
+                <h3 class="stat-number">128</h3>
+                <p class="stat-label">Hari Ini</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Bulan Ini -->
+          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="visitor-stat-card">
+              <div class="visitor-stat-icon">
+                <i class="bi bi-calendar2-event"></i>
+              </div>
+              <div class="visitor-stat-content">
+                <h3 class="stat-number">2.430</h3>
+                <p class="stat-label">Bulan Ini</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Tahun Ini -->
+          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="visitor-stat-card">
+              <div class="visitor-stat-icon">
+                <i class="bi bi-calendar3"></i>
+              </div>
+              <div class="visitor-stat-content">
+                <h3 class="stat-number">18.720</h3>
+                <p class="stat-label">Tahun Ini</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Total Pengunjung -->
+          <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+            <div class="visitor-stat-card">
+              <div class="visitor-stat-icon">
+                <i class="bi bi-people"></i>
+              </div>
+              <div class="visitor-stat-content">
+                <h3 class="stat-number">24.856</h3>
+                <p class="stat-label">Total Pengunjung</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <!-- /Visitor Stats Section -->
+
     <!-- FAQ Section -->
     <section id="faq" class="faq-section py-5">
       <div class="container">
         <div class="row gy-4 align-items-center">
           <!-- Kiri: Judul + Deskripsi -->
           <div class="col-lg-6 title">
+            <span class="faq-badge">Pusat Bantuan</span>
             <h2 class="faq-title">FAQ?</h2>
             <p class="faq-description">
-              Daftar pertanyaan yang sering diajukan oleh pengguna mengenai sistem monitoring distribusi vitamin
-              penambah darah.
+              Daftar pertanyaan yang sering diajukan oleh pengguna mengenai sistem MODIVA.
             </p>
           </div>
 
@@ -306,34 +345,93 @@
           <div class="col-lg-6">
             <div class="faq-box shadow">
               <ul class="faq-list list-unstyled m-0">
-                <li class="d-flex align-items-start mb-4">
-                  <a href="#" class="faq-icon text-decoration-none">?</a>
-                  <a href="#" class="faq-text text-decoration-none ms-2">Siapa saja yang dapat menggunakan sistem
-                    ini?</a>
+
+                <li class="faq-item d-flex align-items-start mb-4"
+                  data-question="Siapa saja yang dapat menggunakan sistem ini?"
+                  data-answer="Sistem MODIVA dapat digunakan oleh pihak yang terlibat dalam monitoring distribusi vitamin penambah darah, seperti puskesmas, sekolah, dan pihak terkait yang memiliki peran dalam proses pendataan, penyaluran, pemantauan, serta pelaporan distribusi.">
+                  <button type="button" class="faq-icon faq-modal-trigger" aria-label="Buka jawaban FAQ">?</button>
+                  <button type="button" class="faq-text faq-modal-trigger text-start">
+                    Siapa saja yang dapat menggunakan sistem ini?
+                  </button>
                 </li>
-                <li class="d-flex align-items-start mb-4">
-                  <a href="#" class="faq-icon text-decoration-none">?</a>
-                  <a href="#" class="faq-text text-decoration-none ms-2">Apa manfaat bergabung dengan sistem ini?</a>
+
+                <li class="faq-item d-flex align-items-start mb-4"
+                  data-question="Apa manfaat bergabung dengan sistem ini?"
+                  data-answer="Dengan bergabung dalam sistem MODIVA, proses monitoring distribusi vitamin dapat dilakukan dengan lebih rapi, terdokumentasi, dan mudah dipantau. Sistem ini membantu puskesmas dan sekolah dalam melihat data distribusi, memantau keterlibatan sekolah, serta mendukung pelaporan program secara lebih terarah.">
+                  <button type="button" class="faq-icon faq-modal-trigger" aria-label="Buka jawaban FAQ">?</button>
+                  <button type="button" class="faq-text faq-modal-trigger text-start">
+                    Apa manfaat bergabung dengan sistem ini?
+                  </button>
                 </li>
-                <li class="d-flex align-items-start mb-4">
-                  <a href="#" class="faq-icon text-decoration-none">?</a>
-                  <a href="#" class="faq-text text-decoration-none ms-2">Bagaimana cara bergabung?</a>
+
+                <li class="faq-item d-flex align-items-start mb-4" data-question="Bagaimana cara bergabung?"
+                  data-answer="Untuk bergabung, puskesmas atau pihak terkait dapat mengisi form pendaftaran yang tersedia pada halaman ini. Setelah data dikirimkan, tim akan meninjau informasi yang diberikan dan menghubungi kembali untuk proses konfirmasi serta arahan selanjutnya.">
+                  <button type="button" class="faq-icon faq-modal-trigger" aria-label="Buka jawaban FAQ">?</button>
+                  <button type="button" class="faq-text faq-modal-trigger text-start">
+                    Bagaimana cara bergabung?
+                  </button>
                 </li>
-                <li class="d-flex align-items-start mb-4">
-                  <a href="#" class="faq-icon text-decoration-none">?</a>
-                  <a href="#" class="faq-text text-decoration-none ms-2">Apakah sistem ini berbayar?</a>
+
+                <li class="faq-item d-flex align-items-start mb-4" data-question="Apakah sistem ini berbayar?"
+                  data-answer="Informasi terkait penggunaan sistem, termasuk ketentuan biaya atau kerja sama, dapat dikonfirmasi lebih lanjut melalui proses pendaftaran. Silakan isi form pendaftaran terlebih dahulu, kemudian tim akan menghubungi untuk memberikan penjelasan yang sesuai dengan kebutuhan dan ketentuan yang berlaku.">
+                  <button type="button" class="faq-icon faq-modal-trigger" aria-label="Buka jawaban FAQ">?</button>
+                  <button type="button" class="faq-text faq-modal-trigger text-start">
+                    Apakah sistem ini berbayar?
+                  </button>
                 </li>
-                <li class="d-flex align-items-start">
-                  <a href="#" class="faq-icon text-decoration-none">?</a>
-                  <a href="#" class="faq-text text-decoration-none ms-2">Bagaimana jika terjadi kendala dalam penggunaan
-                    sistem?</a>
+
+                <li class="faq-item d-flex align-items-start"
+                  data-question="Bagaimana jika terjadi kendala dalam penggunaan sistem?"
+                  data-answer="Apabila terjadi kendala dalam penggunaan sistem, pengguna dapat menghubungi tim melalui form yang tersedia atau kanal komunikasi yang diinformasikan oleh pengelola. Tim akan membantu melakukan pengecekan dan memberikan arahan agar sistem dapat digunakan kembali dengan baik.">
+                  <button type="button" class="faq-icon faq-modal-trigger" aria-label="Buka jawaban FAQ">?</button>
+                  <button type="button" class="faq-text faq-modal-trigger text-start">
+                    Bagaimana jika terjadi kendala dalam penggunaan sistem?
+                  </button>
                 </li>
+
               </ul>
             </div>
           </div>
         </div>
       </div>
-    </section><!-- /FAQ Section -->
+    </section>
+    <!-- /FAQ Section -->
+
+    <!-- FAQ Modal -->
+    <div class="modal fade modiva-faq-modal" id="faqModal" tabindex="-1" aria-labelledby="faqModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modiva-faq-modal-content">
+
+          <div class="modiva-faq-modal-header">
+            <div class="modiva-faq-modal-icon">
+              <i class="bi bi-question-lg"></i>
+            </div>
+
+            <div class="modiva-faq-modal-title-wrap">
+              <span>FAQ MODIVA</span>
+              <h5 class="modal-title" id="faqModalLabel">Pertanyaan</h5>
+            </div>
+
+            <button type="button" class="modiva-faq-close" data-bs-dismiss="modal" aria-label="Close">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="modal-body modiva-faq-modal-body">
+            Jawaban sementara. Silakan sesuaikan kembali isi jawaban FAQ ini.
+          </div>
+
+          <div class="modiva-faq-modal-footer">
+            <button type="button" class="modiva-faq-button" data-bs-dismiss="modal">
+              Tutup
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <!-- /FAQ Modal -->
 
     <!-- Contact Section -->
     <section id="contact" class="contact section">
@@ -470,10 +568,6 @@
         const data = XLSX.utils.sheet_to_json(sheet);
 
         const dropdown = document.getElementById("dropdownPuskesmas");
-        if (!dropdown) {
-          return;
-        }
-
         data.forEach(row => {
           const option = document.createElement("option");
           option.value = row.Nama;
@@ -487,10 +581,6 @@
     const dropdown = document.getElementById('dropdownPuskesmas');
 
     function updateDropdownColor() {
-      if (!dropdown) {
-        return;
-      }
-
       if (dropdown.value === '') {
         dropdown.classList.remove('has-value');
       } else {
@@ -498,20 +588,15 @@
       }
     }
 
-    if (dropdown) {
-      dropdown.addEventListener('change', updateDropdownColor);
-      updateDropdownColor();
-    }
+    dropdown.addEventListener('change', updateDropdownColor);
+    // Set warna awal saat halaman dimuat
+    updateDropdownColor();
   </script>
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const selectEl = document.getElementById("dropdownPuskesmas");
       const infoEl = document.getElementById("lainnyaInfo");
-
-      if (!selectEl || !infoEl) {
-        return;
-      }
 
       selectEl.addEventListener("change", function () {
         if (this.value.toLowerCase() === "lainnya") {
