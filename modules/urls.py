@@ -6,6 +6,7 @@ urlpatterns = [
     path('mytask/',include('modules.mytask.urls')),
     path('info/',include('modules.info.urls')),
     path('vitamin/',include('modules.vitamin.urls')),
+    path('anemia/', include('modules.anemia.urls', namespace='anemia')),
     path('landingpage/',include('modules.landingpage.urls')),
     path('peta/',include('modules.peta.urls',namespace='peta')),
     path('vector/',include('modules.vector.urls',namespace='vector')),

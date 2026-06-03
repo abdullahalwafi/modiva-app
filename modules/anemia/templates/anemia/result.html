@@ -1,0 +1,211 @@
+{% extends 'includes/modiva_main3.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+  .anemia-page {
+    padding: 24px;
+  }
+  .anemia-shell {
+    max-width: 1220px;
+    margin: 0 auto;
+  }
+  .result-banner {
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 14px 36px rgba(24, 39, 75, 0.08);
+    border: 1px solid #e8eef5;
+    background: #fff;
+  }
+  .result-banner.is-anemia {
+    background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+  }
+  .result-banner.is-healthy {
+    background: linear-gradient(135deg, #fff 0%, #f0fbf5 100%);
+  }
+  .metric-card,
+  .xai-card {
+    border: 0;
+    border-radius: 16px;
+    box-shadow: 0 12px 30px rgba(24, 39, 75, 0.08);
+  }
+  .prob-track {
+    height: 12px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: #eef2f6;
+  }
+  .prob-fill {
+    height: 100%;
+    border-radius: 999px;
+  }
+  .xai-card img,
+  .xai-card iframe {
+    width: 100%;
+    border: 1px solid #edf1f5;
+    border-radius: 12px;
+    background: #fff;
+  }
+  .xai-card iframe {
+    min-height: 520px;
+  }
+  .input-chip {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 10px;
+  }
+  @media (max-width: 768px) {
+    .anemia-page {
+      padding: 16px;
+    }
+    .xai-card iframe {
+      min-height: 420px;
+    }
+  }
+</style>
+
+<div class="anemia-page">
+  <div class="anemia-shell">
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+      <div>
+        <h4 class="fw-bold text-dark mb-1">Hasil Prediksi Anemia</h4>
+        <div class="text-muted">Ringkasan hasil model dan interpretasi Explainable AI.</div>
+      </div>
+      <a href="{% url 'anemia:input' %}" class="btn btn-outline-primary">
+        <i class="fa-solid fa-arrow-left me-2"></i>Input Baru
+      </a>
+    </div>
+
+    {% if result_data %}
+    <div class="result-banner {% if result_data.result == 'Anemia' %}is-anemia{% else %}is-healthy{% endif %} mb-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rounded-4 d-flex align-items-center justify-content-center {% if result_data.result == 'Anemia' %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %}" style="width: 62px; height: 62px;">
+            {% if result_data.result == 'Anemia' %}
+            <i class="fa-solid fa-droplet fs-3"></i>
+            {% else %}
+            <i class="fa-solid fa-heart-pulse fs-3"></i>
+            {% endif %}
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Klasifikasi Model</div>
+            <h3 class="fw-bold mb-0 {% if result_data.result == 'Anemia' %}text-danger{% else %}text-success{% endif %}">
+              {{ result_data.result }}
+            </h3>
+          </div>
+        </div>
+        <div class="text-end">
+          <div class="text-muted small">Probabilitas tertinggi</div>
+          <div class="fs-4 fw-bold">
+            {% if result_data.result == 'Anemia' %}
+              {{ result_data.prob_anemia|floatformat:2 }}
+            {% else %}
+              {{ result_data.prob_healthy|floatformat:2 }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-lg-8">
+        <div class="card metric-card h-100">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3">Probabilitas</h6>
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold">Anemia</span>
+                <span>{{ result_data.prob_anemia|floatformat:2 }}</span>
+              </div>
+              <div class="prob-track">
+                <div class="prob-fill bg-danger" style="width: {% widthratio result_data.prob_anemia 1 100 %}%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="fw-semibold">Healthy</span>
+                <span>{{ result_data.prob_healthy|floatformat:2 }}</span>
+              </div>
+              <div class="prob-track">
+                <div class="prob-fill bg-success" style="width: {% widthratio result_data.prob_healthy 1 100 %}%"></div>
+              </div>
+            </div>
+            <hr>
+            <h6 class="fw-bold mb-2">Interpretasi</h6>
+            <div class="text-muted lh-lg">{{ result_data.interpret_text|safe }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card metric-card h-100">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3">Parameter Input</h6>
+            <div class="d-flex flex-column gap-2">
+              {% for feature, value in result_data.input_values.items %}
+              <div class="input-chip">
+                <strong>{{ feature }}</strong>
+                <span>{{ value|floatformat:2 }}</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-xl-6">
+        <div class="card xai-card h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0">SHAP Explanation</h6>
+              <i class="fa-solid fa-chart-line text-primary"></i>
+            </div>
+            {% if result_data.shap_plot %}
+            <img src="data:image/png;base64,{{ result_data.shap_plot }}" alt="SHAP Explanation">
+            {% else %}
+            <div class="alert alert-light mb-0">SHAP plot tidak tersedia.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-6">
+        <div class="card xai-card h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h6 class="fw-bold mb-0">LIME Explanation</h6>
+              <i class="fa-solid fa-brain text-success"></i>
+            </div>
+            {% if result_data.lime_plot %}
+            <iframe src="{{ result_data.lime_plot }}" title="LIME Explanation"></iframe>
+            {% else %}
+            <div class="alert alert-light mb-0">LIME explanation tidak tersedia.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="card xai-card">
+          <div class="card-body p-4">
+            <h6 class="fw-bold mb-3">Summary Insight</h6>
+            <div class="text-muted lh-lg">{{ result_data.summary_text|safe }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

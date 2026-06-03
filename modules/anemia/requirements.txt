@@ -1,0 +1,5 @@
+cloudpickle>=3.1,<4
+joblib>=1.5,<2
+lime==0.2.0.1
+shap>=0.52,<0.53
+scikit-learn==1.6.1

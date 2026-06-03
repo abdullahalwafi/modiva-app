@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'wkhtmltopdf',
     'modules.vitamin',
     'modules.mobile_api',
+    'modules.anemia',
     'modules.landingpage',
     'modules.peta',  # New Peta module
     'modules.vector',  # New Peta module
