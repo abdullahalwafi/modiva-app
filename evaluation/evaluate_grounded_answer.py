@@ -7,10 +7,12 @@ from pathlib import Path
 from typing import Any
 from urllib import request as urllib_request
 
+from config import get_chat_api_url
+
 
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_DATASET = BASE_DIR / "datasets" / "modiva_rag_eval_template.csv"
-DEFAULT_API_URL = "http://127.0.0.1:8000/chat-api"
+DEFAULT_API_URL = get_chat_api_url()
 
 
 def safe_text(value: Any) -> str:

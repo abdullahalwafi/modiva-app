@@ -1,8 +1,23 @@
 from dataclasses import dataclass
+import os
 from pathlib import Path
+from urllib.parse import urljoin
+
+from dotenv import load_dotenv
 
 
 EVALUATION_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = EVALUATION_DIR.parent
+load_dotenv(PROJECT_DIR / ".env")
+
+
+def get_chat_api_url() -> str:
+    explicit_url = os.getenv("MODIVA_CHAT_API_URL", "").strip()
+    if explicit_url:
+        return explicit_url
+
+    base_url = os.getenv("MODIVA_BASE_URL", "http://127.0.0.1:8000").strip().rstrip("/")
+    return urljoin(f"{base_url}/", "chat-api")
 
 
 @dataclass
@@ -16,7 +31,7 @@ class Config:
     eval_table_csv: str = "rouge/evaluation_table.csv"
     eval_table_xlsx: str = "rouge/evaluation_table.xlsx"
 
-    api_url: str = "http://127.0.0.1:8000/chat-api"
+    api_url: str = get_chat_api_url()
 
     # Request settings
     timeout_sec: int = 60
