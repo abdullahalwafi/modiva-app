@@ -22,6 +22,58 @@
           </div>
         </div>
       </div>
+
+      <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+              <h5 class="fw-bold text-black mb-1">Data Kunjungan</h5>
+              <div class="text-muted small">Ringkasan kunjungan dashboard berdasarkan periode waktu.</div>
+            </div>
+            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+              <i class="fas fa-chart-line"></i>
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-xl-3 col-md-6">
+              <div class="visit-stat-card visit-stat-today">
+                <div class="visit-stat-icon"><i class="fas fa-calendar-day"></i></div>
+                <div>
+                  <div class="visit-stat-label">Hari Ini</div>
+                  <div class="visit-stat-value">{{ visit_stats.today|default:0 }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="visit-stat-card visit-stat-week">
+                <div class="visit-stat-icon"><i class="fas fa-calendar-week"></i></div>
+                <div>
+                  <div class="visit-stat-label">Minggu Ini</div>
+                  <div class="visit-stat-value">{{ visit_stats.week|default:0 }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="visit-stat-card visit-stat-month">
+                <div class="visit-stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div>
+                  <div class="visit-stat-label">Bulan Ini</div>
+                  <div class="visit-stat-value">{{ visit_stats.month|default:0 }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+              <div class="visit-stat-card visit-stat-year">
+                <div class="visit-stat-icon"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                  <div class="visit-stat-label">Tahun Ini</div>
+                  <div class="visit-stat-value">{{ visit_stats.year|default:0 }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       {% if user.groups.first.name == 'Administrator' %}
       <!-- Manajemen Akun User -->
       <div class="col-lg-4 col-md-6">

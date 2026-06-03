@@ -20,11 +20,44 @@ from django.forms import formset_factory
 from modules.uman.decorators  import group_must_have_permission
 from django.utils.decorators import method_decorator
 from django.views import View
+import datetime as dt
 from datetime import date
 from django.core.exceptions import ObjectDoesNotExist
 
 from .forms import *
 from django.db.models import Sum
+
+
+def get_client_ip(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def record_dashboard_visit(request):
+    DashboardVisit.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        path=request.get_full_path()[:255],
+        ip_address=get_client_ip(request),
+        user_agent=request.META.get('HTTP_USER_AGENT', ''),
+    )
+
+
+def get_visit_stats():
+    today = date.today()
+    start_today = dt.datetime.combine(today, dt.time.min)
+    start_tomorrow = start_today + dt.timedelta(days=1)
+    start_week = start_today - dt.timedelta(days=today.weekday())
+    start_month = start_today.replace(day=1)
+    start_year = start_today.replace(month=1, day=1)
+
+    return {
+        'today': DashboardVisit.objects.filter(visited_at__gte=start_today, visited_at__lt=start_tomorrow).count(),
+        'week': DashboardVisit.objects.filter(visited_at__gte=start_week, visited_at__lt=start_tomorrow).count(),
+        'month': DashboardVisit.objects.filter(visited_at__gte=start_month, visited_at__lt=start_tomorrow).count(),
+        'year': DashboardVisit.objects.filter(visited_at__gte=start_year, visited_at__lt=start_tomorrow).count(),
+    }
 
 # ----------------referensi Satuan--------------------
 
@@ -41,6 +74,7 @@ class DisObatListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        record_dashboard_visit(self.request)
         context["numlist"] = (int(self.request.GET.get("page",1)) - 1) * self.paginate_by
         context["q"] = self.request.GET.get("q",'')
         context["title"] = "Daftar Distribusi Obat"
@@ -95,6 +129,7 @@ class DisObatListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
         context["total_stok"] = total_stok
         context["total_distsiswa"] = total_distsiswa
         context["total_sekolah"] = total_sekolah
+        context["visit_stats"] = get_visit_stats()
 
 
         return context

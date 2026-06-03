@@ -364,3 +364,20 @@ class Distribusisiswa(models.Model):
 
     def __str__(self):
         return f'{self.nis} - {self.nama_siswa}'
+
+
+class DashboardVisit(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, blank=True, null=True)
+    path = models.CharField(max_length=255, blank=True, null=True)
+    ip_address = models.GenericIPAddressField(blank=True, null=True)
+    user_agent = models.TextField(blank=True, null=True)
+    visited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = True
+        db_table = 'dashboard_visit'
+        ordering = ['-visited_at']
+
+    def __str__(self):
+        username = self.user.username if self.user else 'anonymous'
+        return f'{username} - {self.visited_at}'

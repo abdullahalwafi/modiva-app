@@ -2553,6 +2553,68 @@ section,
   padding: 1.5rem;
 }
 
+.visit-stat-card {
+  min-height: 118px;
+  border: 1px solid #edf1f5;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.visit-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(33, 37, 41, 0.08);
+}
+
+.visit-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex: 0 0 auto;
+}
+
+.visit-stat-label {
+  color: #6c757d;
+  font-size: 0.86rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.visit-stat-value {
+  color: #202124;
+  font-size: 1.85rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.visit-stat-today .visit-stat-icon {
+  background: #fff3cd;
+  color: #b58100;
+}
+
+.visit-stat-week .visit-stat-icon {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.visit-stat-month .visit-stat-icon {
+  background: #e8f6ef;
+  color: #198754;
+}
+
+.visit-stat-year .visit-stat-icon {
+  background: #f3e8ff;
+  color: #7e22ce;
+}
+
 .dashboardsuperadmin-section .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
