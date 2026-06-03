@@ -314,6 +314,10 @@ def generate_summary(shap_summary, lime_summary, result_label):
     if not shap_summary and not lime_summary:
         return 'Tidak ada data interpretasi yang dapat dirangkum.'
 
+    lines = [
+        'Analisis Explainable AI (SHAP & LIME) memberikan gambaran tentang faktor darah '
+        'yang paling memengaruhi hasil prediksi pasien ini:'
+    ]
     feature_desc = {
         'HGB': 'Kadar hemoglobin mencerminkan kemampuan darah membawa oksigen.',
         'HCT': 'Hematokrit menunjukkan proporsi sel darah merah dalam darah.',
@@ -321,7 +325,6 @@ def generate_summary(shap_summary, lime_summary, result_label):
         'MCH': 'MCH menunjukkan rata-rata hemoglobin per sel darah merah.',
         'MCHC': 'MCHC menilai konsentrasi hemoglobin di dalam sel darah merah.',
     }
-    lines = []
 
     for feature, shap_value in sorted(shap_summary.items(), key=lambda item: abs(item[1]), reverse=True):
         lime_value = lime_summary.get(feature, 0.0)
@@ -332,13 +335,25 @@ def generate_summary(shap_summary, lime_summary, result_label):
         else:
             direction = 'tidak memberikan pengaruh signifikan'
         lines.append(
-            f'<strong>{feature}</strong> {direction} '
-            f'(SHAP = {shap_value:+.3f} | LIME = {lime_value:+.3f}). {feature_desc.get(feature, "")}'
+            f'- <strong>{feature}</strong> {direction} '
+            f'(<em>SHAP = {shap_value:+.3f} | LIME = {lime_value:+.3f}</em>). {feature_desc.get(feature, "")}'
         )
 
     if result_label == 'Healthy':
-        lines.append('Kesimpulan klinis: model memprediksi pasien sehat atau tidak anemia.')
+        lines.append(
+            '<br><strong>Kesimpulan Klinis:</strong> '
+            'Model memprediksi pasien ini <strong>Sehat (tidak anemia)</strong>. '
+            'Nilai HGB dan HCT yang cukup tinggi menjadi faktor dominan yang mendukung hasil ini. '
+            'RBC, MCH, dan MCHC juga berada dalam rentang yang mendukung status darah normal. '
+            'Interpretasi ini menunjukkan kondisi darah yang efisien dalam membawa oksigen ke seluruh tubuh.'
+        )
     else:
-        lines.append('Kesimpulan klinis: model memprediksi pasien mengalami anemia dan hasil sebaiknya dikonfirmasi melalui pemeriksaan klinis lanjutan.')
+        lines.append(
+            '<br><strong>Kesimpulan Klinis:</strong> '
+            'Model memprediksi pasien ini <strong>mengalami Anemia</strong>. '
+            'Nilai HGB dan HCT yang rendah menjadi kontributor utama, '
+            'serta dukungan dari penurunan RBC dan MCH yang menunjukkan penurunan kemampuan darah membawa oksigen. '
+            'Hasil ini sebaiknya dikonfirmasi dengan pemeriksaan klinis lanjutan.'
+        )
 
     return '<br>'.join(lines)
