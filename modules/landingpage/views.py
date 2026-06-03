@@ -2,6 +2,8 @@
 import json
 import os
 import re
+import datetime as dt
+from datetime import date
 
 import numpy as np
 from django.shortcuts import render, get_object_or_404, redirect
@@ -11,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from modules.landingpage.models import ContactMessage
 from .forms import ContactMessageForm
-from modules.vitamin.models import Puskesmas, Sekolah
+from modules.vitamin.models import DashboardVisit, Puskesmas, Sekolah
 
 from .utils.chroma import get_collection
 from .utils.context_builder import build_context_for_query, build_context_fullscan
@@ -27,6 +29,43 @@ from .utils.gemini import ask_gemini
 
 UNKNOWN_REPLY = "Maaf, saya tidak tahu karena informasi tersebut tidak ada di dokumen."
 CHATBOT_NAME = "DIVA"
+
+
+def _get_client_ip(request):
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    return request.META.get("REMOTE_ADDR")
+
+
+def _record_landing_visit(request):
+    try:
+        DashboardVisit.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            path=request.get_full_path()[:255],
+            ip_address=_get_client_ip(request),
+            user_agent=request.META.get("HTTP_USER_AGENT", ""),
+        )
+    except Exception:
+        pass
+
+
+def _get_landing_visit_stats():
+    today = date.today()
+    start_today = dt.datetime.combine(today, dt.time.min)
+    start_tomorrow = start_today + dt.timedelta(days=1)
+    start_month = start_today.replace(day=1)
+    start_year = start_today.replace(month=1, day=1)
+
+    try:
+        return {
+            "today": DashboardVisit.objects.filter(visited_at__gte=start_today, visited_at__lt=start_tomorrow).count(),
+            "month": DashboardVisit.objects.filter(visited_at__gte=start_month, visited_at__lt=start_tomorrow).count(),
+            "year": DashboardVisit.objects.filter(visited_at__gte=start_year, visited_at__lt=start_tomorrow).count(),
+            "total": DashboardVisit.objects.count(),
+        }
+    except Exception:
+        return {"today": 0, "month": 0, "year": 0, "total": 0}
 
 
 def _extract_gemini_text(payload: dict) -> str:
@@ -351,6 +390,9 @@ def _extract_fact_answer(context_text: str, question: str) -> str:
 # PAGES
 # =========================
 def homepage(request):
+    if request.method == "GET":
+        _record_landing_visit(request)
+
     if request.method == "POST":
         form = ContactMessageForm(request.POST)
         if form.is_valid():
@@ -358,7 +400,15 @@ def homepage(request):
             return redirect("landingpage:pendaftaran_sukses")
     else:
         form = ContactMessageForm()
-    return render(request, "index.html", {"form": form, "current_url": "home"})
+    return render(
+        request,
+        "index.html",
+        {
+            "form": form,
+            "current_url": "home",
+            "visit_stats": _get_landing_visit_stats(),
+        },
+    )
 
 
 def about_us(request):
