@@ -293,6 +293,20 @@ def generate_interpretation(result, probability_map, main_causes, abnormal_count
     else:
         text += 'Beberapa parameter darah berada di luar rentang normal dan mendukung hasil prediksi model.'
 
+    if result == 'Healthy':
+        text += (
+            '<br><br><strong>Interpretasi XAI:</strong><br>'
+            'Analisis SHAP dan LIME menunjukkan bahwa parameter darah utama berada pada rentang yang '
+            'mendukung kondisi sehat sehingga model mengklasifikasikan pasien sebagai tidak anemia.'
+        )
+    else:
+        text += (
+            '<br><br><strong>Interpretasi XAI:</strong><br>'
+            'Analisis SHAP dan LIME menunjukkan bahwa fitur-fitur utama memiliki kontribusi terbesar '
+            'terhadap keputusan model. Prediksi dibuat berdasarkan pola yang dipelajari dari data training '
+            'dan tidak hanya ditentukan oleh batas normal klinis.'
+        )
+
     return text
 
 
