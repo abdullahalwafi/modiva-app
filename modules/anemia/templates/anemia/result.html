@@ -39,6 +39,44 @@
     height: 100%;
     border-radius: 999px;
   }
+  .section-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border-left: 5px solid currentColor;
+    font-weight: 800;
+    color: #1f2937;
+  }
+  .section-title i {
+    font-size: 1rem;
+  }
+  .section-title.probability {
+    color: #2563eb;
+    background: #eff6ff;
+  }
+  .section-title.input {
+    color: #7c3aed;
+    background: #f5f3ff;
+  }
+  .section-title.interpretation {
+    color: #0f766e;
+    background: #ecfdf5;
+  }
+  .section-title.shap {
+    color: #1d4ed8;
+    background: #e0f2fe;
+  }
+  .section-title.lime {
+    color: #c2410c;
+    background: #fff7ed;
+  }
+  .section-title.summary {
+    color: #be123c;
+    background: #fff1f2;
+  }
   .xai-card img,
   .lime-frame {
     width: 100%;
@@ -132,7 +170,10 @@
       <div class="col-lg-8">
         <div class="card metric-card h-100">
           <div class="card-body p-4">
-            <h6 class="fw-bold mb-3">Probabilitas</h6>
+            <div class="section-title probability">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>Probabilitas</span>
+            </div>
             <div class="mb-4">
               <div class="d-flex justify-content-between mb-2">
                 <span class="fw-semibold">Anemia</span>
@@ -152,7 +193,10 @@
               </div>
             </div>
             <hr>
-            <h6 class="fw-bold mb-2">Interpretasi</h6>
+            <div class="section-title interpretation">
+              <i class="fa-solid fa-stethoscope"></i>
+              <span>Interpretasi</span>
+            </div>
             <div class="text-muted lh-lg">{{ result_data.interpret_text|safe }}</div>
           </div>
         </div>
@@ -160,7 +204,10 @@
       <div class="col-lg-4">
         <div class="card metric-card h-100">
           <div class="card-body p-4">
-            <h6 class="fw-bold mb-3">Parameter Input</h6>
+            <div class="section-title input">
+              <i class="fa-solid fa-vial"></i>
+              <span>Parameter Input</span>
+            </div>
             <div class="d-flex flex-column gap-2">
               {% for feature, value in result_data.input_values.items %}
               <div class="input-chip">
@@ -175,12 +222,14 @@
     </div>
 
     <div class="row g-4">
-      <div class="col-xl-6">
+      <div class="col-12">
         <div class="card xai-card h-100">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h6 class="fw-bold mb-0">SHAP Explanation</h6>
-              <i class="fa-solid fa-chart-line text-primary"></i>
+              <div class="section-title shap mb-0">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>SHAP Explanation</span>
+              </div>
             </div>
             {% if result_data.shap_plot %}
             <img src="data:image/png;base64,{{ result_data.shap_plot }}" alt="SHAP Explanation">
@@ -194,8 +243,10 @@
         <div class="card xai-card h-100">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
-              <h6 class="fw-bold mb-0">LIME Explanation</h6>
-              <i class="fa-solid fa-brain text-success"></i>
+              <div class="section-title lime mb-0">
+                <i class="fa-solid fa-brain"></i>
+                <span>LIME Explanation</span>
+              </div>
             </div>
             {% if result_data.lime_plot %}
             <div class="lime-frame-wrap">
@@ -210,7 +261,10 @@
       <div class="col-12">
         <div class="card xai-card">
           <div class="card-body p-4">
-            <h6 class="fw-bold mb-3">Summary Insight</h6>
+            <div class="section-title summary">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <span>Summary Insight</span>
+            </div>
             <div class="text-muted lh-lg">{{ result_data.summary_text|safe }}</div>
           </div>
         </div>
