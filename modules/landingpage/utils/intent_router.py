@@ -11,6 +11,7 @@ INTENTS = {
     "procedure_prevention",
     "program_policy",
     "hb_record_query",
+    "mapping_navigation",
     "symptom_or_diagnostic",
     "out_of_scope",
 }
@@ -152,6 +153,31 @@ def route_intent(question: str) -> dict[str, Any]:
             "recommended_domain": "fallback_none",
             "response_mode": "safe_medical",
             "reason": "Pertanyaan berisi gejala personal atau permintaan diagnosis.",
+        }
+
+    mapping_terms = [
+        "peta",
+        "pemetaan",
+        "map",
+        "maps",
+        "lokasi",
+        "persebaran",
+        "sebaran",
+        "koordinat",
+        "titik sekolah",
+        "titik puskesmas",
+        "wilayah",
+    ]
+    if _contains_any(q, mapping_terms) and _contains_any(
+        q,
+        ["peta", "pemetaan", "map", "maps", "lokasi", "sebaran", "persebaran", "koordinat"],
+    ):
+        return {
+            "intent": "mapping_navigation",
+            "confidence": 0.9,
+            "recommended_domain": "fallback_none",
+            "response_mode": "direct",
+            "reason": "Pertanyaan mengarah ke fitur peta/pemetaan MODIVA, bukan dokumen RAG.",
         }
 
     hb_record_terms = [

@@ -9,7 +9,7 @@ def route_domain(intent_result: dict[str, Any]) -> dict[str, Any]:
     recommended = str(intent_result.get("recommended_domain") or "").strip()
     reason = str(intent_result.get("reason") or "")
 
-    if intent in {"smalltalk", "identity", "unclear_gibberish", "out_of_scope"}:
+    if intent in {"smalltalk", "identity", "unclear_gibberish", "mapping_navigation", "out_of_scope"}:
         return {
             "domain": "fallback_none",
             "retrieval_allowed": False,

@@ -31,6 +31,15 @@ UNKNOWN_REPLY = "Maaf, saya tidak tahu karena informasi tersebut tidak ada di do
 CHATBOT_NAME = "DIVA"
 
 
+def _user_can_access_hb_records(user) -> bool:
+    if not getattr(user, "is_authenticated", False):
+        return False
+    return (
+        user.is_superuser
+        or user.groups.filter(name__in=["Administrator", "Puskesmas"]).exists()
+    )
+
+
 def _get_client_ip(request):
     forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if forwarded_for:
@@ -240,6 +249,33 @@ def _handle_unclear_input(question: str) -> str:
             "Coba tulis ulang dengan kalimat yang lebih jelas, misalnya: apa itu anemia, apa gejala anemia, atau bagaimana cara mencegah anemia."
         )
     return ""
+
+
+def _build_direct_mapping_response() -> dict[str, object]:
+    return {
+        "answer": (
+            'Fitur pemetaan MODIVA tersedia di menu <strong>Peta</strong>. '
+            'Silakan buka <a href="/peta/">Peta Puskesmas</a> untuk melihat titik puskesmas, '
+            'atau <a href="/peta/sekolah/">Peta Sekolah</a> untuk melihat sebaran sekolah.'
+        ),
+        "answerable": True,
+        "abstention_type": None,
+        "sources": [],
+        "debug": {"mode": "direct_mapping_navigation"},
+    }
+
+
+def _build_hb_access_denied_response() -> dict[str, object]:
+    return {
+        "answer": (
+            "Data Hb siswa bersifat internal dan hanya bisa diakses oleh pengguna yang sudah login "
+            "sebagai Administrator atau Puskesmas. Silakan login terlebih dahulu melalui tombol admin."
+        ),
+        "answerable": False,
+        "abstention_type": "auth_required",
+        "sources": [],
+        "debug": {"mode": "hb_auth_required"},
+    }
 
 
 def _is_noisy_unit(text: str) -> bool:
@@ -545,7 +581,27 @@ def chat_api(request):
         intent_result = route_intent(normalized_question)
         domain_result = route_domain(intent_result)
 
-        if domain_result.get("retrieval_allowed"):
+        generated = None
+        if intent_result.get("intent") == "mapping_navigation":
+            generated = _build_direct_mapping_response()
+        elif intent_result.get("intent") == "hb_record_query" and not _user_can_access_hb_records(request.user):
+            generated = _build_hb_access_denied_response()
+
+        if generated is not None:
+            context_result = {
+                "chunks": [],
+                "domain": domain_result.get("domain", "fallback_none"),
+                "retrieval_confidence": 0.0,
+                "retrieval_summary": "Retrieval skipped by direct response or access control.",
+                "error": None,
+            }
+            grounding_result = {
+                "is_answerable": bool(generated.get("answerable")),
+                "confidence": 1.0 if generated.get("answerable") else 0.0,
+                "abstention_type": generated.get("abstention_type"),
+                "reason": "Direct response generated before retrieval.",
+            }
+        elif domain_result.get("retrieval_allowed"):
             try:
                 top_k = int(body.get("top_k", 5) or 5)
             except (TypeError, ValueError):
@@ -566,21 +622,22 @@ def chat_api(request):
                 "error": None,
             }
 
-        grounding_result = judge_grounding(
-            question=normalized_question,
-            intent=str(intent_result.get("intent") or ""),
-            domain=str(domain_result.get("domain") or "fallback_none"),
-            context_result=context_result,
-            mode=response_mode,
-        )
-        generated = generate_response(
-            question=normalized_question,
-            intent_result=intent_result,
-            domain_result=domain_result,
-            context_result=context_result,
-            grounding_result=grounding_result,
-            mode=response_mode,
-        )
+        if generated is None:
+            grounding_result = judge_grounding(
+                question=normalized_question,
+                intent=str(intent_result.get("intent") or ""),
+                domain=str(domain_result.get("domain") or "fallback_none"),
+                context_result=context_result,
+                mode=response_mode,
+            )
+            generated = generate_response(
+                question=normalized_question,
+                intent_result=intent_result,
+                domain_result=domain_result,
+                context_result=context_result,
+                grounding_result=grounding_result,
+                mode=response_mode,
+            )
 
         payload = {
             "answer": generated.get("answer", ""),
