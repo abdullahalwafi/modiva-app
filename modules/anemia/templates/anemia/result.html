@@ -28,6 +28,11 @@
     border: 0;
     border-radius: 16px;
     box-shadow: 0 12px 30px rgba(24, 39, 75, 0.08);
+    overflow: hidden;
+  }
+  .metric-card .card-body,
+  .xai-card .card-body {
+    padding: 24px;
   }
   .prob-track {
     height: 12px;
@@ -39,43 +44,82 @@
     height: 100%;
     border-radius: 999px;
   }
-  .section-title {
+  .anemia-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-left: 6px solid var(--title-color);
+    border-radius: 14px;
+    background: var(--title-bg);
+    color: var(--title-color);
+    line-height: 1.2;
+  }
+  .anemia-section-title .title-icon {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 18px;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border-left: 5px solid currentColor;
+    justify-content: center;
+    border-radius: 10px;
+    color: #fff;
+    background: var(--title-color);
+  }
+  .anemia-section-title .title-copy {
+    min-width: 0;
+    display: block;
+  }
+  .anemia-section-title .title-text {
+    display: block;
+    margin: 0;
+    color: #111827;
+    font-size: 15px;
     font-weight: 800;
-    color: #1f2937;
+    letter-spacing: 0;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
   }
-  .section-title i {
-    font-size: 1rem;
+  .anemia-section-title .title-subtitle {
+    display: block;
+    margin-top: 3px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: normal;
   }
-  .section-title.probability {
-    color: #2563eb;
-    background: #eff6ff;
+  .anemia-section-title.probability {
+    --title-color: #2563eb;
+    --title-bg: #eff6ff;
   }
-  .section-title.input {
-    color: #7c3aed;
-    background: #f5f3ff;
+  .anemia-section-title.input {
+    --title-color: #7c3aed;
+    --title-bg: #f5f3ff;
   }
-  .section-title.interpretation {
-    color: #0f766e;
-    background: #ecfdf5;
+  .anemia-section-title.interpretation {
+    --title-color: #0f766e;
+    --title-bg: #ecfdf5;
   }
-  .section-title.shap {
-    color: #1d4ed8;
-    background: #e0f2fe;
+  .anemia-section-title.shap {
+    --title-color: #1d4ed8;
+    --title-bg: #e0f2fe;
   }
-  .section-title.lime {
-    color: #c2410c;
-    background: #fff7ed;
+  .anemia-section-title.lime {
+    --title-color: #c2410c;
+    --title-bg: #fff7ed;
   }
-  .section-title.summary {
-    color: #be123c;
-    background: #fff1f2;
+  .anemia-section-title.summary {
+    --title-color: #be123c;
+    --title-bg: #fff1f2;
+  }
+  .anemia-body-text {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.8;
   }
   .xai-card img,
   .lime-frame {
@@ -99,13 +143,22 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 12px;
+    padding: 12px 14px;
     background: #f8fafc;
+    border: 1px solid #edf1f5;
     border-radius: 10px;
+  }
+  .input-chip strong,
+  .input-chip span {
+    line-height: 1.2;
   }
   @media (max-width: 768px) {
     .anemia-page {
       padding: 16px;
+    }
+    .metric-card .card-body,
+    .xai-card .card-body {
+      padding: 18px;
     }
     .lime-frame {
       min-width: 960px;
@@ -169,10 +222,13 @@
     <div class="row g-4 mb-4">
       <div class="col-lg-8">
         <div class="card metric-card h-100">
-          <div class="card-body p-4">
-            <div class="section-title probability">
-              <i class="fa-solid fa-chart-simple"></i>
-              <span>Probabilitas</span>
+          <div class="card-body">
+            <div class="anemia-section-title probability">
+              <span class="title-icon"><i class="fa-solid fa-chart-simple"></i></span>
+              <span class="title-copy">
+                <span class="title-text">Probabilitas</span>
+                <span class="title-subtitle">Perbandingan confidence model</span>
+              </span>
             </div>
             <div class="mb-4">
               <div class="d-flex justify-content-between mb-2">
@@ -193,20 +249,26 @@
               </div>
             </div>
             <hr>
-            <div class="section-title interpretation">
-              <i class="fa-solid fa-stethoscope"></i>
-              <span>Interpretasi</span>
+            <div class="anemia-section-title interpretation">
+              <span class="title-icon"><i class="fa-solid fa-stethoscope"></i></span>
+              <span class="title-copy">
+                <span class="title-text">Interpretasi</span>
+                <span class="title-subtitle">Analisis faktor klinis dan XAI</span>
+              </span>
             </div>
-            <div class="text-muted lh-lg">{{ result_data.interpret_text|safe }}</div>
+            <div class="anemia-body-text">{{ result_data.interpret_text|safe }}</div>
           </div>
         </div>
       </div>
       <div class="col-lg-4">
         <div class="card metric-card h-100">
-          <div class="card-body p-4">
-            <div class="section-title input">
-              <i class="fa-solid fa-vial"></i>
-              <span>Parameter Input</span>
+          <div class="card-body">
+            <div class="anemia-section-title input">
+              <span class="title-icon"><i class="fa-solid fa-vial"></i></span>
+              <span class="title-copy">
+                <span class="title-text">Parameter Input</span>
+                <span class="title-subtitle">Nilai pemeriksaan pasien</span>
+              </span>
             </div>
             <div class="d-flex flex-column gap-2">
               {% for feature, value in result_data.input_values.items %}
@@ -224,12 +286,13 @@
     <div class="row g-4">
       <div class="col-12">
         <div class="card xai-card h-100">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="section-title shap mb-0">
-                <i class="fa-solid fa-chart-line"></i>
-                <span>SHAP Explanation</span>
-              </div>
+          <div class="card-body">
+            <div class="anemia-section-title shap">
+              <span class="title-icon"><i class="fa-solid fa-chart-line"></i></span>
+              <span class="title-copy">
+                <span class="title-text">SHAP Explanation</span>
+                <span class="title-subtitle">Kontribusi tiap fitur terhadap keputusan model</span>
+              </span>
             </div>
             {% if result_data.shap_plot %}
             <img src="data:image/png;base64,{{ result_data.shap_plot }}" alt="SHAP Explanation">
@@ -241,12 +304,13 @@
       </div>
       <div class="col-12">
         <div class="card xai-card h-100">
-          <div class="card-body p-4">
-            <div class="d-flex align-items-center justify-content-between mb-3">
-              <div class="section-title lime mb-0">
-                <i class="fa-solid fa-brain"></i>
-                <span>LIME Explanation</span>
-              </div>
+          <div class="card-body">
+            <div class="anemia-section-title lime">
+              <span class="title-icon"><i class="fa-solid fa-brain"></i></span>
+              <span class="title-copy">
+                <span class="title-text">LIME Explanation</span>
+                <span class="title-subtitle">Penjelasan lokal untuk satu hasil prediksi</span>
+              </span>
             </div>
             {% if result_data.lime_plot %}
             <div class="lime-frame-wrap">
@@ -260,12 +324,15 @@
       </div>
       <div class="col-12">
         <div class="card xai-card">
-          <div class="card-body p-4">
-            <div class="section-title summary">
-              <i class="fa-solid fa-clipboard-list"></i>
-              <span>Summary Insight</span>
+          <div class="card-body">
+            <div class="anemia-section-title summary">
+              <span class="title-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+              <span class="title-copy">
+                <span class="title-text">Summary Insight</span>
+                <span class="title-subtitle">Ringkasan interpretasi SHAP dan LIME</span>
+              </span>
             </div>
-            <div class="text-muted lh-lg">{{ result_data.summary_text|safe }}</div>
+            <div class="anemia-body-text">{{ result_data.summary_text|safe }}</div>
           </div>
         </div>
       </div>
