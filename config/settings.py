@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     'auditlog',
     'wkhtmltopdf',
     'modules.vitamin',
+    'modules.mobile_api',
     'modules.landingpage',
     'modules.peta',  # New Peta module
     'modules.vector',  # New Peta module

@@ -24,6 +24,7 @@ urlpatterns = [
     path(settings.ROOT_URL + 'xadminx/defender/', include("defender.urls")),
     path(settings.ROOT_URL + 'xadminx/', admin.site.urls),
     path(settings.ROOT_URL + '', include('modules.urls')),
+    path(settings.ROOT_URL + 'api/', include('modules.mobile_api.urls')),
     path(settings.ROOT_URL + 'api-auth/', include('rest_framework.urls')),
     path(settings.ROOT_URL + 'xaccountsx/', include('allauth.urls')),
     #path(settings.ROOT_URL + 'accounts/', include('allauth.urls')),
