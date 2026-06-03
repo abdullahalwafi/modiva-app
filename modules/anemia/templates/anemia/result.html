@@ -40,14 +40,22 @@
     border-radius: 999px;
   }
   .xai-card img,
-  .xai-card iframe {
+  .lime-frame {
     width: 100%;
     border: 1px solid #edf1f5;
     border-radius: 12px;
     background: #fff;
   }
-  .xai-card iframe {
-    min-height: 520px;
+  .lime-frame-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 12px;
+  }
+  .lime-frame {
+    display: block;
+    min-width: 1120px;
+    min-height: 320px;
+    border: 0;
   }
   .input-chip {
     display: flex;
@@ -61,8 +69,9 @@
     .anemia-page {
       padding: 16px;
     }
-    .xai-card iframe {
-      min-height: 420px;
+    .lime-frame {
+      min-width: 960px;
+      min-height: 320px;
     }
   }
 </style>
@@ -181,7 +190,7 @@
           </div>
         </div>
       </div>
-      <div class="col-xl-6">
+      <div class="col-12">
         <div class="card xai-card h-100">
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -189,7 +198,9 @@
               <i class="fa-solid fa-brain text-success"></i>
             </div>
             {% if result_data.lime_plot %}
-            <iframe src="{{ result_data.lime_plot }}" title="LIME Explanation"></iframe>
+            <div class="lime-frame-wrap">
+              <iframe class="lime-frame" src="{{ result_data.lime_plot }}" title="LIME Explanation"></iframe>
+            </div>
             {% else %}
             <div class="alert alert-light mb-0">LIME explanation tidak tersedia.</div>
             {% endif %}
