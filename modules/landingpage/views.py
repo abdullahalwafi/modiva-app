@@ -2,7 +2,6 @@
 import json
 import os
 import re
-from pathlib import Path
 
 import numpy as np
 from django.shortcuts import render, get_object_or_404, redirect
@@ -489,35 +488,6 @@ def chat_api(request):
             response_mode = "chatbot_public"
 
         normalized_question = _normalize_question(user_message)
-        if response_mode == "evaluation_strict":
-            qa_map = _load_qa_mapping()
-            mapped_answer = (
-                qa_map.get(normalized_question)
-                or qa_map.get(normalized_question.lower())
-                or qa_map.get(_normalize_eval_lookup_key(normalized_question))
-            )
-            if mapped_answer:
-                payload = {
-                    "answer": mapped_answer,
-                    "reply": mapped_answer,
-                    "response": mapped_answer,
-                    "mode": response_mode,
-                    "intent": "evaluation_lookup",
-                    "intent_confidence": 1.0,
-                    "domain": "evaluation_dataset",
-                    "retrieval_confidence": 1.0,
-                    "answerable": True,
-                    "abstention_type": None,
-                    "sources": ["evaluation_workbook"],
-                }
-                if include_debug:
-                    payload["debug"] = {
-                        "question": normalized_question,
-                        "requested_mode": requested_mode,
-                        "evaluation_lookup": True,
-                    }
-                return JsonResponse(payload)
-
         intent_result = route_intent(normalized_question)
         domain_result = route_domain(intent_result)
 
@@ -603,9 +573,6 @@ def chat_api(request):
             },
             status=500,
         )
-# Cache QA mapping for evaluation runs
-_QA_CACHE = {"mtime": None, "map": {}}
-
 def _normalize_question(text: str) -> str:
     if text is None:
         return ""
@@ -617,70 +584,3 @@ def _normalize_question(text: str) -> str:
     if s_low.startswith(prefix):
         s = s[len(prefix):].strip()
     return s.strip()
-
-
-def _normalize_eval_lookup_key(text: str) -> str:
-    normalized = _normalize_question(text).lower()
-    normalized = re.sub(r"[?!.;,:\-_/]+", " ", normalized)
-    return re.sub(r"\s+", " ", normalized).strip()
-
-
-def _normalize_eval_columns(df):
-    if {"Pertanyaan", "Jawaban"}.issubset(df.columns):
-        return df
-
-    cols = list(df.columns)
-    if len(cols) >= 3 and all(str(col).startswith("Unnamed") for col in cols[:3]):
-        return df.rename(
-            columns={
-                cols[0]: "Sumber",
-                cols[1]: "Pertanyaan",
-                cols[2]: "Jawaban",
-            }
-        )
-    return df
-
-
-def _evaluation_workbook_candidates() -> list[Path]:
-    evaluation_dir = (Path(__file__).resolve().parents[2] / "evaluation").resolve()
-    return [
-        evaluation_dir / "QA_Anemia_7_Dokumen.xlsx",
-        evaluation_dir / "PERTANYAAN DOKUMEN.xlsx",
-        evaluation_dir / "PERTANYAAN_DOKUMEN_with_candidate.xlsx",
-    ]
-
-
-def _load_qa_mapping():
-    qa_path = next((path for path in _evaluation_workbook_candidates() if path.exists()), None)
-    if qa_path is None:
-        return {}
-
-    try:
-        mtime = qa_path.stat().st_mtime
-    except OSError:
-        return {}
-
-    if _QA_CACHE["mtime"] == mtime and _QA_CACHE["map"]:
-        return _QA_CACHE["map"]
-
-    try:
-        import pandas as pd
-        xls = pd.ExcelFile(qa_path)
-        qa_map = {}
-        for sheet in xls.sheet_names:
-            df = _normalize_eval_columns(pd.read_excel(xls, sheet_name=sheet))
-            if "Pertanyaan" not in df.columns or "Jawaban" not in df.columns:
-                continue
-            for _, row in df.iterrows():
-                q = _normalize_question(row["Pertanyaan"])
-                a = str(row["Jawaban"]).strip()
-                if not q or not a:
-                    continue
-                qa_map[q] = a
-                qa_map[q.lower()] = a
-                qa_map[_normalize_eval_lookup_key(q)] = a
-        _QA_CACHE["mtime"] = mtime
-        _QA_CACHE["map"] = qa_map
-        return qa_map
-    except Exception:
-        return {}

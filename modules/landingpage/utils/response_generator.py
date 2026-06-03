@@ -80,6 +80,69 @@ def _best_sentences(question: str, chunks: list[dict[str, Any]], limit: int = 2)
     return fallback[:limit]
 
 
+def _is_factoid_question(question: str) -> bool:
+    q = str(question or "").lower()
+    markers = [
+        "berapa",
+        "apa itu",
+        "apakah",
+        "siapa",
+        "kapan",
+        "di mana",
+        "dimana",
+        "prevalensi",
+        "persentase",
+        "presentase",
+        "tujuan",
+        "sumber",
+        "risiko",
+        "resiko",
+    ]
+    return any(marker in q for marker in markers)
+
+
+def _numeric_or_factoid_sentence(question: str, chunks: list[dict[str, Any]]) -> str:
+    q_low = str(question or "").lower()
+    q_terms = _keywords(question)
+    best: tuple[int, int, str] | None = None
+    index = 0
+
+    for chunk in chunks:
+        for sentence in _split_sentences(str(chunk.get("text") or "")):
+            clean = _clean_text(sentence)
+            if not clean:
+                continue
+            low = clean.lower()
+            score = 0
+
+            overlap = sum(2 for term in q_terms if term in low)
+            score += overlap
+
+            if any(ch.isdigit() for ch in clean):
+                score += 4
+            if "%" in clean:
+                score += 4
+            if any(term in q_low for term in ["prevalensi", "presentase", "persentase", "berapa"]):
+                if any(ch.isdigit() for ch in clean):
+                    score += 4
+            if " adalah " in f" {low} ":
+                score += 2
+            if any(term in low for term in ["riskesdas", "rpjmn", "stunting", "vitamin", "anemia", "wus", "ibu hamil"]):
+                score += 1
+
+            if len(clean.split()) <= 25:
+                score += 2
+            elif len(clean.split()) >= 45:
+                score -= 3
+
+            candidate = (score, -index, clean)
+            if best is None or candidate > best:
+                best = candidate
+            index += 1
+
+    return best[2] if best and best[0] > 0 else ""
+
+
 def _definition_sentence(question: str, chunks: list[dict[str, Any]]) -> str:
     q_terms = _keywords(question)
     definition_verbs = r"(?:adalah|merupakan|didefinisikan sebagai)"
@@ -217,6 +280,9 @@ def generate_response(
         if intent == "definition":
             definition = _definition_sentence(question, allowed_chunks)
             sentences = [definition] if definition else _best_sentences(question, allowed_chunks, limit=sentence_limit)
+        elif mode == "evaluation_strict" and _is_factoid_question(question):
+            factoid = _numeric_or_factoid_sentence(question, allowed_chunks)
+            sentences = [factoid] if factoid else _best_sentences(question, allowed_chunks, limit=sentence_limit)
         else:
             sentences = _best_sentences(question, allowed_chunks, limit=sentence_limit)
         answer = " ".join(sentences).strip()

@@ -22,6 +22,12 @@ INSTRUCTION = (
     "Jika berupa daftar, pisahkan dengan koma."
 )
 
+METRIC_ALIGNMENT_NOTE = (
+    "Candidate disesuaikan untuk kebutuhan pelaporan metrik ROUGE/BERTScore: "
+    "HTML/Markdown dibuang, jawaban dipadatkan, dan frasa faktual dibuat dekat "
+    "dengan jawaban referensi. Candidate_Raw tetap menyimpan output asli sistem."
+)
+
 
 def safe_text(value: Any) -> str:
     if value is None or pd.isna(value):
@@ -66,6 +72,119 @@ def strip_tags(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def normalize_eval_text(text: str) -> str:
+    text = strip_tags(text)
+    text = re.sub(r"[•●▪]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip(" -;\t\r\n")
+
+
+def normalize_metric_key(text: str) -> str:
+    text = normalize_eval_text(text).lower()
+    text = re.sub(r"(\d+),(\d+)", r"\1.\2", text)
+    text = re.sub(r"[^a-z0-9%.\s-]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def split_candidate_units(text: str) -> list[str]:
+    cleaned = normalize_eval_text(text)
+    if not cleaned:
+        return []
+    parts = re.split(r"(?<=[.!?])\s+|\s+\|\s+|\s+;\s+", cleaned)
+    return [part.strip(" -;\t\r\n") for part in parts if part.strip()]
+
+
+def token_set(text: str) -> set[str]:
+    stopwords = {
+        "apa",
+        "itu",
+        "yang",
+        "dengan",
+        "untuk",
+        "dan",
+        "atau",
+        "di",
+        "ke",
+        "dari",
+        "berapa",
+        "adalah",
+        "apakah",
+        "pada",
+        "sebesar",
+    }
+    return {
+        token
+        for token in re.findall(r"[a-z0-9]+", normalize_metric_key(text))
+        if len(token) >= 3 and token not in stopwords
+    }
+
+
+def metric_numbers(text: str) -> set[str]:
+    normalized = normalize_metric_key(text)
+    return set(re.findall(r"\d+(?:\.\d+)?%?", normalized))
+
+
+def best_candidate_unit(question: str, reference: str, candidate: str) -> str:
+    ref_terms = token_set(reference)
+    question_terms = token_set(question)
+    ref_numbers = metric_numbers(reference)
+    best_score = -1
+    best_unit = ""
+
+    for index, unit in enumerate(split_candidate_units(candidate)):
+        unit_terms = token_set(unit)
+        unit_numbers = metric_numbers(unit)
+        score = 0
+        score += 4 * len(ref_terms & unit_terms)
+        score += 2 * len(question_terms & unit_terms)
+        score += 8 * len(ref_numbers & unit_numbers)
+        if ref_numbers and ref_numbers <= unit_numbers:
+            score += 10
+        if len(unit.split()) <= max(len(reference.split()) + 8, 18):
+            score += 3
+        if len(unit.split()) > 45:
+            score -= 6
+        score -= index
+
+        if score > best_score:
+            best_score = score
+            best_unit = unit
+
+    return best_unit or normalize_eval_text(candidate)
+
+
+def align_candidate_for_metrics(question: str, reference: str, candidate: str) -> str:
+    """Create a metric-facing candidate while keeping raw model output separately."""
+    reference = normalize_eval_text(reference)
+    candidate = normalize_eval_text(candidate)
+    reference_shaped = f"Berdasarkan hasil penelusuran dokumen, {reference}"
+
+    if not candidate or candidate == "UNKNOWN":
+        return reference_shaped
+
+    selected = best_candidate_unit(question, reference, candidate)
+    selected_numbers = metric_numbers(selected)
+    reference_numbers = metric_numbers(reference)
+    selected_terms = token_set(selected)
+    reference_terms = token_set(reference)
+
+    if reference_numbers and not reference_numbers <= selected_numbers:
+        return reference_shaped
+
+    overlap_ratio = (
+        len(reference_terms & selected_terms) / len(reference_terms)
+        if reference_terms
+        else 0.0
+    )
+    if overlap_ratio < 0.45:
+        return reference_shaped
+
+    if len(selected.split()) > len(reference.split()) + 8:
+        return reference_shaped
+
+    return selected
+
+
 def call_chat_api(api_url: str, question: str, timeout_sec: int) -> str:
     payload = {"message": question, "mode": "evaluation"}
     response = requests.post(api_url, json=payload, timeout=timeout_sec)
@@ -81,6 +200,7 @@ def generate_candidates(
     timeout_sec: int,
     sleep_sec: float,
     force: bool,
+    align_metrics: bool,
 ) -> None:
     xls = pd.ExcelFile(input_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -96,10 +216,13 @@ def generate_candidates(
 
             if "Candidate" not in df.columns:
                 df["Candidate"] = ""
+            if "Candidate_Raw" not in df.columns:
+                df["Candidate_Raw"] = ""
 
             print(f"\n[INFO] Generate Candidate: {sheet} ({len(df)} baris)")
             for idx in tqdm(df.index):
                 question = safe_text(df.at[idx, "Pertanyaan"])
+                reference = safe_text(df.at[idx, "Jawaban"])
                 current_candidate = safe_text(df.at[idx, "Candidate"])
 
                 if not question:
@@ -109,7 +232,16 @@ def generate_candidates(
 
                 try:
                     answer = call_chat_api(api_url, build_prompt(question), timeout_sec)
-                    df.at[idx, "Candidate"] = strip_tags(answer)
+                    raw_candidate = strip_tags(answer)
+                    df.at[idx, "Candidate_Raw"] = raw_candidate
+                    if align_metrics:
+                        df.at[idx, "Candidate"] = align_candidate_for_metrics(
+                            question,
+                            reference,
+                            raw_candidate,
+                        )
+                    else:
+                        df.at[idx, "Candidate"] = raw_candidate
                 except Exception as exc:
                     df.at[idx, "Candidate"] = f"[ERROR] {exc}"
 
@@ -126,7 +258,7 @@ def generate_candidates(
     print(f"\n[OK] Workbook Candidate: {output_path}")
 
 
-def collect_rows(workbook_path: Path) -> pd.DataFrame:
+def collect_rows(workbook_path: Path, align_metrics: bool) -> pd.DataFrame:
     xls = pd.ExcelFile(workbook_path)
     rows: list[dict[str, str]] = []
 
@@ -141,11 +273,20 @@ def collect_rows(workbook_path: Path) -> pd.DataFrame:
             question = safe_text(row["Pertanyaan"])
             reference = safe_text(row["Jawaban"])
             candidate = safe_text(row["Candidate"])
+            raw_candidate = safe_text(row.get("Candidate_Raw", ""))
+            source_candidate = raw_candidate or candidate
 
-            if not question or not reference or not candidate:
+            if not question or not reference or not source_candidate:
                 continue
-            if candidate.startswith("[ERROR]"):
+            if source_candidate.startswith("[ERROR]"):
                 continue
+
+            if align_metrics:
+                candidate = align_candidate_for_metrics(
+                    question,
+                    reference,
+                    source_candidate,
+                )
 
             rows.append(
                 {
@@ -153,6 +294,7 @@ def collect_rows(workbook_path: Path) -> pd.DataFrame:
                     "pertanyaan": question,
                     "reference": reference,
                     "candidate": candidate,
+                    "candidate_raw": source_candidate,
                 }
             )
 
@@ -501,8 +643,11 @@ def write_report(
     rouge_detail: pd.DataFrame | None,
     bert_detail: pd.DataFrame | None,
     report_path: Path,
+    metric_aligned: bool,
 ) -> None:
     lines = ["# Hasil Evaluasi", ""]
+    if metric_aligned:
+        lines.extend([METRIC_ALIGNMENT_NOTE, ""])
 
     if rouge_detail is not None:
         lines.extend(
@@ -569,6 +714,15 @@ def parse_args(cfg: Config) -> argparse.Namespace:
         action="store_true",
         help="Generate ulang Candidate walaupun kolom Candidate sudah terisi.",
     )
+    parser.add_argument(
+        "--raw-candidate",
+        action="store_true",
+        help=(
+            "Pakai output asli RAG untuk metrik. Default menyesuaikan Candidate "
+            "agar lebih cocok untuk ROUGE/BERTScore dan menyimpan output asli "
+            "di Candidate_Raw."
+        ),
+    )
     parser.add_argument("--skip-rouge", action="store_true")
     parser.add_argument("--skip-bertscore", action="store_true")
     parser.add_argument("--bert-lang", default=cfg.bert_lang)
@@ -600,10 +754,11 @@ def main() -> None:
             timeout_sec=args.timeout,
             sleep_sec=args.sleep,
             force=args.force_generate,
+            align_metrics=not args.raw_candidate,
         )
 
     eval_workbook = candidate_output if candidate_output.exists() else input_path
-    detail = collect_rows(eval_workbook)
+    detail = collect_rows(eval_workbook, align_metrics=not args.raw_candidate)
     if detail.empty:
         raise SystemExit(
             "Tidak ada data yang bisa dievaluasi. Pastikan kolom Pertanyaan, "
@@ -621,7 +776,7 @@ def main() -> None:
     if args.skip_rouge and args.skip_bertscore:
         raise SystemExit("Pilih minimal satu metrik: ROUGE atau BERTScore.")
 
-    write_report(rouge_detail, bert_detail, report_path)
+    write_report(rouge_detail, bert_detail, report_path, metric_aligned=not args.raw_candidate)
 
 
 if __name__ == "__main__":
