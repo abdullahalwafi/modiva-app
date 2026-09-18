@@ -17,7 +17,7 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div class="d-flex align-items-center flex-wrap">
             <img src="{% static 'modiva3/img/icons/vitamin.png' %}" alt="User Icon" class="icon-mitra">
-            <h5 class="text-black mb-0 fw-semibold">Manajemen Stok Obat Puskesmas</h5>
+            <h5 class="text-black mb-0 fw-semibold">Manajemen Stok TTD Puskesmas</h5>
           </div>
         </div>
       </div>
@@ -37,36 +37,18 @@
         </a>
         {% endif %}
         {% endif %}
+        <a href="{% url 'vitamin:export_excel_stokobat' %}?q={{ q|urlencode }}" class="btn btn-success">
+          <i class="fas fa-download me-2"></i>Download
+        </a>
       </div>
 
 
     </div>
 
-    <!-- Search & Filter -->
-    <!-- Input pencarian utama dengan HTMX -->
-    <!-- Tombol filter tambahan (opsional fungsinya bisa ditambah via JS) -->
-    <!--    <div class="input-group mb-3">
-   
- <button 
-    class="btn btn-outline-secondary" 
-    type="button" 
-    title="Refresh"
-    hx-get="{% url 'vitamin:stokobat-list' %}" 
-    hx-target="#main-content"
-    hx-swap="innerHTML">
-    <i class="fas fa-sync-alt"></i>
-</button>
-    <input 
-        hx-get="{% url 'vitamin:stokobat-list' %}" 
-        hx-target="#main-content" 
-        hx-trigger="keyup changed delay:800ms" 
-        name="q" 
-        class="form-control" 
-        type="text" 
-        placeholder="Pencarian ...." 
-        aria-label="Cari">
-</div>
-       -->
+    <form class="input-group mb-3" hx-get="{% url 'vitamin:stokobat-list' %}" hx-target="#main-content" hx-swap="innerHTML">
+      <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Cari puskesmas / tanggal / keterangan">
+      <button class="btn btn-outline-primary" type="submit"><i class="fas fa-filter"></i></button>
+    </form>
     <hr style="border-top: 3px solid #404040;">
     <!-- Tabel -->
     <div class="table-responsive">
@@ -76,6 +58,7 @@
             <th>No</th>
             <th>Puskesmas</th>
             <th>Tanggal Terima</th>
+            <th>Tanggal Input</th>
             <th>Terima</th>
             <th>Stok</th>
             <th>Butir</th>
@@ -89,6 +72,7 @@
             <td>{{ forloop.counter }}</td>
             <td>{{ data.puskesmas.nama }}</td>
             <td>{{ data.tgl_terima | date:"d-m-Y" }}</td>
+            <td>{{ data.created_at | date:"d-m-Y H:i" }}</td>
             <td>{{ data.terima }}</td>
             <td>{{ data.stok }}</td>
             <td>{{ data.butir|intcomma }}</td>
@@ -180,11 +164,11 @@
       buttons: [
         {
           extend: 'excelHtml5', text: '<i class="fas fa-file-excel"></i> Excel',
-          className: 'btn btn-success me-1', exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] }
+          className: 'btn btn-success me-1', exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] }
         },
         {
           extend: 'csvHtml5', text: '<i class="fas fa-file-csv"></i> CSV',
-          className: 'btn btn-info me-1', exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6] }
+          className: 'btn btn-info me-1', exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] }
         }
       ],
       language: {
@@ -281,7 +265,7 @@
       info.textContent =
         isiObat > 0
           ? `Total Butir: ${butir.toLocaleString()} (Isi per satuan: ${isiObat})`
-          : "Pilih Master Obat untuk menghitung butir.";
+          : "Pilih Master TTD untuk menghitung butir.";
 
       if (butirInput) {
         butirInput.value = butir || 0;

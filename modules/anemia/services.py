@@ -8,7 +8,7 @@ from pathlib import Path
 from django.conf import settings
 
 
-SELECTED_FEATURES = ['HGB', 'HCT', 'RBC', 'MCH', 'MCHC']
+SELECTED_FEATURES = ['HB']
 
 
 class AnemiaPredictionError(Exception):
@@ -86,50 +86,57 @@ def load_assets():
 
 
 def predict_anemia(feature_values):
-    assets = load_assets()
-    model = assets['model']
-    scaler = assets['scaler']
-    pd = assets['deps']['pd']
-
-    user_input = pd.DataFrame([[feature_values[feature] for feature in SELECTED_FEATURES]], columns=SELECTED_FEATURES)
-    user_input_scaled = scaler.transform(user_input)
-    prediction = model.predict(user_input_scaled)[0]
-    probability = model.predict_proba(user_input_scaled)[0]
-
-    class_order = list(model.classes_)
-    probability_map = {}
-    for index, class_value in enumerate(class_order):
-        label = 'Anemia' if int(class_value) == 0 else 'Healthy'
-        probability_map[label] = float(probability[index])
-
-    if probability_map.get('Healthy', 0) >= probability_map.get('Anemia', 0):
+    hb = float(feature_values['HB'])
+    if hb >= 12.0:
         result = 'Healthy'
-        shap_class_idx = int(assets['deps']['np'].where(model.classes_ == 1)[0][0]) if 1 in model.classes_ else 1
+        status = 'Normal'
+        prob_healthy = 1.0
+        prob_anemia = 0.0
+        prediction = 1
     else:
         result = 'Anemia'
-        shap_class_idx = int(assets['deps']['np'].where(model.classes_ == 0)[0][0]) if 0 in model.classes_ else 0
+        prediction = 0
+        if hb < 8.0:
+            status = 'Anemia berat'
+        elif hb < 11.0:
+            status = 'Anemia sedang'
+        else:
+            status = 'Anemia ringan'
+        prob_anemia = 1.0
+        prob_healthy = 0.0
 
-    shap_plot, shap_summary = shap_waterfall_plot(assets, user_input_scaled, shap_class_idx)
-    lime_plot, lime_summary = lime_html(assets, user_input)
-    main_causes = get_main_causes(shap_summary, user_input)
-    abnormal_count, abnormal_details = check_medical_status(user_input)
+    main_causes = [f'Kadar HB {hb:.2f} g/dL ({status})']
+    abnormal_count = 0 if result == 'Healthy' else 1
+    abnormal_details = [] if result == 'Healthy' else main_causes
 
     return {
         'result': result,
         'prediction': int(prediction),
-        'prob_anemia': probability_map.get('Anemia', 0),
-        'prob_healthy': probability_map.get('Healthy', 0),
-        'shap_plot': shap_plot,
-        'lime_plot': lime_plot,
-        'shap_summary': shap_summary,
-        'lime_summary': lime_summary,
+        'prob_anemia': prob_anemia,
+        'prob_healthy': prob_healthy,
+        'shap_plot': None,
+        'lime_plot': None,
+        'shap_summary': {'HB': -1.0 if result == 'Anemia' else 1.0},
+        'lime_summary': {},
         'main_causes': main_causes,
         'abnormal_count': abnormal_count,
         'abnormal_details': abnormal_details,
-        'interpret_text': generate_interpretation(result, probability_map, main_causes, abnormal_count),
-        'summary_text': generate_summary(shap_summary, lime_summary, result),
+        'interpret_text': generate_hb_interpretation(hb, status),
+        'summary_text': 'Penilaian anemia dihitung hanya dari kadar HB. Berat badan dan tinggi badan tidak digunakan.',
         'input_values': feature_values,
     }
+
+
+def generate_hb_interpretation(hb, status):
+    if hb >= 12.0:
+        return (
+            f'Kadar HB {hb:.2f} g/dL berada pada kategori normal untuk remaja putri. '
+            'Sistem tidak memasukkan berat badan, tinggi badan, atau variabel lain dalam penilaian ini.'
+        )
+    return (
+        f'Kadar HB {hb:.2f} g/dL berada pada kategori {status.lower()}. '
+        'Sistem menilai status anemia hanya berdasarkan kadar HB, sesuai revisi Puskesmas.'
+    )
 
 
 def shap_waterfall_plot(assets, user_input_scaled, class_idx=0):

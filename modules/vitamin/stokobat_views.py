@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import csv
 from django.views.generic import ListView,DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -29,7 +30,7 @@ from django.utils import timezone
 
 import os
 from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import load_workbook
 from io import BytesIO
 
@@ -56,7 +57,7 @@ class StokObatListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["numlist"] = (int(self.request.GET.get("page",1)) - 1) 
         context["q"] = self.request.GET.get("q",'')
-        context["title"] = "Daftar Stok Obat"
+        context["title"] = "Daftar Stok TTD"
         
         puskesmas_id = self.request.GET.get('id', '0')
 
@@ -315,3 +316,39 @@ def import_excel(request):
 
     return redirect('vitamin:stokobat-list')
 
+
+@login_required
+def export_excel(request):
+    view = StokObatListView()
+    view.request = request
+    qs = view.get_queryset().select_related("puskesmas", "masterobat__vitamin")
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="stok_ttd_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow([
+        "Puskesmas",
+        "Tanggal Terima",
+        "Tanggal Input",
+        "Terima",
+        "Stok",
+        "Butir",
+        "Merk",
+        "TTD",
+        "Tanggal Kadaluarsa",
+        "Keterangan",
+    ])
+    for row in qs:
+        writer.writerow([
+            row.puskesmas.nama if row.puskesmas_id else "",
+            row.tgl_terima or "",
+            row.created_at or "",
+            row.terima,
+            row.stok,
+            row.butir,
+            row.masterobat.merk if row.masterobat_id else "",
+            row.masterobat.vitamin.nama if row.masterobat_id and row.masterobat.vitamin_id else "",
+            row.masterobat.kadaluarsa if row.masterobat_id else "",
+            row.keterangan,
+        ])
+    return response

@@ -16,7 +16,7 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div class="d-flex align-items-center flex-wrap">
             <img src="{% static 'modiva3/img/icons/siswi.png' %}" alt="User Icon" class="icon-mitra">
-            <h5 class="text-black mb-0 fw-semibold">Vitamin Terdistribusi</h5>
+            <h5 class="text-black mb-0 fw-semibold">TTD Terdistribusi</h5>
           </div>
         </div>
       </div>
@@ -36,35 +36,34 @@
         </a>
         {% endif %}
         {% endif %}
+        <a href="{% url 'vitamin:export_excel_distribusisiswa' %}?q={{ q|urlencode }}&hb_min={{ hb_min|urlencode }}&hb_max={{ hb_max|urlencode }}&keterangan={{ keterangan|urlencode }}&sekolah={{ sekolah|urlencode }}" class="btn btn-success">
+          <i class="fas fa-download me-2"></i>Download
+        </a>
       </div>
 
 
     </div>
 
-    <!-- Search & Filter -->
-    <!-- Input pencarian utama dengan HTMX -->
-    <!-- Tombol filter tambahan (opsional fungsinya bisa ditambah via JS) -->
-    <!--          <div class="input-group mb-3">
- <button 
-    class="btn btn-outline-secondary" 
-    type="button" 
-    title="Refresh"
-    hx-get="{% url 'vitamin:distsiswa-list' %}" 
-    hx-target="#main-content"
-    hx-swap="innerHTML">
-    <i class="fas fa-sync-alt"></i>
-</button>
-    <input 
-        hx-get="{% url 'vitamin:distsiswa-list' %}" 
-        hx-target="#main-content" 
-        hx-trigger="keyup changed delay:800ms" 
-        name="q" 
-        class="form-control" 
-        type="text" 
-        placeholder="Pencarian ...." 
-        aria-label="Cari">
-</div>
-      -->
+    <form class="row g-2 mb-3" hx-get="{% url 'vitamin:distsiswa-list' %}" hx-target="#main-content" hx-swap="innerHTML">
+      <div class="col-md-3">
+        <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Cari NIS / nama / kelas">
+      </div>
+      <div class="col-md-2">
+        <input name="hb_min" value="{{ hb_min }}" class="form-control" type="number" step="0.1" placeholder="HB min">
+      </div>
+      <div class="col-md-2">
+        <input name="hb_max" value="{{ hb_max }}" class="form-control" type="number" step="0.1" placeholder="HB max">
+      </div>
+      <div class="col-md-2">
+        <input name="keterangan" value="{{ keterangan }}" class="form-control" type="text" placeholder="Keterangan HB">
+      </div>
+      <div class="col-md-2">
+        <input name="sekolah" value="{{ sekolah }}" class="form-control" type="text" placeholder="Asal sekolah">
+      </div>
+      <div class="col-md-1 d-grid">
+        <button class="btn btn-outline-primary" type="submit"><i class="fas fa-filter"></i></button>
+      </div>
+    </form>
     <hr style="border-top: 3px solid #404040;">
     <!-- Tabel -->
     <div class="table-responsive">
@@ -78,7 +77,10 @@
             <th>Tanggal Terima</th>
             <th>Kelas</th>
             <th>Sekolah</th>
-            <th>Vitamin</th>
+            <th>TTD</th>
+            <th>Jumlah Konsumsi</th>
+            <th>HB</th>
+            <th>Keterangan HB</th>
             <th>Aksi</th>
           </tr>
         <tbody>
@@ -92,12 +94,15 @@
             <td>{{ data.kelas }}</td>
             <td>{{ data.sekolah__nama }}</td>
             <td>{{ data.vitamin__nama }}</td>
+            <td>{{ data.total_konsumsi|default:0 }}</td>
+            <td>{{ data.latest_hb|default:"-" }}</td>
+            <td>{{ data.latest_hb_keterangan|default:"-" }}</td>
 
             <td>
               {% if perms.vitamin.view_distribusisiswa %}
               <button hx-get="{% url 'vitamin:distsiswa-detail' data.first_id %}" hx-trigger="click"
-                hx-target="#main-content" hx-swap="innerHTML" class="btn btn-link" title="Lihat Detil">
-                <i class="fa-solid fa-eye text-primary"></i>
+                hx-target="#main-content" hx-swap="innerHTML" class="btn btn-link" title="View History">
+                <i class="fa-solid fa-clock-rotate-left text-primary"></i>
               </button>
               {% endif %}
 

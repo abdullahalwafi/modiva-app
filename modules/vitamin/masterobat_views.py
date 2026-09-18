@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import csv
 from django.views.generic import ListView,DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -27,7 +28,7 @@ from .forms import *
 
 import os
 from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import load_workbook
 from io import BytesIO
 
@@ -55,7 +56,7 @@ class MasterObatListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["numlist"] = (int(self.request.GET.get("page",1)) - 1) 
         context["q"] = self.request.GET.get("q",'')
-        context["title"] = "Daftar Master Obat"
+        context["title"] = "Daftar Master TTD"
         return context
     
     def get_queryset(self):
@@ -228,3 +229,26 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect('vitamin:masterobat-list')
+
+
+@login_required
+def export_excel(request):
+    view = MasterObatListView()
+    view.request = request
+    qs = view.get_queryset().select_related("vitamin", "satuan")
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="master_ttd_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["Merk", "Pabrik", "Tanggal Kadaluarsa", "Isi", "Batchnumber", "TTD", "Satuan"])
+    for row in qs:
+        writer.writerow([
+            row.merk,
+            row.pabrik,
+            row.kadaluarsa or "",
+            row.isi,
+            row.batchnumber,
+            row.vitamin.nama if row.vitamin_id else "",
+            row.satuan.nama if row.satuan_id else "",
+        ])
+    return response

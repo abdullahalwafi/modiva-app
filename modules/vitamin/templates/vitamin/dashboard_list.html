@@ -88,7 +88,7 @@
         </div>
       </div>
 
-      <!-- Manajemen Vitamin -->
+      <!-- Manajemen TTD -->
       <div class="col-lg-4 col-md-6">
         <div class="card dashboard-manage-card">
           <div class="icon-wrap">
@@ -108,20 +108,20 @@
             <img src="{% static 'modiva3/img/icons/satuan.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Manajemen <br> Satuan Obat</div>
+            <div class="card-title">Manajemen <br> Satuan TTD</div>
             <a href="{% url 'vitamin:satuan-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
           </div>
         </div>
       </div>
 
-      <!-- Manajemen Master Obat -->
+      <!-- Manajemen Master TTD -->
       <div class="col-lg-4 col-md-6">
         <div class="card dashboard-manage-card">
           <div class="icon-wrap">
             <img src="{% static 'modiva3/img/icons/master_obat.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Manajemen <br> Master Obat</div>
+            <div class="card-title">Manajemen <br> Master TTD</div>
             <a href="{% url 'vitamin:masterobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
           </div>
         </div>
@@ -129,14 +129,14 @@
       {% endif %}
 
       {% if user.groups.first.name == 'Puskesmas' %}
-      <!-- Manajemen Master Obat -->
+      <!-- Manajemen Master TTD -->
       <div class="col-lg-4 col-md-6">
         <div class="card dashboard-manage-card">
           <div class="icon-wrap">
             <img src="{% static 'modiva3/img/icons/master_obat.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Manajemen <br> Master Obat</div>
+            <div class="card-title">Manajemen <br> Master TTD</div>
             <a href="{% url 'vitamin:masterobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Kelola</a>
           </div>
         </div>
@@ -149,7 +149,7 @@
             <img src="{% static 'modiva3/img/icons/vitamin.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Manajemen Stok Obat<br>Puskesmas</div>
+            <div class="card-title">Manajemen Stok TTD<br>Puskesmas</div>
             <a href="{% url 'vitamin:stokobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
           </div>
         </div>
@@ -166,7 +166,7 @@
             <img src="{% static 'modiva3/img/icons/sekolah.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Manajemen Distribusi Obat<br> Sekolah</div>
+            <div class="card-title">Manajemen Distribusi TTD<br> Sekolah</div>
             <a href="{% url 'vitamin:disobat-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
           </div>
         </div>
@@ -179,20 +179,20 @@
             <img src="{% static 'modiva3/img/icons/siswi.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Vitamin Terdistribusi</div>
+            <div class="card-title">TTD Terdistribusi</div>
             <a href="{% url 'vitamin:distsiswa-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
           </div>
         </div>
       </div>
 
-      <!-- Vitamin Terdistribusi -->
+      <!-- TTD Terdistribusi -->
       <div class="col-lg-4 col-md-6">
         <div class="card dashboard-manage-card">
           <div class="icon-wrap">
             <img src="{% static 'modiva3/img/icons/obat.png' %}" alt="User Icon">
           </div>
           <div class="card-text">
-            <div class="card-title">Vitamin Terdistribusi</div>
+            <div class="card-title">TTD Terdistribusi</div>
             <a href="{% url 'vitamin:distsiswa-list' %}" class="btn btn-sm btn-outline-primary mt-2">Lihat Detail</a>
           </div>
         </div>

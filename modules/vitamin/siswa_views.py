@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import csv
 from django.views.generic import ListView,DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -79,30 +80,42 @@ class SiswaListView(LoginRequiredMixin,PermissionRequiredMixin, ListView):
     
     def get_queryset(self):
         app_group = Group.objects.get(name='administrator')
+        search_query = self.request.GET.get("q", "").strip()
 
         # kalau admin atau superuser → semua siswa
         if self.request.user.is_superuser or app_group in self.request.user.groups.all():
-            return self.model.objects.all().order_by('-id')
+            qs = self.model.objects.select_related("sekolah").all()
 
         # kalau user dari Sekolah → hanya siswa di sekolah itu
-        if self.request.user.groups.filter(name="Sekolah").exists():
+        elif self.request.user.groups.filter(name="Sekolah").exists():
             try:
                 sekolah_id = Sekolah.objects.get(kode=self.request.user.username).id
-                return self.model.objects.filter(sekolah_id=sekolah_id).order_by('-id')
+                qs = self.model.objects.select_related("sekolah").filter(sekolah_id=sekolah_id)
             except Sekolah.DoesNotExist:
                 return self.model.objects.none()
 
         # kalau user dari Puskesmas → tampilkan semua siswa dari sekolah-sekolah mitra puskesmas tersebut
-        if self.request.user.groups.filter(name="Puskesmas").exists():
+        elif self.request.user.groups.filter(name="Puskesmas").exists():
             try:
                 puskesmas = Puskesmas.objects.get(kode=self.request.user.username)
                 sekolah_ids = Sekolah.objects.filter(puskesmas=puskesmas).values_list('id', flat=True)
-                return self.model.objects.filter(sekolah_id__in=sekolah_ids).order_by('-id')
+                qs = self.model.objects.select_related("sekolah").filter(sekolah_id__in=sekolah_ids)
             except Puskesmas.DoesNotExist:
                 return self.model.objects.none()
+        else:
+            return self.model.objects.none()
 
-        # default: kosong
-        return self.model.objects.none()
+        if search_query:
+            qs = qs.filter(
+                Q(nis__icontains=search_query)
+                | Q(nama__icontains=search_query)
+                | Q(tmp_lahir__icontains=search_query)
+                | Q(email__icontains=search_query)
+                | Q(gender__icontains=search_query)
+                | Q(sekolah__nama__icontains=search_query)
+            )
+
+        return qs.order_by('-id')
     
     
 
@@ -248,3 +261,26 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect('vitamin:siswa-list')
+
+
+@login_required
+def export_excel(request):
+    view = SiswaListView()
+    view.request = request
+    qs = view.get_queryset().select_related("sekolah")
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="data_siswa_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["NIS", "Nama Siswa", "Tempat Lahir", "Tanggal Lahir", "Email", "Jenis Kelamin", "Sekolah"])
+    for row in qs:
+        writer.writerow([
+            row.nis,
+            row.nama,
+            row.tmp_lahir,
+            row.tgl_lahir or "",
+            row.email,
+            row.gender,
+            row.sekolah.nama if row.sekolah_id else "",
+        ])
+    return response

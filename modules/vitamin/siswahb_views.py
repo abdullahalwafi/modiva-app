@@ -1,13 +1,14 @@
 import os
+import csv
 from io import BytesIO
 
 import pandas as pd
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import Group
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -24,6 +25,17 @@ from modules.vitamin.utils.hb_rag_export import export_siswahb_queryset_to_chrom
 from .forms import SiswaHbForm
 
 
+def user_can_manage_hb(user):
+    if user.is_superuser:
+        return True
+    return user.groups.filter(name__in=["Puskesmas", "administrator", "Administrator"]).exists()
+
+
+class SiswaHbManageMixin(LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin):
+    def test_func(self):
+        return user_can_manage_hb(self.request.user)
+
+
 @method_decorator([group_must_have_permission], name="dispatch")
 class SiswaHbListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = SiswaHB
@@ -38,18 +50,27 @@ class SiswaHbListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["title"] = "Data HB Siswa"
         context["q"] = self.request.GET.get("q", "")
+        context["hb_min"] = self.request.GET.get("hb_min", "")
+        context["hb_max"] = self.request.GET.get("hb_max", "")
+        context["keterangan"] = self.request.GET.get("keterangan", "")
+        context["sekolah"] = self.request.GET.get("sekolah", "")
 
         try:
             app_group = Group.objects.get(name="administrator")
             is_admin = self.request.user.is_superuser or app_group in self.request.user.groups.all()
         except Group.DoesNotExist:
-            is_admin = self.request.user.is_superuser
+            is_admin = self.request.user.is_superuser or self.request.user.groups.filter(name="Administrator").exists()
 
         context["is_admin_user"] = is_admin
+        context["can_manage_hb"] = user_can_manage_hb(self.request.user)
         return context
 
     def get_queryset(self):
         search_query = self.request.GET.get("q", "").strip()
+        hb_min = self.request.GET.get("hb_min", "").strip()
+        hb_max = self.request.GET.get("hb_max", "").strip()
+        keterangan = self.request.GET.get("keterangan", "").strip()
+        sekolah = self.request.GET.get("sekolah", "").strip()
 
         try:
             app_group = Group.objects.get(name="administrator")
@@ -85,10 +106,19 @@ class SiswaHbListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 | Q(keterangan__icontains=search_query)
             )
 
+        if hb_min:
+            qs = qs.filter(hb__gte=hb_min)
+        if hb_max:
+            qs = qs.filter(hb__lte=hb_max)
+        if keterangan:
+            qs = qs.filter(keterangan__icontains=keterangan)
+        if sekolah:
+            qs = qs.filter(siswa__sekolah__nama__icontains=sekolah)
+
         return qs.order_by("-id")
 
 
-class SiswaHbCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+class SiswaHbCreateView(SiswaHbManageMixin, CreateView):
     model = SiswaHB
     template_name = "vitamin/sekolah/siswahb/siswahb_form.html"
     form_class = SiswaHbForm
@@ -113,7 +143,7 @@ class SiswaHbCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView)
         return super().form_valid(form)
 
 
-class SiswaHbUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+class SiswaHbUpdateView(SiswaHbManageMixin, UpdateView):
     model = SiswaHB
     template_name = "vitamin/sekolah/siswahb/siswahb_edit.html"
     form_class = SiswaHbForm
@@ -138,7 +168,7 @@ class SiswaHbUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView)
         return super().form_valid(form)
 
 
-class SiswaHbDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+class SiswaHbDeleteView(SiswaHbManageMixin, DeleteView):
     model = SiswaHB
     template_name = "vitamin/sekolah/siswahb/siswahb_delete.html"
     success_url = reverse_lazy("vitamin:siswahb-list")
@@ -163,6 +193,10 @@ class SiswaHbDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView)
 
 
 def download_template(request):
+    if not user_can_manage_hb(request.user):
+        messages.error(request, "Akses ditolak.")
+        return redirect("vitamin:siswahb-list")
+
     template_path = os.path.join(settings.BASE_DIR, "static", "files", "template_siswa_hb.xlsx")
     if not os.path.exists(template_path):
         raise Http404("Template file not found.")
@@ -218,6 +252,10 @@ def download_template(request):
 
 
 def import_excel(request):
+    if not user_can_manage_hb(request.user):
+        messages.error(request, "Akses ditolak.")
+        return redirect("vitamin:siswahb-list")
+
     if request.method == "POST" and request.FILES.get("excel_file"):
         excel_file = request.FILES["excel_file"]
 
@@ -280,6 +318,28 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect("vitamin:siswahb-list")
+
+
+@login_required
+def export_excel(request):
+    view = SiswaHbListView()
+    view.request = request
+    qs = view.get_queryset()
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="data_hb_siswa_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow(["NIS", "Nama Siswa", "Sekolah", "Tahun", "HB", "Keterangan"])
+    for row in qs.select_related("siswa__sekolah"):
+        writer.writerow([
+            row.siswa.nis,
+            row.siswa.nama,
+            row.siswa.sekolah.nama,
+            row.tahun,
+            row.hb,
+            row.keterangan,
+        ])
+    return response
 
 
 @login_required

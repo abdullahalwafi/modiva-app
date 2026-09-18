@@ -35,35 +35,18 @@
                    
             {% endif %}
             {% endif %}
+            <a href="{% url 'vitamin:export_excel_siswa' %}?q={{ q|urlencode }}" class="btn btn-success">
+              <i class="fas fa-download me-2"></i>Download
+            </a>
             </div>
       
           
           </div>
       
-          <!-- Search & Filter -->
-           <!-- Input pencarian utama dengan HTMX -->
-       <!-- Tombol filter tambahan (opsional fungsinya bisa ditambah via JS) -->
-  <!--          <div class="input-group mb-3">
- <button 
-    class="btn btn-outline-secondary" 
-    type="button" 
-    title="Refresh"
-    hx-get="{% url 'vitamin:distsiswa-list' %}" 
-    hx-target="#main-content"
-    hx-swap="innerHTML">
-    <i class="fas fa-sync-alt"></i>
-</button>
-    <input 
-        hx-get="{% url 'vitamin:distsiswa-list' %}" 
-        hx-target="#main-content" 
-        hx-trigger="keyup changed delay:800ms" 
-        name="q" 
-        class="form-control" 
-        type="text" 
-        placeholder="Pencarian ...." 
-        aria-label="Cari">
-</div>
-      -->
+          <form class="input-group mb-3" hx-get="{% url 'vitamin:siswa-list' %}" hx-target="#main-content" hx-swap="innerHTML">
+            <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Cari NIS / nama / sekolah">
+            <button class="btn btn-outline-primary" type="submit"><i class="fas fa-filter"></i></button>
+          </form>
 <hr style="border-top: 3px solid #404040;"> 
           <!-- Tabel -->
           <div class="table-responsive">
@@ -207,5 +190,4 @@ document.body.addEventListener('htmx:afterSwap', function (evt) {
 </script>
 
 {% endblock %}
-
 

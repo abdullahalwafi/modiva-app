@@ -16,7 +16,7 @@
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
           <div class="d-flex align-items-center flex-wrap">
             <img src="{% static 'modiva3/img/icons/master_obat.png' %}" alt="User Icon" class="icon-mitra">
-            <h5 class="text-black mb-0 fw-semibold">Manajemen Master Obat</h5>
+            <h5 class="text-black mb-0 fw-semibold">Manajemen Master TTD</h5>
           </div>
         </div>
       </div>
@@ -34,24 +34,16 @@
           <i class="fas fa-file-export me-2"></i>Download Template Import
         </a>
         {% endif %}
+        <a href="{% url 'vitamin:export_excel_masterobat' %}?q={{ q|urlencode }}" class="btn btn-success">
+          <i class="fas fa-download me-2"></i>Download
+        </a>
       </div>
     </div>
 
-    <!-- Search & Filter -->
-     <!-- Input pencarian utama dengan HTMX -->
-      <!-- Tombol filter tambahan (opsional fungsinya bisa ditambah via JS) -->
-    <!--  <div class="input-group mb-3">
-      
-      <button class="btn btn-outline-secondary" type="button" title="Refresh"
-        hx-get="{% url 'vitamin:masterobat-list' %}" hx-target="#main-content" hx-swap="innerHTML">
-        <i class="fas fa-sync-alt"></i>
-      </button>
-      <input hx-get="{% url 'vitamin:masterobat-list' %}" hx-target="#main-content"
-        hx-trigger="keyup changed delay:800ms" name="q" class="form-control" type="text" placeholder="Pencarian ...."
-        aria-label="Cari">
-
-
-    </div>-->
+    <form class="input-group mb-3" hx-get="{% url 'vitamin:masterobat-list' %}" hx-target="#main-content" hx-swap="innerHTML">
+      <input name="q" value="{{ q }}" class="form-control" type="text" placeholder="Cari merk / pabrik / batch / TTD / satuan">
+      <button class="btn btn-outline-primary" type="submit"><i class="fas fa-filter"></i></button>
+    </form>
 
   <hr style="border-top: 3px solid #404040;">
     <!-- Tabel -->
@@ -65,7 +57,7 @@
             <th>Tanggal Kadaluarsa</th>
             <th>Isi</th>
             <th>Batchnumber</th>
-            <th>Vitamin</th>
+            <th>TTD</th>
             <th>Satuan</th>
             <th>Aksi</th>
           </tr>

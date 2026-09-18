@@ -81,11 +81,11 @@
             <i class="fa-solid fa-vial-circle-check"></i>
           </div>
           <div>
-            <h4 class="fw-bold text-dark mb-1">Prediksi Anemia XAI</h4>
-            <div class="text-muted">Masukkan parameter darah untuk memperoleh hasil prediksi dan interpretasi model.</div>
+            <h4 class="fw-bold text-dark mb-1">Prediksi Anemia</h4>
+            <div class="text-muted">Masukkan kadar HB untuk memperoleh status anemia.</div>
           </div>
         </div>
-        <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">SHAP + LIME</span>
+        <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">HB Only</span>
       </div>
     </div>
 
@@ -95,7 +95,7 @@
           <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
               <div>
-                <h5 class="fw-bold mb-1">Input Pemeriksaan Darah</h5>
+                <h5 class="fw-bold mb-1">Input Kadar HB</h5>
                 <div class="text-muted small">Gunakan angka desimal sesuai hasil laboratorium.</div>
               </div>
               <i class="fa-solid fa-notes-medical text-primary fs-3"></i>
@@ -130,32 +130,13 @@
 
       <div class="col-lg-5">
         <div class="reference-card p-4">
-          <h6 class="fw-bold mb-3">Referensi Nilai Normal</h6>
+          <h6 class="fw-bold mb-3">Referensi Kadar HB</h6>
           <div class="reference-row">
-            <strong>HGB</strong>
+            <strong>HB</strong>
             <span>Hemoglobin</span>
             <span class="text-muted">12.0 - 16.0 g/dL</span>
           </div>
-          <div class="reference-row">
-            <strong>HCT</strong>
-            <span>Hematokrit</span>
-            <span class="text-muted">36.0 - 46.0 %</span>
-          </div>
-          <div class="reference-row">
-            <strong>RBC</strong>
-            <span>Jumlah Sel Darah Merah</span>
-            <span class="text-muted">4.2 - 5.4 juta/uL</span>
-          </div>
-          <div class="reference-row">
-            <strong>MCH</strong>
-            <span>Mean Corpuscular Hemoglobin</span>
-            <span class="text-muted">27.0 - 33.0 pg</span>
-          </div>
-          <div class="reference-row">
-            <strong>MCHC</strong>
-            <span>Mean Corpuscular Hemoglobin Concentration</span>
-            <span class="text-muted">32.0 - 36.0 g/dL</span>
-          </div>
+          <div class="text-muted small mt-3">Berat badan, tinggi badan, dan parameter lain tidak digunakan dalam penilaian ini.</div>
         </div>
       </div>
     </div>

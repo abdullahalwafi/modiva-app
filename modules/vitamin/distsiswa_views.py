@@ -5,7 +5,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.http import request,HttpResponseRedirect
-from django.db.models import Q, Sum, Min, Max
+import csv
+from django.db.models import Q, Sum, Min, Max, OuterRef, Subquery
 from modules.vitamin.models import Distribusisiswa
 
 from modules.core.core_libs import *
@@ -28,14 +29,14 @@ from django.utils import timezone
 
 import os
 from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import load_workbook
 from io import BytesIO
 
 import pandas as pd
 from django.shortcuts import redirect
 from django.contrib import messages
-from .models import Vitamin, Satuan, Stokobat  # Adjust model names to match your actual models
+from .models import Vitamin, Satuan, Stokobat, SiswaHB
 from django.db.models import F
 from django.db.models.deletion import ProtectedError
 from collections import defaultdict
@@ -52,8 +53,21 @@ class DistSiswaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         else:
             return ["vitamin/sekolah/distsiswa/distsiswa.html"]  # untuk halaman utama
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["q"] = self.request.GET.get("q", "")
+        context["hb_min"] = self.request.GET.get("hb_min", "")
+        context["hb_max"] = self.request.GET.get("hb_max", "")
+        context["keterangan"] = self.request.GET.get("keterangan", "")
+        context["sekolah"] = self.request.GET.get("sekolah", "")
+        return context
+
     def get_queryset(self):
         search_query = self.request.GET.get("q", "").strip()
+        hb_min = self.request.GET.get("hb_min", "").strip()
+        hb_max = self.request.GET.get("hb_max", "").strip()
+        keterangan = self.request.GET.get("keterangan", "").strip()
+        sekolah = self.request.GET.get("sekolah", "").strip()
         app_group = Group.objects.get(name='administrator')
 
         base_qs = self.model.objects.all()
@@ -65,20 +79,39 @@ class DistSiswaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
                 sekolah_id = 0
             base_qs = base_qs.filter(sekolah_id=sekolah_id)
 
-        # ✅ Tetap return instance model, bukan dict
+        latest_hb = SiswaHB.objects.filter(siswa_id=OuterRef("siswa_id")).order_by("-tahun", "-id")
+        base_qs = base_qs.annotate(
+            latest_hb=Subquery(latest_hb.values("hb")[:1]),
+            latest_hb_keterangan=Subquery(latest_hb.values("keterangan")[:1]),
+        )
+
+        if hb_min:
+            base_qs = base_qs.filter(latest_hb__gte=hb_min)
+        if hb_max:
+            base_qs = base_qs.filter(latest_hb__lte=hb_max)
+        if keterangan:
+            base_qs = base_qs.filter(latest_hb_keterangan__icontains=keterangan)
+        if sekolah:
+            base_qs = base_qs.filter(sekolah__nama__icontains=sekolah)
+
         qs = (
     base_qs
     .values(
+        "siswa_id",
         "nis",
         "nama_siswa",
         "kelas",
         "sekolah__nama",
         "vitamin__nama",
+        "latest_hb",
+        "latest_hb_keterangan",
     )
     .annotate(
         total_jumlah=Sum("jumlah"),
+        total_konsumsi=Sum("jumlah", filter=Q(status_konsumsi="sudah")),
         first_id=Min("id"),   # ✅ ambil salah satu id untuk url aksi
         last_tgl=Max("tgl_terima"),  # ✅ ambil tanggal terakhir terima
+        last_konsumsi=Max("tanggal_konsumsi"),
     )
     .order_by("-last_tgl", "-nis")
 )
@@ -285,10 +318,12 @@ class DistSiswaDetailView(LoginRequiredMixin,PermissionRequiredMixin,DetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #mp = MenuProduk.objects.filter(produk=self.model.objects.get(id=self.kwargs.get('pk'))).first()
-        #context["menu_list"] = mp.menu.all().order_by('name')
-        context["title"] = "Detail Distribusi Siswa"
-        print(context)
+        context["title"] = "Riwayat TTD Siswi"
+        context["history_list"] = Distribusisiswa.objects.filter(
+            siswa_id=self.object.siswa_id
+        ).select_related(
+            "sekolah", "vitamin", "distribusiobat"
+        ).order_by("-tgl_terima", "-tanggal_konsumsi", "-id")
         return context
     
 
@@ -529,3 +564,42 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect('vitamin:distsiswa-list')
+
+
+@login_required
+def export_excel(request):
+    view = DistSiswaListView()
+    view.request = request
+    qs = view.get_queryset()
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="ttd_terdistribusi_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow([
+        "NIS",
+        "Nama Siswa",
+        "Sekolah",
+        "Kelas",
+        "TTD",
+        "Jumlah Terima",
+        "Jumlah Konsumsi",
+        "Tanggal Terima Terakhir",
+        "Tanggal Konsumsi Terakhir",
+        "HB Terakhir",
+        "Keterangan HB",
+    ])
+    for row in qs:
+        writer.writerow([
+            row.get("nis"),
+            row.get("nama_siswa"),
+            row.get("sekolah__nama"),
+            row.get("kelas"),
+            row.get("vitamin__nama"),
+            row.get("total_jumlah") or 0,
+            row.get("total_konsumsi") or 0,
+            row.get("last_tgl") or "",
+            row.get("last_konsumsi") or "",
+            row.get("latest_hb") or "",
+            row.get("latest_hb_keterangan") or "",
+        ])
+    return response

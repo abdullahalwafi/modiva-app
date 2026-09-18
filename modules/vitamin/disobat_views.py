@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import csv
 from django.views.generic import ListView,DetailView, TemplateView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -29,7 +30,7 @@ from django.utils import timezone
 
 import os
 from django.conf import settings
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from openpyxl import load_workbook
 from io import BytesIO
 
@@ -60,7 +61,7 @@ class DisObatListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context["numlist"] = (int(self.request.GET.get("page", 1)) - 1)
         context["q"] = self.request.GET.get("q", '')
-        context["title"] = "Daftar Distribusi Obat"
+        context["title"] = "Daftar Distribusi TTD"
 
         puskesmas_id = self.request.GET.get('id', '0')
         app_group = Group.objects.get(name='administrator')
@@ -485,3 +486,49 @@ def import_excel(request):
             messages.error(request, f"Error importing file: {e}")
 
     return redirect('vitamin:disobat-list')
+
+
+@login_required
+def export_excel(request):
+    view = DisObatListView()
+    view.request = request
+    qs = view.get_queryset().select_related(
+        "puskesmas",
+        "sekolah",
+        "stokobat__masterobat__vitamin",
+    )
+
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="distribusi_ttd_filtered.csv"'
+    writer = csv.writer(response)
+    writer.writerow([
+        "Tanggal Kirim",
+        "Tanggal Terima",
+        "Tanggal Input",
+        "Puskesmas",
+        "Sekolah",
+        "Merk",
+        "TTD",
+        "Jumlah Terima",
+        "Stok",
+        "Butir",
+        "Tanggal Kadaluarsa",
+        "Keterangan",
+    ])
+    for row in qs:
+        master = row.stokobat.masterobat if row.stokobat_id else None
+        writer.writerow([
+            row.tgl_kirim or "",
+            row.tgl_terima or "",
+            row.created_at or "",
+            row.puskesmas.nama if row.puskesmas_id else "",
+            row.sekolah.nama if row.sekolah_id else "",
+            master.merk if master else "",
+            master.vitamin.nama if master and master.vitamin_id else "",
+            row.jumlah_terima,
+            row.stok,
+            row.butir,
+            master.kadaluarsa if master else "",
+            row.stokobat.keterangan if row.stokobat_id else "",
+        ])
+    return response

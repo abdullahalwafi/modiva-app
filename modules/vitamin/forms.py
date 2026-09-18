@@ -176,7 +176,7 @@ class MasterObatForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MasterObatForm, self).__init__(*args, **kwargs)
         
-        self.fields['vitamin'].label = 'Vitamin'
+        self.fields['vitamin'].label = 'TTD'
         self.fields['satuan'].label = 'Satuan'
         self.fields['merk'].label = 'Merk'
         self.fields['pabrik'].label = 'Pabrik'
@@ -207,7 +207,7 @@ class StokObatForm(forms.ModelForm):
             lambda obj: f"{obj.vitamin.nama} - {obj.merk} ({obj.satuan})"
         )
 
-        self.fields['masterobat'].label = 'Master Obat'
+        self.fields['masterobat'].label = 'Master TTD'
         self.fields['tgl_terima'].label = 'Tanggal Terima'
         self.fields['terima'].label = 'Jumlah Diterima Puskesmas'
         self.fields['stok'].label = 'Stok'
@@ -260,7 +260,7 @@ class DisObatForm(forms.ModelForm):
 
         # Label kolom
         self.fields['sekolah'].label = 'Sekolah'
-        self.fields['stokobat'].label = 'Stok Obat'
+        self.fields['stokobat'].label = 'Stok TTD'
         self.fields['jumlah_terima'].label = 'Jumlah Diterima Sekolah'
         self.fields['tgl_kirim'].label = 'Tanggal Kirim'
         self.fields['tgl_terima'].label = 'Tanggal Terima'
@@ -356,8 +356,8 @@ class DistSiswaForm(forms.ModelForm):
         self.fields['jumlah'].label = 'Jumlah'
         self.fields['tgl_terima'].label = 'Tanggal Terima'
         self.fields['kelas'].label = 'Kelas'
-        self.fields['vitamin'].label = 'Vitamin'
-        self.fields['distribusiobat'].label = 'Stok Obat'
+        self.fields['vitamin'].label = 'TTD'
+        self.fields['distribusiobat'].label = 'Stok TTD'
      
 
         self.fields['tgl_terima'].initial = date.today

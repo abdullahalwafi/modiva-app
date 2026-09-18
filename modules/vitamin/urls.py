@@ -78,6 +78,7 @@ urlpatterns = [
    path('masterobat/detail/<int:pk>', masterobat_views.MasterObatDetailView.as_view(), name='masterobat-detail'),
    path('download-template-masterobat/', masterobat_views.download_template, name='download_template_masterobat'),
    path('import-excel-masterobat/', masterobat_views.import_excel, name='import_excel_masterobat'),
+   path('export-masterobat/', masterobat_views.export_excel, name='export_excel_masterobat'),
   
    #-----------stok_obat--------------- 
    path('puskesmas/stokobat', stokobat_views.StokObatListView.as_view(), name='stokobat-list'),
@@ -87,6 +88,7 @@ urlpatterns = [
    path('puskesmas/stokobat/detail/<int:pk>', stokobat_views.StokObatDetailView.as_view(), name='stokobat-detail'),
    path('download-template-stokobat/', stokobat_views.download_template, name='download_template_stokobat'),
    path('import-excel-stokobat/', stokobat_views.import_excel, name='import_excel_stokobat'),
+   path('export-stokobat/', stokobat_views.export_excel, name='export_excel_stokobat'),
    path('stokobat/get-isi/', stokobat_views.get_masterobat_isi, name='get-masterobat-isi'),
 
       #-----------distribusi_obat--------------- 
@@ -97,6 +99,7 @@ urlpatterns = [
    path('puskesmas/disobat/detail/<int:pk>', disobat_views.DisObatDetailView.as_view(), name='disobat-detail'),
    path('download-template-distribusiobat/', disobat_views.download_template, name='download_template_distribusiobat'),
    path('import-excel-distribusiobat/', disobat_views.import_excel, name='import_excel_distribusiobat'),
+   path('export-distribusiobat/', disobat_views.export_excel, name='export_excel_distribusiobat'),
 
 
     #-----------distribusi_siswa--------------- 
@@ -107,6 +110,7 @@ urlpatterns = [
    path('sekolah/distsiswa/detail/<int:pk>', distsiswa_views.DistSiswaDetailView.as_view(), name='distsiswa-detail'),
    path('download-template-distribusisiswa/', distsiswa_views.download_template, name='download_template_distribusisiswa'),
    path('import-excel-distribusisiswa/', distsiswa_views.import_excel, name='import_excel_distribusisiswa'),
+   path('export-distsiswa/', distsiswa_views.export_excel, name='export_excel_distribusisiswa'),
 
       #-----------form email--------------- 
    path('formemail', formemail_views.ContactMessageListView.as_view(), name='contactmessage-list'),
@@ -132,6 +136,7 @@ urlpatterns = [
    path('sekolah/siswa/detail/<int:pk>', siswa_views.SiswaDetailView.as_view(), name='siswa-detail'),
    path('download-template-siswa/', siswa_views.download_template, name='download_template_siswa'),
    path('import-excel-siswa/', siswa_views.import_excel, name='import_excel_siswa'),
+   path('export-siswa/', siswa_views.export_excel, name='export_excel_siswa'),
 
                         #-----------siswa HB--------------- 
    path('sekolah/siswahb', siswahb_views.SiswaHbListView.as_view(), name='siswahb-list'),
@@ -141,6 +146,7 @@ urlpatterns = [
    path('sekolah/siswahb/detail/<int:pk>', siswahb_views.SiswaHbDetailView.as_view(), name='siswahb-detail'),
    path('download-template-siswahb/', siswahb_views.download_template, name='download_template_siswahb'),
    path('import-excel-siswahb/', siswahb_views.import_excel, name='import_excel_siswahb'),
+   path('export-siswahb/', siswahb_views.export_excel, name='export_excel_siswahb'),
  
     path("siswahb/export-rag/", export_hb_to_rag, name="siswahb-export-rag"),
 ]

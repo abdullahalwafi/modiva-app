@@ -53,12 +53,42 @@
     </div>
     <br>
     <div class="row mb-7">
-        <label class="col-lg-4 fw-semibold text-muted">Vitamin</label>
+        <label class="col-lg-4 fw-semibold text-muted">TTD</label>
         <div class="col-lg-8">
             <span class="fw-bold fs-6 text-gray-800">{{ object.vitamin.nama }}</span>
         </div>
     </div>
     <br>
+    <div class="table-responsive mt-4">
+      <table class="table table-bordered align-middle text-center">
+        <thead class="bg-primary-subtle text-dark">
+          <tr>
+            <th>Tanggal Terima</th>
+            <th>Tanggal Input</th>
+            <th>Tanggal Konsumsi</th>
+            <th>Jumlah Terima</th>
+            <th>Status Konsumsi</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in history_list %}
+          <tr>
+            <td>{{ item.tgl_terima|date:"d-m-Y" }}</td>
+            <td>{{ item.created_at|date:"d-m-Y H:i" }}</td>
+            <td>{{ item.tanggal_konsumsi|date:"d-m-Y"|default:"-" }}</td>
+            <td>{{ item.jumlah }}</td>
+            <td>{{ item.status_konsumsi|default:"belum" }}</td>
+            <td>{{ item.keterangan|default:"-" }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">Belum ada riwayat.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
        
     
    
